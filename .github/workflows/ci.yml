@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# 使う部品（Actions）はタグではなくコミットの SHA（中身の指紋）で固定し、版は行末のコメントに書く。
+# タグは付け替えられるため（2026年に乗っ取りが続いた）。新しい版への更新は Dependabot が PR を出す（.github/dependabot.yml）。
+# checkout は persist-credentials: false（GitHub の鍵を作業フォルダに残さない。後の手順が乗っ取られても鍵を持ち出せない）。
+# 権限は読み取りだけ（このワークフローは何も書き込まない）。
+permissions:
+  contents: read
+
+jobs:
+  playwright:
+    name: Playwright（ブラウザ試験）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      # 依存は tests/requirements.txt に版つきで書いておく（pytest と playwright）
+      - run: python -m pip install -r tests/requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      # -v で実行件数と各テスト名を表示する（0件で緑になるのを見逃さないため）
+      - run: python -m pytest -v

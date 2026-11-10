@@ -1,0 +1,9 @@
+# 変更の持ち主（PR を出すと、ここに書いた人がレビュー担当として自動で付く）。
+# 使い方: @yusu31 を自分の GitHub ユーザー名（@ 付き）に置き換える。
+#   置き換えるまでは誰にも届かない（GitHub のユーザー名に _ は使えないため、実在の人に当たらない）。
+# 一人開発なので全体を本人にする。CI・依存・ハーネスの設定（下の3つ）は特に本人が見る。
+# レビューを「必須」にするかは docs/ruleset.md の「Require review from Code Owners」（一人開発の注意あり）。
+* @yusu31
+/.github/ @yusu31
+/.claude/ @yusu31
+/.harness.json @yusu31

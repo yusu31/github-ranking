@@ -1,0 +1,9 @@
+{
+  "$schema": "./harness/schema/harness.schema.json",
+  "version": "0.4.3",
+  "profile": "web-static",
+  "size": "m",
+  "merge": "ai-gated",
+  "guard": "warn",
+  "learning": "off"
+}

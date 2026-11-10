@@ -1,0 +1,32 @@
+# 依存の更新を、Dependabot に PR で出させる（docs/ruleset.md の「Dependabot」）。
+# 週1回（月曜の朝・日本時間）にまとめる。大きな版上げ（major）は出さない（docs/tech-stack.md の決定の見直しと一緒に人が判断する）。
+# 脆弱性の修正（security updates）は、この週1回を待たずに個別に出る（GitHub の設定で有効にする）。
+# 注意: major の除外は脆弱性の修正 PR にも効く。修正が major にしかないときは PR が出ないので、Security タブの通知を週1回見る。
+version: 2
+updates:
+  # ci.yml の Actions（SHA で固定してある）を、新しい版の SHA に更新する PR を出す
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Tokyo
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # 試験の依存（tests/requirements.txt の pytest・playwright）も更新したくなったら、次のブロックを有効にする
+  # - package-ecosystem: pip
+  #   directory: /tests
+  #   schedule:
+  #     interval: weekly
+  #   ignore:
+  #     - dependency-name: "*"
+  #       update-types: ["version-update:semver-major"]
+  #   groups:
+  #     tests-minor-and-patch:
+  #       update-types: [minor, patch]
