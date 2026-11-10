@@ -20,6 +20,15 @@ def test_requirements_has_all_sections():
     assert missing == [], f"見出しが足りない: {missing}"
 
 
+def test_phase0_agreement_is_written():
+    """Phase 0 の合意（必須・できれば・作らない・削る順・お金・ルール）が §1〜§2 にある。"""
+    text = read_requirements()
+    head = text.split("## 3. ", 1)[0]
+    for word in ["| 必須 |", "| できれば |", "| 作らない |", "削る順", "お金をかけない", "robots.txt"]:
+        assert word in head, f"§1〜§2 に「{word}」が無い"
+    assert "<!-- 何のために作るか -->" not in head, "§1 の目的が雛形のまま"
+
+
 def test_phase_table_has_phase_0_to_9():
     """§11 のフェーズ表に Phase 0〜9 の10行がそろっている。"""
     text = read_requirements()
