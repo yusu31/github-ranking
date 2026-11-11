@@ -1,6 +1,7 @@
 """要件定義書（docs/requirements.md）の形を確かめる試験。
 
 ページ（本番のコード）ができるまでは、正本の文書が崩れていないかを CI で見る。
+ページができたら、Playwright の試験をこの隣に足していく。
 """
 import re
 from pathlib import Path
@@ -10,6 +11,10 @@ REQUIREMENTS = Path(__file__).resolve().parent.parent / "docs" / "requirements.m
 
 def read_requirements() -> str:
     return REQUIREMENTS.read_text(encoding="utf-8")
+
+
+def phase_section() -> str:
+    return read_requirements().split("## 11. フェーズ", 1)[1].split("\n## ", 1)[0]
 
 
 def test_requirements_has_all_sections():
@@ -29,9 +34,15 @@ def test_phase0_agreement_is_written():
     assert "<!-- 何のために作るか -->" not in head, "§1 の目的が雛形のまま"
 
 
-def test_phase_table_has_phase_0_to_9():
-    """§11 のフェーズ表に Phase 0〜9 の10行がそろっている。"""
-    text = read_requirements()
-    section = text.split("## 11. フェーズ", 1)[1].split("\n## ", 1)[0]
-    phases = re.findall(r"^\| (\d+) \|", section, re.M)
-    assert phases == [str(n) for n in range(10)], f"フェーズ表の行: {phases}"
+def test_phase_table_starts_at_0_and_is_consecutive():
+    """§11 のフェーズ表が Phase 0 から番号の抜けなく並んでいる。"""
+    phases = [int(n) for n in re.findall(r"^\| (\d+) \|", phase_section(), re.M)]
+    assert phases, "§11 にフェーズ表の行が無い"
+    assert phases == list(range(len(phases))), f"フェーズ表の番号: {phases}"
+
+
+def test_delivery_review_comes_before_release():
+    """型 v0.4.8 の工程: 品質チェック（7）→ 納品レビュー（8）→ 公開（9）→ 判定・記録（10）。"""
+    rows = dict(re.findall(r"^\| (\d+) \| ([^|]+?) \|", phase_section(), re.M))
+    got = [rows.get(n) for n in ["7", "8", "9", "10"]]
+    assert got == ["品質チェック", "納品レビュー", "公開", "判定・記録"], f"7〜10 の内容: {got}"
