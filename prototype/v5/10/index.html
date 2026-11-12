@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ほしのわ - 今日の GitHub トピックス</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&display=swap" rel="stylesheet">
+<style>
+:root{--lk:#0033cc;--vis:#800080;--red:#d6001c;--navy:#1d2d5a;--gl:#ccc;--gb:#f0f0f0}
+*{box-sizing:border-box}
+body{margin:0;font:12px/1.5 Meiryo,"Yu Gothic UI","MS PGothic",sans-serif;color:#222;background:#fff}
+a{color:var(--lk);text-decoration:none}
+a:visited{color:var(--vis)}
+a:hover{text-decoration:underline}
+.util{background:#f4f4f4;border-bottom:1px solid #ddd;font-size:11px}
+.util div{max-width:1000px;margin:0 auto;padding:2px 8px;display:flex;gap:12px;flex-wrap:wrap;color:#555}
+.util .r{margin-left:auto}
+.top{max-width:1000px;margin:0 auto;padding:10px 8px 8px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.logo{font:400 34px/1 "Mochiy Pop One","Yu Gothic UI",sans-serif;letter-spacing:-.02em;text-decoration:none!important;white-space:nowrap}
+.logo span:nth-child(1){color:#e8431e}.logo span:nth-child(2){color:#f09a00}.logo span:nth-child(3){color:#1e7ad8}.logo span:nth-child(4){color:#2aa05a}
+.logo small{font:11px Meiryo,sans-serif;color:#666;margin-left:6px;letter-spacing:0}
+.sform{flex:1;min-width:260px}
+.stabs{display:flex;gap:14px;font-size:12px;margin-bottom:2px}
+.stabs b{border-bottom:2px solid var(--navy)}
+.sbox{display:flex}
+.sbox input{flex:1;height:36px;border:2px solid #4a6fd0;border-right:0;padding:0 10px;font-size:15px;min-width:0}
+.sbox button{height:36px;width:84px;background:var(--navy);color:#fff;border:0;font-size:14px;font-weight:700;cursor:pointer}
+.sub{font-size:11px;margin-top:3px;color:#555}
+.sub a{margin-right:10px}
+.cols{max-width:1000px;margin:0 auto;padding:4px 8px 20px;display:grid;grid-template-columns:160px minmax(0,1fr) 270px;gap:14px;align-items:start}
+.hd{background:var(--gb);border-top:2px solid var(--navy);font-weight:700;font-size:12px;padding:3px 6px;margin:0 0 4px;display:flex;justify-content:space-between}
+.hd a{font-weight:400;font-size:11px}
+.left ul{list-style:none;margin:0 0 10px;padding:0}
+.left li{border-bottom:1px dotted var(--gl)}
+.left li a{display:flex;gap:6px;align-items:center;padding:4px 2px;font-size:12.5px}
+.left li a img{width:18px;height:18px}
+.left li.now a{font-weight:700;background:#fff7d6}
+.left .bn a{padding:2px 2px;display:block;font-size:12px}
+.left .bn li.now a{font-weight:700;color:#000}
+.tabs{display:flex;border-bottom:1px solid var(--navy);flex-wrap:wrap}
+.tabs button{border:1px solid var(--gl);border-bottom:0;border-top:3px solid var(--gl);background:var(--gb);padding:3px 11px;font:inherit;cursor:pointer;margin-right:2px;color:var(--lk)}
+.tabs button[aria-selected=true]{background:#fff;border-top-color:var(--red);color:#000;font-weight:700;position:relative;top:1px}
+ul.news{list-style:none;margin:6px 0 4px;padding:0}
+ul.news li{display:flex;gap:6px;align-items:baseline;padding:2.5px 0;min-width:0}
+ul.news li:before{content:"■";font-size:7px;color:#999;flex:none;position:relative;top:-1px}
+ul.news a.h{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}
+ul.news .rp{color:#777;font-size:11px;flex:none}
+.lg{display:inline-block;font-size:10px;line-height:14px;padding:0 4px;color:#fff;flex:none;position:relative;top:-1px;border-radius:0}
+.new{display:inline-block;background:var(--red);color:#fff;font-size:10px;line-height:14px;padding:0 3px;font-weight:700;flex:none;letter-spacing:.04em}
+.more{text-align:right;font-size:11px;padding:2px 0 8px;border-bottom:1px dotted var(--gl);margin-bottom:8px}
+.two>div{min-width:0}.two{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+ul.mini{list-style:none;margin:0 0 8px;padding:0}
+ul.mini li{padding:2px 0 2px 8px;border-left:3px solid #c8d4f0;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ul.mini .d{color:#c40;font-size:11px;margin-left:4px}
+.hdc{border-left:4px solid var(--navy);font-weight:700;font-size:12px;margin:10px 0 4px;padding-left:6px}
+.right .box{margin-bottom:12px}
+table.w,table.rk2{border-collapse:collapse;width:100%;font-size:12px}
+table.w td,table.w th,table.rk2 td,table.rk2 th{border:1px solid #ddd;padding:2px 5px}
+table.w th,table.rk2 th{background:#f7f7f7;font-weight:400;font-size:11px;color:#555}
+table.w td.c,table.rk2 td.c{text-align:center}
+table.w td.n,table.rk2 td.n{text-align:right;white-space:nowrap}
+.wimg{width:28px;height:28px;display:block;margin:0 auto}
+.wsum{font-size:12px;padding:4px 6px;background:#f2f7ff;border:1px solid #cfdcf5;margin-bottom:5px}
+table.rk2 td.rk{width:22px;text-align:center;font-weight:700;color:#fff;background:#999}
+table.rk2 tr:nth-child(1) td.rk{background:#d6a300}table.rk2 tr:nth-child(2) td.rk{background:#8a9099}table.rk2 tr:nth-child(3) td.rk{background:#a8683a}
+.up{color:#c00}.down{color:#06c}.new2{color:var(--red);font-weight:700}
+.rec li{padding:3px 0;border-bottom:1px dotted var(--gl);list-style:none;font-size:12px}
+.rec ul{margin:0;padding:0}
+.art h1{font-size:21px;line-height:1.35;margin:4px 0 6px;overflow-wrap:anywhere}
+.art .meta{color:#666;font-size:11px;border-bottom:1px solid var(--gl);padding-bottom:5px;margin-bottom:10px}
+.art blockquote{margin:6px 0 12px;padding:6px 10px;background:#f6f6f6;border-left:4px solid #bbb;font-size:13px;overflow-wrap:anywhere}
+.art p{font-size:14px;line-height:1.8;margin:6px 0}
+.bc{font-size:11px;color:#555;margin:2px 0 4px}
+.warn{background:#fff3b0;border:1px solid #d9b800;padding:4px 8px;margin:4px 0 8px;font-weight:700}
+.bm{font:inherit;cursor:pointer;margin:6px 0}
+.spark{border:1px solid #ddd;max-width:100%;height:auto;display:block;background:#fff}
+table.h{border-collapse:collapse;font-size:12px;margin:6px 0}
+table.h td,table.h th{border:1px solid #ddd;padding:2px 10px}
+table.h th{background:#f7f7f7;font-weight:400}
+table.h td.n{text-align:right}
+.foot{max-width:1000px;margin:0 auto;border-top:1px solid #ccc;padding:8px;font-size:11px;color:#555}
+@media(max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}.left{order:3}.right{order:2}.top{gap:8px}.logo{font-size:28px}.two{grid-template-columns:1fr}ul.news a.h{font-size:13px}.tabs button{padding:3px 7px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="util"><div><span>GitHub トピックス・ポータル（試作・仮データ）</span><span class="r" id="today"></span></div></div>
+<header class="top">
+  <a class="logo" href="#" aria-label="ほしのわ トップ"><span>ほ</span><span>し</span><span>の</span><span>わ</span><small>今日の GitHub</small></a>
+  <form class="sform" id="sform" role="search">
+    <div class="stabs"><b>ウェブ</b><span>画像</span><span>ニュース</span></div>
+    <div class="sbox"><input id="q" type="search" aria-label="検索" autocomplete="off"><button type="submit">検索</button></div>
+    <div class="sub" id="sub"></div>
+  </form>
+</header>
+<div class="cols">
+  <nav class="left" id="left" aria-label="サービス一覧"></nav>
+  <main id="main"></main>
+  <aside class="right" id="right"></aside>
+</div>
+<div class="foot">v5-10 ポータルサイトのトップ ／ 日本の大手ポータルの「検索窓・サービス一覧・タブ付きトピックス・天気とランキングの右列」の作りを借りた試作（名前・ロゴは写していない）／ 素材: 自作アイコン（CC0 相当）・Mochiy Pop One（SIL OFL 1.1）</div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function(){
+const P=PROTO, el=P.el, fmt=P.fmt, $=(id)=>document.getElementById(id);
+const stamp=(u)=>u.slice(0,10)+" "+u.slice(11,16)+" JST";
+const jp=(d)=>{const [y,m,dd]=d.split("-");return y+"年"+(+m)+"月"+(+dd)+"日("+P.weekday(d)+")";};
+let view=location.hash.replace(/^#/,"")||"top";
+let tab="main";
+const lg=(l)=>el("span",{class:"lg",style:"background:"+V3.langColor(l)+(l==="JavaScript"?";color:#222":"")},l);
+const allMap=()=>{const m=new Map();P.day.trending.items.forEach(i=>m.set(i.repo,{...i,today:i.today,src:"t"}));P.day.topics.forEach(t=>t.items.forEach(i=>{if(!m.has(i.repo))m.set(i.repo,{...i,today:i.delta,src:"o"});}));return m;};
+const art=(repo,t,cls)=>el("a",{href:"#a/"+repo,class:cls},t);
+function newTag(i){
+  if(i.src==="o"||i.delta===null&&i.today==null)return el("span",{class:"new"},"NEW");
+  if(i.src==="t"&&V3.change(i.repo).kind==="new")return el("span",{class:"new"},"NEW");
+  return null;
+}
+function headline(i){
+  return el("li",{},lg(i.lang),art(i.repo,i.summary,"h"),el("span",{class:"rp"},V3.name(i.repo)+(i.today!=null?"  ★+"+fmt(i.today):"")),newTag(i));
+}
+const ICON=(n)=>el("img",{src:"assets/"+n+".png",alt:"",width:18,height:18});
+
+function left(){
+  const n=$("left");n.textContent="";
+  const li=(ic,t,v)=>el("li",{class:view===v?"now":null},el("a",{href:"#"+v},ICON(ic),t));
+  n.append(el("div",{class:"hd"},el("span",{},"サービス一覧")),
+    el("ul",{},li("news","トピックス","top"),li("ranking","急上昇ランキング","all"),li("weather","★の天気","w"),li("star","関心領域","topics"),li("bookmark","ブックマーク ("+P.fav.count()+")","fav"),li("book","用語辞典","gl"),li("code","言語別","lang"),li("map","更新のお知らせ","info"),li("video","きょうの動き","mv")));
+  n.append(el("div",{class:"hd"},el("span",{},"バックナンバー")),
+    el("ul",{class:"bn"},P.data.DATES.slice().reverse().map(d=>el("li",{class:d===P.date?"now":null},el("a",{href:"#"+view,onclick:(e)=>{e.preventDefault();P.setDate(d);}},jp(d))))));
+}
+function weatherRows(){
+  const by={},prev={};
+  P.day.trending.items.forEach(i=>{by[i.lang]=(by[i.lang]||0)+i.today;});
+  const di=P.data.DATES.indexOf(P.date);
+  if(di>0)P.data.days[P.data.DATES[di-1]].trending.items.forEach(i=>{prev[i.lang]=(prev[i.lang]||0)+i.today;});
+  return Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([l,s])=>({l,s,p:di>0?(prev[l]||0):null,w:s>=2500?"sun":s>=1000?"cloud":"rain"}));
+}
+const WN={sun:"晴れ",cloud:"くもり",rain:"雨"};
+function right(){
+  const n=$("right");n.textContent="";
+  const rows=weatherRows(),tot=rows.reduce((a,r)=>a+r.s,0);
+  const di=P.data.DATES.indexOf(P.date);
+  const ptot=di>0?P.data.days[P.data.DATES[di-1]].trending.items.reduce((a,i)=>a+i.today,0):null;
+  const diff=ptot?Math.round((tot-ptot)/ptot*1000)/10:null;
+  n.append(el("div",{class:"box"},el("div",{class:"hd"},el("span",{},"今日の★の天気"),el("a",{href:"#w"},"一覧")),
+    el("div",{class:"wsum"},"全体の★の増えは ",el("b",{},"+"+fmt(tot)),diff==null?"":"（きのうより "+(diff>=0?"+":"")+diff+"%）"),
+    el("table",{class:"w"},el("thead",{},el("tr",{},el("th",{},"言語"),el("th",{},"天気"),el("th",{},"★の増え"),el("th",{},"きのう"))),
+      el("tbody",{},rows.slice(0,5).map(r=>el("tr",{},el("td",{},r.l),el("td",{class:"c"},el("img",{class:"wimg",src:"assets/w_"+r.w+".png",alt:WN[r.w],width:28,height:28})),el("td",{class:"n"},"+"+fmt(r.s)),el("td",{class:"c"},r.p==null?"―":r.s>r.p?el("span",{class:"up"},"↑"):r.s<r.p?el("span",{class:"down"},"↓"):"→")))))));
+  const top=P.day.trending.items.slice().sort((a,b)=>b.today-a.today).slice(0,5);
+  n.append(el("div",{class:"box"},el("div",{class:"hd"},el("span",{},"ランキング"),el("a",{href:"#all"},"もっと見る")),
+    el("table",{class:"rk2"},el("tbody",{},top.map((i,k)=>el("tr",{},el("td",{class:"rk"},k+1),el("td",{},art(i.repo,V3.name(i.repo))),el("td",{class:"n"},"+"+fmt(i.today)))))),
+    el("div",{class:"sm",style:"font-size:11px;color:#666;margin-top:2px"},"今日の★の増えが多い順")));
+  const rec=[];P.day.topics.forEach(t=>{const i=t.items[0];if(i)rec.push({...i,topic:t.label});});
+  n.append(el("div",{class:"box rec"},el("div",{class:"hd"},el("span",{},"おすすめ")),
+    el("ul",{},rec.slice(0,4).map(i=>el("li",{},el("span",{style:"color:#666;font-size:11px"},"["+i.topic+"] "),art(i.repo,i.summary))))));
+}
+function tabsEl(){
+  const ids=[["main","主要"]].concat(P.day.topics.map(t=>[t.id,t.label]));
+  return el("div",{class:"tabs",role:"tablist"},ids.map(([id,l])=>el("button",{type:"button",role:"tab","aria-selected":String(tab===id),onclick:()=>{tab=id;render();}},l)));
+}
+function topView(){
+  const out=[];
+  out.push(el("div",{class:"hd"},el("span",{},"トピックス"),el("a",{href:"#all"},"全25件")));
+  out.push(tabsEl());
+  let items;
+  if(tab==="main")items=P.day.trending.items.slice(0,8).map(i=>({...i,src:"t"}));
+  else{const t=P.day.topics.find(x=>x.id===tab);items=t.items.slice(0,8).map(i=>({...i,today:i.delta,src:"o",_new:i.delta==null}));}
+  out.push(el("ul",{class:"news"},items.map(i=>{
+    if(tab!=="main"){return el("li",{},lg(i.lang),art(i.repo,i.summary,"h"),el("span",{class:"rp"},V3.name(i.repo)+(i.delta!=null?"  ★+"+fmt(i.delta):"")),i.delta==null?el("span",{class:"new"},"NEW"):null);}
+    return headline(i);
+  })));
+  out.push(el("div",{class:"more"},el("a",{href:"#all"},"もっと見る ＞")));
+  out.push(el("div",{class:"two"},P.day.topics.slice(0,4).map(t=>el("div",{},el("div",{class:"hdc"},t.label),el("ul",{class:"mini"},t.items.slice(0,4).map(i=>el("li",{},art(i.repo,i.summary),el("span",{class:"d"},i.delta==null?"NEW":"+"+fmt(i.delta)))))))));
+  return out;
+}
+function staleBar(){return P.state==="stale"?el("div",{class:"warn"},"【お知らせ】データの更新が止まっています。表示は "+stamp(P.day.updatedAt)+" 時点のものです。"):null;}
+function allView(){
+  return [el("div",{class:"hd"},el("span",{},"急上昇ランキング 全25件")),el("div",{class:"bc"},jp(P.date)+" "+stamp(P.day.updatedAt).slice(11)+" 更新"),
+    el("ul",{class:"news"},P.day.trending.items.map(i=>el("li",{},el("span",{style:"width:20px;text-align:right;color:#888;flex:none"},i.rank),lg(i.lang),art(i.repo,i.summary,"h"),el("span",{class:"rp"},V3.name(i.repo)+"  ★+"+fmt(i.today)),newTag(i))))];
+}
+function weatherView(){
+  const rows=weatherRows();
+  return [el("div",{class:"hd"},el("span",{},"★の天気（言語別）")),el("p",{},"その日に増えた★の合計で天気を決めています。2500 以上は晴れ、1000 以上はくもり、それ未満は雨。"),
+    el("table",{class:"w"},el("thead",{},el("tr",{},el("th",{},"言語"),el("th",{},"天気"),el("th",{},"★の増え"),el("th",{},"きのう"))),el("tbody",{},rows.map(r=>el("tr",{},el("td",{},r.l),el("td",{class:"c"},el("img",{class:"wimg",src:"assets/w_"+r.w+".png",alt:WN[r.w],width:28,height:28})),el("td",{class:"n"},"+"+fmt(r.s)),el("td",{class:"n"},r.p==null?"―":"+"+fmt(r.p))))))];
+}
+function topicsView(){
+  const out=[el("div",{class:"hd"},el("span",{},"関心領域"))];
+  P.day.topics.forEach(t=>{out.push(el("div",{class:"hdc"},t.label),el("ul",{class:"news"},t.items.map(i=>el("li",{},lg(i.lang),art(i.repo,i.summary,"h"),el("span",{class:"rp"},V3.name(i.repo)+(i.delta!=null?"  ★+"+fmt(i.delta):"")),i.delta==null?el("span",{class:"new"},"NEW"):null))));});
+  return out;
+}
+function langView(){
+  const by={};P.day.trending.items.forEach(i=>(by[i.lang]=by[i.lang]||[]).push(i));
+  const out=[el("div",{class:"hd"},el("span",{},"言語別"))];
+  Object.entries(by).sort((a,b)=>b[1].length-a[1].length).forEach(([l,its])=>out.push(el("div",{class:"hdc"},l+"（"+its.length+"件）"),el("ul",{class:"news"},its.map(i=>el("li",{},art(i.repo,i.summary,"h"),el("span",{class:"rp"},V3.name(i.repo)))))));
+  return out;
+}
+function glView(){
+  const dl=[["★（スター）","GitHub で「いいね」に近い印。"],["Trending","GitHub が公開する「今日伸びているリポジトリ」の一覧。"],["関心領域","shadcn/ui・GSAP・Three.js・Phaser・Claude Code など、決めておいた分野。"],["NEW","前日の記録になかったもの。"]];
+  return [el("div",{class:"hd"},el("span",{},"用語辞典")),el("dl",{},dl.map(([a,b])=>[el("dt",{style:"font-weight:700;margin-top:6px"},a),el("dd",{style:"margin:0 0 0 1em"},b)]))];
+}
+function infoView(){
+  return [el("div",{class:"hd"},el("span",{},"更新のお知らせ")),el("ul",{class:"news"},P.data.DATES.slice().reverse().map(d=>el("li",{},el("span",{style:"color:#666;flex:none"},jp(d)),el("span",{},stamp(P.data.days[d].updatedAt).slice(11)+" に更新しました。"))))];
+}
+function mvView(){
+  const t=P.day.trending.items;const ch=t.map(i=>({i,c:V3.change(i.repo)}));
+  const ups=ch.filter(x=>x.c.kind==="up").sort((a,b)=>b.c.n-a.c.n).slice(0,6),nw=ch.filter(x=>x.c.kind==="new").slice(0,6);
+  return [el("div",{class:"hd"},el("span",{},"きょうの動き")),el("div",{class:"hdc"},"順位が上がった"),el("ul",{class:"news"},ups.length?ups.map(x=>el("li",{},lg(x.i.lang),art(x.i.repo,x.i.summary,"h"),el("span",{class:"rp up"},"▲"+x.c.n))):el("li",{},"（なし）")),el("div",{class:"hdc"},"きのうの一覧に無かった"),el("ul",{class:"news"},nw.length?nw.map(x=>headline({...x.i,src:"t"})):el("li",{},"（なし）"))];
+}
+function favView(){
+  const l=[...allMap().values()].filter(i=>P.fav.has(i.repo));
+  return [el("div",{class:"hd"},el("span",{},"ブックマーク")),P.fav.available()?null:el("p",{style:"color:#c00"},"このブラウザでは保存できません。閉じると消えます。"),
+    l.length?el("ul",{class:"news"},l.map(i=>el("li",{},lg(i.lang),art(i.repo,i.summary,"h")))):el("p",{},"まだありません。記事ページの「ブックマークする」で追加できます。")];
+}
+function searchView(q){
+  const t=decodeURIComponent(q),ql=t.toLowerCase();
+  const m=[...allMap().values()].filter(i=>(i.repo+" "+i.summary+" "+i.desc+" "+i.lang).toLowerCase().includes(ql));
+  return [el("div",{class:"hd"},el("span",{},"「"+t+"」の検索結果")),el("div",{class:"bc"},m.length+" 件"),m.length?el("ul",{class:"news"},m.map(i=>el("li",{},lg(i.lang),art(i.repo,i.summary,"h"),el("span",{class:"rp"},V3.name(i.repo))))):el("p",{},"見つかりませんでした。")];
+}
+function spark(h){
+  const pts=h.filter(p=>p.stars!=null),W=420,H=90,pad=8;
+  const lo=Math.min(...pts.map(p=>p.stars)),hi=Math.max(...pts.map(p=>p.stars));
+  const x=(i)=>pad+(W-pad*2)*i/(h.length-1),y=(v)=>H-pad-(H-pad*2)*(v-lo)/Math.max(1,hi-lo);
+  const s=P.svg("svg",{viewBox:"0 0 "+W+" "+H,width:W,class:"spark",role:"img","aria-label":"★の推移"});
+  let d="";h.forEach((p,i)=>{if(p.stars==null)return;d+=(d&&h[i-1]&&h[i-1].stars!=null?"L":"M")+x(i).toFixed(1)+" "+y(p.stars).toFixed(1);});
+  s.append(P.svg("path",{d,fill:"none",stroke:"#1e7ad8","stroke-width":2}));
+  h.forEach((p,i)=>{if(p.stars==null)s.append(P.svg("line",{x1:x(i),x2:x(i),y1:pad,y2:H-pad,stroke:"#d6001c","stroke-dasharray":"3 3"}));});
+  return s;
+}
+function artView(repo){
+  const i=allMap().get(repo);
+  if(!i)return [el("div",{class:"hd"},el("span",{},"記事が見つかりません")),el("p",{},repo+" はこの日の記録にありません。")];
+  const h=P.history(repo,i.stars),fav=P.fav.has(repo);
+  return [el("div",{class:"bc"},el("a",{href:"#top"},"トップ")," ＞ ",el("a",{href:"#top"},"トピックス")," ＞ 記事"),
+    el("div",{class:"art"},
+      el("h1",{},i.summary),
+      el("div",{class:"meta"},jp(P.date)+" "+stamp(P.day.updatedAt).slice(11)+" 配信　提供: GitHub Trending（仮データ）　",lg(i.lang)," ",newTag(i)),
+      el("p",{},V3.owner(i.repo)+" の "+V3.name(i.repo)+" は、今日 ★ が "+(i.today!=null?fmt(i.today)+" 増え":"新しく増え")+"、累計は "+fmt(i.stars)+" になりました。"),
+      el("div",{class:"hdc"},"原文の説明（英語）"),el("blockquote",{},i.desc||"（説明なし）"),
+      el("button",{class:"bm",type:"button","aria-pressed":String(fav),onclick:()=>{P.fav.toggle(repo);render();}},fav?"ブックマークを外す":"ブックマークする"),
+      el("div",{class:"hdc"},"★の推移"),spark(h),
+      el("table",{class:"h"},el("thead",{},el("tr",{},el("th",{},"日付"),el("th",{},"★"))),el("tbody",{},h.slice(-7).reverse().map(p=>el("tr",{},el("td",{},p.date),el("td",{class:"n"},p.stars==null?"記録なし":fmt(p.stars)))))),
+      el("p",{style:"font-size:12px"},"リポジトリ: "+repo))];
+}
+function body(){
+  if(view==="all")return allView();
+  if(view==="w")return weatherView();
+  if(view==="topics")return topicsView();
+  if(view==="lang")return langView();
+  if(view==="gl")return glView();
+  if(view==="info")return infoView();
+  if(view==="mv")return mvView();
+  if(view==="fav")return favView();
+  if(view.startsWith("s/"))return searchView(view.slice(2));
+  if(view.startsWith("a/"))return artView(view.slice(2));
+  return topView();
+}
+function render(){
+  $("today").textContent=jp(P.date)+" "+stamp(P.day.updatedAt).slice(11)+" 更新";
+  const sub=$("sub");sub.textContent="";
+  [["shadcn/ui","t"],["GSAP","t"],["Three.js","t"],["Phaser","t"],["Claude Code","t"]].forEach(([w])=>sub.append(el("a",{href:"#s/"+encodeURIComponent(w)},w)));
+  left();right();
+  const m=$("main");m.textContent="";
+  const sb=staleBar();if(sb)m.append(sb);
+  body().forEach(n=>{if(n)m.append(n);});
+  document.title="ほしのわ - 今日の GitHub トピックス";
+}
+$("sform").addEventListener("submit",(e)=>{e.preventDefault();const q=$("q").value.trim();if(q)location.hash="s/"+encodeURIComponent(q);});
+window.addEventListener("hashchange",()=>{view=location.hash.replace(/^#/,"")||"top";render();window.scrollTo(0,0);});
+P.onDate(render);
+render();
+})();
+</script>
+</body>
+</html>

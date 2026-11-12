@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00ADD8"/><stop offset="1" stop-color="#00323f"/></linearGradient></defs>
+<rect width="320" height="180" fill="url(#g)"/>
+<polygon points="102,84 138.3,482.4 59.9,481.8" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 -16.9,465.9 -89.2,435.4" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 -154.0,391.3 -209.1,335.5" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 -252.2,270.0 -281.6,197.3" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 -296.4,120.3 -295.8,41.9" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 -279.9,-34.9 -249.4,-107.2" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 -205.3,-172.0 -149.5,-227.1" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 -84.0,-270.2 -11.3,-299.6" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 65.7,-314.4 144.1,-313.8" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 220.9,-297.9 293.2,-267.4" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 358.0,-223.3 413.1,-167.5" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 456.2,-102.0 485.6,-29.3" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 500.4,47.7 499.8,126.1" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 483.9,202.9 453.4,275.2" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 409.3,340.0 353.5,395.1" fill="#fff" fill-opacity="0.13"/><polygon points="102,84 288.0,438.2 215.3,467.6" fill="#fff" fill-opacity="0.13"/>
+<g transform="rotate(1 90 110)">
+<rect x="26" y="70" width="104" height="72" fill="#101418" stroke="#fff" stroke-width="3"/>
+<rect x="26" y="70" width="104" height="13" fill="#fff"/>
+<rect x="31" y="74" width="5" height="5" fill="#e33"/><rect x="39" y="74" width="5" height="5" fill="#eb3"/><rect x="47" y="74" width="5" height="5" fill="#3b4"/>
+<text x="34" y="106" font-family="Consolas, monospace" font-size="15" font-weight="bold" fill="#7fe07f">&gt;_ run</text>
+<rect x="34" y="114" width="52" height="5" fill="#00ADD8"/><rect x="34" y="124" width="76" height="5" fill="#fff" fill-opacity=".55"/><rect x="34" y="133" width="38" height="4" fill="#fff" fill-opacity=".35"/>
+</g>
+<g font-family="Impact, 'Arial Black', 'Yu Gothic', sans-serif" font-weight="900" text-anchor="end">
+<text x="308" y="82" font-size="52" fill="#fff" stroke="#00323f" stroke-width="9" paint-order="stroke" stroke-linejoin="round">Go</text>
+</g>
+<g font-family="'Yu Gothic','Meiryo',sans-serif" font-weight="bold">
+<rect x="198" y="98" width="110" height="26" fill="#ffe400" stroke="#000" stroke-width="2.5" transform="rotate(-3 253 111)"/>
+<text x="253" y="117" font-size="17" fill="#d00" text-anchor="middle" transform="rotate(-3 253 111)">★急上昇！</text>
+</g>
+</svg>

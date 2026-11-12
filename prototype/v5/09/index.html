@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>きらり動画 - ランキング</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --link: #0b5fa5; --ink: #252525; --mute: #888; --line: #d8d8d8; --orange: #f26b13; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: #eceff1; color: var(--ink); font: 13px/1.5 "BIZ UDPGothic", "Meiryo", "Yu Gothic", sans-serif; }
+  a { color: var(--link); text-decoration: none; } a:hover { text-decoration: underline; }
+  button { font: inherit; cursor: pointer; }
+  svg { display: block; }
+
+  /* 上の黒い帯（サービス間のリンクの帯） */
+  .gnav { background: #252525; color: #ccc; font-size: 12px; }
+  .gnav div { max-width: 1040px; margin: 0 auto; display: flex; gap: 14px; padding: 6px 12px; overflow: hidden; white-space: nowrap; }
+  .gnav b { color: #fff; } .gnav span { opacity: .8; }
+  .head { background: #fff; border-bottom: 1px solid var(--line); }
+  .head-in { max-width: 1040px; margin: 0 auto; padding: 10px 12px; display: flex; align-items: center; gap: 16px; }
+  .logo { font: 900 30px/1 Impact, "Arial Black", sans-serif; letter-spacing: -1px; color: #222; display: flex; align-items: center; gap: 8px; }
+  .logo i { background: #f5c400; color: #222; font-style: normal; padding: 3px 8px 4px; border-radius: 3px; transform: skew(-8deg); }
+  .logo small { font: 700 11px "BIZ UDPGothic", sans-serif; color: var(--mute); letter-spacing: 0; align-self: flex-end; padding-bottom: 3px; }
+  .search { flex: 1; display: flex; max-width: 440px; }
+  .search input { flex: 1; border: 1px solid #bbb; border-right: 0; padding: 5px 8px; font: inherit; min-width: 0; background: #f7f7f7; }
+  .search button { border: 1px solid #555; background: #555; color: #fff; padding: 0 12px; }
+  .head-links { margin-left: auto; font-size: 12px; color: #555; display: flex; gap: 12px; white-space: nowrap; }
+
+  .alert { background: #fff3b0; border-bottom: 2px solid #e0a800; padding: 8px 12px; text-align: center; font-weight: 700; }
+
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 12px; display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 14px; }
+  /* ジャンルのタブ */
+  .genres { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 10px; padding: 0; list-style: none; }
+  .genres button { border: 1px solid #c9c9c9; background: #fff; padding: 5px 12px; color: #444; border-radius: 0; }
+  .genres button[aria-selected="true"] { background: #252525; border-color: #252525; color: #fff; font-weight: 700; }
+  .genres button:hover { background: #f1f1f1; } .genres button[aria-selected="true"]:hover { background: #252525; }
+  /* 期間のタブ */
+  .terms { display: flex; border-bottom: 2px solid #252525; margin: 0 0 8px; align-items: flex-end; }
+  .terms button { border: 0; background: none; padding: 7px 18px 6px; font-weight: 700; color: #555; border-bottom: 4px solid transparent; margin-bottom: -2px; }
+  .terms button[aria-selected="true"] { color: #000; border-bottom-color: #f5c400; }
+  .terms .upd { margin-left: auto; font-size: 11px; color: var(--mute); padding-bottom: 6px; }
+  .terms .upd b { color: #555; }
+  h1.cap { font-size: 15px; margin: 6px 0 8px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  h1.cap small { font-size: 11px; color: var(--mute); font-weight: 400; }
+
+  /* 縦のリスト */
+  .rank { list-style: none; margin: 0; padding: 0; background: #fff; border: 1px solid var(--line); }
+  .item { display: grid; grid-template-columns: 196px minmax(0, 1fr); gap: 12px; padding: 10px 12px; border-bottom: 1px solid #e6e6e6; }
+  .item:last-child { border-bottom: 0; }
+  .thumb { position: relative; display: block; aspect-ratio: 16 / 9; background: #000; padding: 0; border: 0; overflow: hidden; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb:hover img { opacity: .88; }
+  .no { position: absolute; left: 0; top: 0; min-width: 28px; padding: 1px 7px 2px; background: rgba(0,0,0,.78); color: #fff; font: 900 18px/1.2 Impact, "Arial Black", sans-serif; text-align: center; }
+  .no.n1 { background: #d9a400; color: #fff; } .no.n2 { background: #8d96a0; } .no.n3 { background: #a8693a; }
+  .len { position: absolute; right: 3px; bottom: 3px; background: rgba(0,0,0,.82); color: #fff; font-size: 11px; font-weight: 700; padding: 0 5px; border-radius: 2px; }
+  .info { min-width: 0; }
+  .ttl { display: block; font-size: 15px; font-weight: 700; line-height: 1.35; word-break: break-all; background: none; border: 0; padding: 0; text-align: left; color: var(--link); }
+  .ttl:hover { text-decoration: underline; }
+  .when { margin: 2px 0 4px; font-size: 12px; color: var(--mute); }
+  .when .hot { color: var(--orange); font-weight: 700; }
+  .desc { margin: 0 0 6px; color: #444; font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .nums { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: #777; align-items: center; }
+  .nums span { display: inline-flex; align-items: center; gap: 4px; }
+  .nums b { color: #555; font-weight: 700; }
+  .ml { margin-left: auto; border: 1px solid #bbb; background: #fff; padding: 1px 8px; font-size: 11px; color: #444; border-radius: 2px; }
+  .ml[aria-pressed="true"] { background: #fff3b0; border-color: #e0a800; font-weight: 700; }
+  .empty { padding: 28px 16px; color: #666; background: #fff; border: 1px solid var(--line); }
+
+  /* 右のカラム */
+  .side .box { background: #fff; border: 1px solid var(--line); margin-bottom: 12px; }
+  .side h2 { margin: 0; font-size: 13px; padding: 6px 10px; background: #f3f3f3; border-bottom: 1px solid var(--line); }
+  .side ol { margin: 0; padding: 0; list-style: none; }
+  .side li { padding: 6px 10px; border-bottom: 1px dotted #ddd; font-size: 12px; }
+  .side li:last-child { border-bottom: 0; }
+  .side li button { all: unset; cursor: pointer; color: var(--link); word-break: break-all; }
+  .side li button:hover { text-decoration: underline; }
+  .side p { margin: 0; padding: 8px 10px; font-size: 12px; color: #555; }
+
+  /* 動画ページ */
+  .back { background: none; border: 0; color: var(--link); padding: 0; margin: 0 0 8px; }
+  .player { position: relative; aspect-ratio: 16 / 9; background: #000; overflow: hidden; border: 1px solid #000; }
+  .player img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .38; }
+  .stage { position: absolute; inset: 0 0 34px 0; overflow: hidden; }
+  .cm { position: absolute; left: 100%; white-space: nowrap; color: #fff; font-weight: 700; font-size: clamp(14px, 3.2vw, 26px); text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, 1px -1px 0 #000, -1px -1px 0 #000; animation: flow 9s linear infinite; will-change: transform; }
+  @keyframes flow { from { transform: translateX(0); } to { transform: translateX(calc(-100% - 100vw)); } }
+  .player.paused .cm { animation-play-state: paused; }
+  .controls { position: absolute; left: 0; right: 0; bottom: 0; height: 34px; background: linear-gradient(#222, #000); display: flex; align-items: center; gap: 10px; padding: 0 8px; color: #fff; font-size: 11px; }
+  .controls button { background: none; border: 0; color: #fff; padding: 2px 6px; font-size: 14px; }
+  .seek { flex: 1; height: 5px; background: #555; position: relative; }
+  .seek i { position: absolute; left: 0; top: 0; bottom: 0; background: #f5c400; width: 100%; }
+  .vtitle { font-size: 18px; margin: 10px 0 4px; line-height: 1.35; word-break: break-all; }
+  .vstats { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: #666; padding: 4px 0 8px; border-bottom: 1px solid var(--line); }
+  .vstats b { color: #222; font-size: 15px; }
+  .vbox { background: #fff; border: 1px solid var(--line); padding: 10px 12px; margin-top: 10px; }
+  .vbox h2 { font-size: 13px; margin: 0 0 6px; color: #555; border-left: 4px solid #f5c400; padding-left: 8px; }
+  .vbox p { margin: 0 0 6px; word-break: break-word; }
+  .cmlist { max-height: 200px; overflow: auto; margin: 0; padding: 0; list-style: none; font-size: 12px; }
+  .cmlist li { display: flex; gap: 10px; padding: 3px 0; border-bottom: 1px dotted #ddd; }
+  .cmlist li span:first-child { color: var(--mute); min-width: 38px; }
+  .graph svg { width: 100%; height: 96px; }
+  .graph .ax { display: flex; justify-content: space-between; font-size: 11px; color: var(--mute); }
+
+  .foot { max-width: 1040px; margin: 0 auto; padding: 14px 12px 32px; font-size: 11px; color: #777; }
+
+  @media (max-width: 760px) {
+    .wrap { grid-template-columns: 1fr; padding: 8px; }
+    .item { grid-template-columns: 128px minmax(0, 1fr); gap: 8px; padding: 8px; }
+    .no { font-size: 14px; min-width: 22px; padding: 0 5px; }
+    .ttl { font-size: 13px; }
+    .desc { -webkit-line-clamp: 2; font-size: 11px; }
+    .ml { display: none; }
+    .nums { gap: 2px 10px; font-size: 11px; }
+    .head-in { flex-wrap: wrap; gap: 8px; }
+    .head-links { display: none; }
+    .search { flex-basis: 100%; max-width: none; order: 3; }
+    .terms button { padding: 7px 10px 6px; }
+    .terms .upd { display: none; }
+    .vtitle { font-size: 15px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cm { animation: none !important; position: static; display: inline-block; margin: 2px 8px 2px 0; font-size: 13px; } .stage { overflow: auto; padding: 8px; } .thumb img { transition: none; } }
+  :focus-visible { outline: 3px solid #1a73e8; outline-offset: 1px; }
+</style>
+</head>
+<body>
+<div class="gnav"><div><b>きらり動画</b><span>ランキング</span><span>生放送</span><span>ゲーム</span><span>チャンネル</span><span>大百科</span><span>ニュース</span></div></div>
+<header class="head"><div class="head-in">
+  <div class="logo"><i>きらり</i>動画<small>GitHub 版（仮）</small></div>
+  <form class="search" role="search" onsubmit="return false"><input type="search" aria-label="動画を検索" placeholder="キーワードで動画を検索" disabled><button disabled>検索</button></form>
+  <div class="head-links"><span>ログイン（なし）</span><span>ヘルプ</span></div>
+</div></header>
+<div id="alert"></div>
+<div class="wrap">
+  <main id="main"></main>
+  <aside class="side" id="side"></aside>
+</div>
+<footer class="foot">v5-09 動画サイトのランキング — 日本の動画共有サイトの「ランキングページ」（ジャンルのタブ・期間のタブ・サムネイル付きの縦リスト・再生/コメント/マイリストの数字・流れるコメント）の文法を借りた案。「マイリスト」の数字は仮の値です。<br>素材: サムネイルは自作の SVG（制限なし）／書体 BIZ UDPGothic（SIL OFL 1.1・Google Fonts）</footer>
+
+<script>window.__errs = []; window.addEventListener("error", (e) => window.__errs.push(e.message));</script>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = window.PROTO, el = P.el, svg = P.svg, fmt = P.fmt;
+  const ui = { genre: "all", view: null, paused: false };
+  const THUMBS = ["Python", "TypeScript", "JavaScript", "Rust", "Go", "Zig", "Markdown", "Shell", "HTML", "GLSL"];
+  const thumbSrc = (lang) => "assets/thumb-" + (THUMBS.includes(lang) ? lang : "default") + ".svg";
+  const TERMS = [["今日", 0], ["きのう", 1], ["おととい", 2]];
+  const dates = P.data.DATES; // 古い→新しい
+  const dateOfTerm = (k) => dates[dates.length - 1 - k];
+
+  // マイリストの数（仮）: リポジトリ名から決まる架空の値＋自分が入れた分
+  const mylistCount = (repo) => 20 + (V3.hash(repo) % 900) + (P.fav.has(repo) ? 1 : 0);
+  const chg = (repo) => V3.change(repo);
+  const chgLabel = (repo) => { const c = chg(repo); return c.kind === "new" ? "NEW" : c.kind === "up" ? "前日より ▲" + c.n + "位" : c.kind === "down" ? "前日より ▼" + c.n + "位" : "前日と同じ順位"; };
+  // 連続日数（記録のある日の中で、続けてランクインしている日数）
+  function streak(repo, genre) {
+    const i = dates.indexOf(P.date); let n = 0;
+    for (let k = i; k >= 0; k--) {
+      const day = P.data.days[dates[k]];
+      const list = genre === "all" ? day.trending.items : (day.topics.find((t) => t.id === genre) || { items: [] }).items;
+      if (list.some((x) => x.repo === repo)) n++; else break;
+    }
+    return n;
+  }
+  const lenText = (n) => (n > 1 ? n + "日連続" : "初登場");
+  const jst = () => P.day.updatedAt.slice(5, 10).replace("-", "/") + " " + P.day.updatedAt.slice(11, 16);
+
+  function rows() {
+    if (ui.genre === "all") return P.day.trending.items.map((x) => Object.assign({}, x, { views: x.stars, comments: x.today }));
+    const t = P.day.topics.find((x) => x.id === ui.genre) || P.day.topics[0];
+    return t.items.map((x, i) => Object.assign({}, x, { rank: i + 1, views: x.stars, comments: x.delta, today: x.delta }));
+  }
+  const genreLabel = () => (ui.genre === "all" ? "総合" : (P.day.topics.find((t) => t.id === ui.genre) || {}).label);
+
+  /* アイコン（文字ではなく小さな図形） */
+  const ic = {
+    play: () => svg("svg", { width: 11, height: 11, viewBox: "0 0 10 10", "aria-hidden": "true" }, svg("path", { d: "M1 0.5 9.5 5 1 9.5z", fill: "#999" })),
+    cm: () => svg("svg", { width: 12, height: 11, viewBox: "0 0 12 11", "aria-hidden": "true" }, svg("path", { d: "M1 1h10v6H6l-3 3V7H1z", fill: "#999" })),
+    ml: () => svg("svg", { width: 12, height: 11, viewBox: "0 0 12 11", "aria-hidden": "true" }, svg("path", { d: "M0.5 2h4l1 1.5h6v6.5h-11z", fill: "#999" })),
+  };
+  const nums = (r) => el("div", { class: "nums", role: "group", "aria-label": "数字" },
+    el("span", { title: "再生＝総★" }, ic.play(), "再生 ", el("b", {}, fmt(r.views))),
+    el("span", { title: "コメント＝今日の★" }, ic.cm(), "コメント ", el("b", {}, fmt(r.comments))),
+    el("span", { title: "マイリスト＝お気に入り数（仮の値）" }, ic.ml(), "マイリスト ", el("b", {}, fmt(mylistCount(r.repo)))));
+
+  /* ---------- 一覧 ---------- */
+  function renderList(box) {
+    const termTabs = el("div", { class: "terms", role: "tablist", "aria-label": "期間" },
+      TERMS.map(([label, k]) => {
+        const d = dateOfTerm(k);
+        return el("button", { role: "tab", "aria-selected": d === P.date ? "true" : "false", title: d + "（" + P.weekday(d) + "）", onclick: () => P.setDate(d) }, label + " " + d.slice(5).replace("-", "/"));
+      }), el("span", { class: "upd" }, "更新 ", el("b", {}, jst()), " JST"));
+    const genreTabs = el("ul", { class: "genres", role: "tablist", "aria-label": "ジャンル（関心領域）" },
+      [["all", "総合"]].concat(P.day.topics.map((t) => [t.id, t.label])).map(([id, label]) =>
+        el("li", {}, el("button", { role: "tab", "aria-selected": ui.genre === id ? "true" : "false", onclick: () => { ui.genre = id; render(); } }, label))));
+    const list = rows();
+    const ol = el("ol", { class: "rank" }, list.map((r, i) => item(r, i + 1)));
+    box.append(genreTabs, termTabs,
+      el("h1", { class: "cap" }, `${genreLabel()}ランキング`, el("small", {}, ui.genre === "all" ? "GitHub Trending 25件（再生＝総★／コメント＝今日の★）" : "★の急上昇（再生＝総★／コメント＝今日の増加）")),
+      list.length ? ol : el("p", { class: "empty" }, "この日のランキングはまだありません。"));
+  }
+  function item(r, no) {
+    const open = () => { ui.view = r; render(); window.scrollTo(0, 0); };
+    const n = streak(r.repo, ui.genre);
+    const mlBtn = el("button", { class: "ml", "aria-pressed": P.fav.has(r.repo) ? "true" : "false", onclick: (e) => { P.fav.toggle(r.repo); render(); } }, P.fav.has(r.repo) ? "★ マイリスト登録済" : "＋ マイリスト");
+    return el("li", { class: "item" },
+      el("button", { class: "thumb", "aria-label": `${no}位 ${r.repo} を開く`, onclick: open },
+        el("img", { src: thumbSrc(r.lang), alt: "", loading: no > 6 ? "lazy" : "eager" }),
+        el("span", { class: "no n" + (no <= 3 ? no : "") }, no),
+        el("span", { class: "len" }, lenText(n))),
+      el("div", { class: "info" },
+        el("button", { class: "ttl", onclick: open }, r.repo),
+        el("div", { class: "when" }, chgPart(r), " ・ " + r.lang),
+        el("p", { class: "desc" }, r.summary),
+        el("div", { style: "display:flex;gap:8px;align-items:center" }, nums(r), mlBtn)));
+  }
+  function chgPart(r) {
+    if (ui.genre !== "all") return r.delta == null ? el("span", { class: "hot" }, "NEW") : "今日 +" + fmt(r.delta) + " ★";
+    const c = chg(r.repo);
+    return el("span", { class: c.kind === "up" || c.kind === "new" ? "hot" : "" }, chgLabel(r.repo));
+  }
+
+  /* ---------- 動画ページ（プレイヤー風） ---------- */
+  function commentsFor(r) {
+    const c = chg(r.repo);
+    const parts = r.summary.split(/[、。・]/).map((s) => s.trim()).filter(Boolean);
+    const L = [r.repo, "今日の★ +" + fmt(r.comments), "総★ " + fmt(r.views), r.lang + " のリポジトリ"];
+    if (ui.genre === "all") L.push(c.kind === "new" ? "前日の Trending に無かった（NEW）" : c.kind === "up" ? "前日より " + c.n + "位 上がった" : c.kind === "down" ? "前日より " + c.n + "位 下がった" : "前日と同じ順位");
+    parts.forEach((p) => L.push(p));
+    return L.slice(0, 12);
+  }
+  function graph(r) {
+    const pts = P.history(r.repo, r.views), vals = pts.map((p) => p.stars).filter((v) => v != null);
+    const min = Math.min(...vals), max = Math.max(...vals), W = 400, H = 96, n = pts.length;
+    const x = (i) => 6 + (W - 12) * (i / (n - 1)), y = (v) => H - 8 - (H - 18) * ((v - min) / Math.max(1, max - min));
+    const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", role: "img", "aria-label": `★の推移 ${pts[0].date} から ${pts[n - 1].date}。${fmt(vals[0])} から ${fmt(max)}` });
+    let d = "", seg = [];
+    pts.forEach((p, i) => { if (p.stars == null) { if (seg.length) { d += "M" + seg.join("L"); seg = []; } } else seg.push(`${x(i).toFixed(1)} ${y(p.stars).toFixed(1)}`); });
+    if (seg.length) d += "M" + seg.join("L");
+    s.append(svg("path", { d, fill: "none", stroke: "#f26b13", "stroke-width": 2.5, "stroke-linejoin": "round", "vector-effect": "non-scaling-stroke" }));
+    pts.forEach((p, i) => { if (p.stars == null) s.append(svg("line", { x1: x(i), x2: x(i), y1: 4, y2: H - 4, stroke: "#c00", "stroke-dasharray": "3 3", "vector-effect": "non-scaling-stroke" })); });
+    return el("div", { class: "graph" }, s, el("div", { class: "ax" }, el("span", {}, pts[0].date.slice(5).replace("-", "/")), el("span", {}, "赤い点線＝記録のない日"), el("span", {}, pts[n - 1].date.slice(5).replace("-", "/"))));
+  }
+  function renderDetail(box) {
+    const r = ui.view, cms = commentsFor(r);
+    const stage = el("div", { class: "stage", "aria-hidden": "true" });
+    cms.forEach((t, i) => stage.append(el("span", { class: "cm", style: `top:${4 + (i % 6) * 14}%;animation-delay:${-(i * 12 / cms.length)}s;animation-duration:12s` }, t)));
+    const player = el("div", { class: "player" + (ui.paused ? " paused" : "") }, el("img", { src: thumbSrc(r.lang), alt: "" }), stage,
+      el("div", { class: "controls" },
+        el("button", { "aria-label": ui.paused ? "再生" : "一時停止", onclick: () => { ui.paused = !ui.paused; player.classList.toggle("paused", ui.paused); b.textContent = ui.paused ? "▶" : "❚❚"; b.setAttribute("aria-label", ui.paused ? "再生" : "一時停止"); } }, ui.paused ? "▶" : "❚❚"),
+        el("div", { class: "seek" }, el("i")), el("span", {}, "コメント " + cms.length + " 件")));
+    const b = player.querySelector(".controls button");
+    box.append(
+      el("button", { class: "back", onclick: () => { ui.view = null; render(); } }, "◀ " + genreLabel() + "ランキングに戻る"),
+      player,
+      el("h1", { class: "vtitle" }, r.repo),
+      el("div", { class: "vstats" }, el("span", {}, "再生 ", el("b", {}, fmt(r.views))), el("span", {}, "コメント ", el("b", {}, fmt(r.comments))), el("span", {}, "マイリスト（仮） ", el("b", {}, fmt(mylistCount(r.repo)))), el("span", {}, lenText(streak(r.repo, ui.genre)) + "・" + r.lang),
+        el("button", { class: "ml", "aria-pressed": P.fav.has(r.repo) ? "true" : "false", onclick: () => { P.fav.toggle(r.repo); render(); } }, P.fav.has(r.repo) ? "★ マイリスト登録済" : "＋ マイリスト")),
+      el("section", { class: "vbox" }, el("h2", {}, "動画の説明文"), el("p", {}, r.summary), el("p", { lang: "en", style: "color:#666" }, r.desc || "")),
+      el("section", { class: "vbox graph" }, el("h2", {}, "★の推移（再生数グラフ）"), graph(r)),
+      el("section", { class: "vbox" }, el("h2", {}, "流れているコメント（要約と数字の言い換えだけ）"), el("ul", { class: "cmlist" }, cms.map((t, i) => el("li", {}, el("span", {}, "#" + (i + 1)), el("span", {}, t))))));
+  }
+
+  function renderSide(box) {
+    const all = new Map();
+    P.day.trending.items.forEach((x) => all.set(x.repo, x));
+    P.day.topics.forEach((t) => t.items.forEach((x) => { if (!all.has(x.repo)) all.set(x.repo, x); }));
+    const favs = [...all.values()].filter((x) => P.fav.has(x.repo));
+    box.append(
+      el("div", { class: "box" }, el("h2", {}, "マイリスト"),
+        favs.length ? el("ol", {}, favs.map((x) => el("li", {}, el("button", { onclick: () => { ui.view = Object.assign({}, x, { views: x.stars, comments: x.today ?? x.delta, summary: x.summary }); render(); window.scrollTo(0, 0); } }, x.repo)))) : el("p", {}, "まだ登録された動画はありません。「＋ マイリスト」を押すと入ります。" + (P.fav.available() ? "" : "（この環境では保存できません）"))),
+      el("div", { class: "box" }, el("h2", {}, "このランキングについて"),
+        el("p", {}, "毎朝 6 時台に、その日の GitHub Trending と、関心領域の★急上昇を集めています。最終更新 ", el("b", {}, jst() + " JST"), "。"),
+        el("p", {}, "記録は 2026/11/01 から。それより前の日には、さかのぼりません。")));
+  }
+
+  function render() {
+    const main = document.getElementById("main"), side = document.getElementById("side");
+    main.replaceChildren(); side.replaceChildren();
+    if (ui.view) renderDetail(main); else renderList(main);
+    renderSide(side);
+    document.getElementById("alert").replaceChildren(P.state === "stale" ? el("div", { class: "alert", role: "alert" }, "【お知らせ】ランキングの更新が止まっています。表示中は前回までの記録で、今朝の分はまだ集められていません。") : "");
+    document.title = (ui.view ? ui.view.repo + " - " : "") + "きらり動画 - ランキング";
+  }
+  P.onDate(() => { ui.view = null; render(); });
+  const demo = new URLSearchParams(location.search).get("open"); // 確認用: ?open=detail
+  render();
+  if (demo === "detail") { ui.view = rows()[0]; render(); }
+  if (demo === "topic") { ui.genre = P.day.topics[1].id; render(); }
+})();
+</script>
+<script>if (location.search.includes("diag")) window.addEventListener("load", () => setTimeout(() => { document.title = "DIAG errs=" + window.__errs.length + " sw=" + document.documentElement.scrollWidth; }, 300));</script>
+</body>
+</html>

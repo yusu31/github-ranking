@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>きょうのランキング - エクスプローラ</title>
+<link rel="stylesheet" href="assets/98.css">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body {
+    background: #008080 url(assets/wall.png);
+    font-family: "MS PGothic", "MS UI Gothic", "ＭＳ Ｐゴシック", "Yu Gothic UI", sans-serif;
+    font-size: 12px; color: #000; user-select: none; -webkit-user-select: none;
+  }
+  .window, .window button, .window input, .window select, .window table, .window label, .window textarea, ul.tree-view, .start-menu, .taskbar, .taskbar button {
+    font-family: "MS PGothic", "MS UI Gothic", "ＭＳ Ｐゴシック", "Yu Gothic UI", "Pixelated MS Sans Serif", Arial, sans-serif; font-size: 12px;
+  }
+  .desktop { position: absolute; inset: 0 0 28px 0; }
+  .icons { position: absolute; left: 8px; top: 8px; display: flex; flex-direction: column; gap: 14px; }
+  .dicon { width: 76px; background: none; border: 0; box-shadow: none; padding: 2px; min-width: 0; min-height: 0; text-align: center; color: #fff; cursor: default; }
+  .dicon:focus { outline: none; }
+  .dicon img { width: 32px; height: 32px; image-rendering: pixelated; display: block; margin: 0 auto 3px; }
+  .dicon span { display: inline-block; padding: 1px 2px; line-height: 1.25; word-break: break-all; }
+  .dicon.sel span, .dicon:focus span { background: #000080; outline: 1px dotted #ff0; }
+  .dicon.sel img { filter: sepia(1) hue-rotate(190deg) saturate(3) brightness(.8); }
+
+  .window { position: absolute; display: none; flex-direction: column; box-sizing: border-box; max-width: 100vw; }
+  .window.open { display: flex; }
+  .window .title-bar { cursor: default; touch-action: none; }
+  .window.inactive .title-bar { background: linear-gradient(90deg, #808080, #b5b5b5); }
+  .title-bar-text { display: flex; align-items: center; gap: 4px; }
+  .title-bar-text img { width: 16px; height: 16px; image-rendering: pixelated; }
+  .window-body { margin: 0; padding: 4px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .menubar { display: flex; gap: 0; padding: 1px 0 3px; border-bottom: 1px solid #fff; box-shadow: 0 -1px #808080 inset; margin: -4px -4px 4px; padding-left: 4px; }
+  .menubar span { padding: 2px 8px; }
+  .toolbar { display: flex; align-items: center; gap: 3px; margin-bottom: 4px; flex-wrap: wrap; }
+  .toolbar button { min-width: 0; padding: 2px 8px; height: 23px; }
+  .toolbar .addr { flex: 1; display: flex; align-items: center; gap: 4px; min-width: 190px; }
+  .toolbar .addr select { flex: 1; min-width: 0; height: 21px; }
+  .sunken-panel { flex: 1; min-height: 0; overflow: auto; background: #fff; }
+  .sunken-panel table { width: 100%; }
+  table.interactive thead th { cursor: default; white-space: nowrap; position: sticky; top: 0; z-index: 1; }
+  table.interactive thead th button { all: unset; display: block; width: 100%; cursor: default; }
+  table.interactive th[aria-sort] button::after { content: " ▲"; font-size: 8px; }
+  table.interactive th[aria-sort="descending"] button::after { content: " ▼"; }
+  table.interactive td { white-space: nowrap; padding: 1px 6px; }
+  table.interactive td.num, table.interactive th.num { text-align: right; }
+  table.interactive td.nm { white-space: normal; word-break: break-all; }
+  table.interactive td.nm img { width: 16px; height: 16px; image-rendering: pixelated; vertical-align: middle; margin-right: 4px; }
+  table.interactive tbody tr[aria-selected="true"] > td { background: #000080; color: #fff; }
+  table.interactive tbody tr:focus { outline: none; }
+  table.interactive tbody tr:focus > td.nm { outline: 1px dotted #ff0; outline-offset: -1px; }
+  .up { color: #c00; } .down { color: #00a; } tr[aria-selected="true"] .up, tr[aria-selected="true"] .down { color: #fff; }
+  .status-bar { margin-top: 4px; }
+  .tabs-row { margin-bottom: -2px; }
+  .window [role=tabpanel] { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .note { padding: 6px 8px; line-height: 1.5; }
+
+  .dlg { width: 340px; }
+  .dlg .row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; }
+  .dlg .row img { width: 32px; height: 32px; image-rendering: pixelated; }
+  .dlg dl { margin: 0; display: grid; grid-template-columns: 70px 1fr; gap: 3px 6px; }
+  .dlg dt { color: #000; } .dlg dd { margin: 0; word-break: break-word; }
+  .dlg .btns { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; }
+  .dlg .btns button { min-width: 72px; }
+  .graph { background: #fff; padding: 4px 4px 2px; margin: 4px 0; }
+  .graph svg { display: block; width: 100%; height: 76px; }
+  .graph .cap { display: flex; justify-content: space-between; font-size: 11px; }
+
+  .taskbar { position: fixed; left: 0; right: 0; bottom: 0; height: 28px; box-sizing: border-box; background: #c0c0c0; display: flex; align-items: center; gap: 4px; padding: 2px; box-shadow: inset 0 1px #fff, inset 0 2px #dfdfdf; z-index: 9000; }
+  .taskbar button { height: 22px; min-width: 0; padding: 0 6px; font-weight: normal; }
+  .taskbar .start { font-weight: bold; display: flex; align-items: center; gap: 4px; padding: 0 6px; }
+  .taskbar .start img { width: 16px; height: 16px; image-rendering: pixelated; }
+  .taskbar .sep { width: 2px; height: 20px; box-shadow: inset 1px 0 #808080, inset -1px 0 #fff; }
+  .tasks { flex: 1; display: flex; gap: 3px; overflow: hidden; min-width: 0; }
+  .tasks button { flex: 0 1 150px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; display: flex; align-items: center; gap: 4px; }
+  .tasks button img { width: 16px; height: 16px; image-rendering: pixelated; flex: none; }
+  .tasks button.active { box-shadow: var(--border-sunken-outer), var(--border-sunken-inner); background: repeating-conic-gradient(#c0c0c0 0 25%, #fff 0 50%) 0 0/2px 2px; font-weight: bold; }
+  .tray { box-shadow: var(--border-field); padding: 3px 8px; display: flex; gap: 6px; align-items: center; height: 22px; box-sizing: border-box; white-space: nowrap; }
+  .start-menu { position: fixed; left: 2px; bottom: 28px; width: 190px; background: #c0c0c0; box-shadow: var(--border-raised-outer), var(--border-raised-inner); padding: 2px 2px 2px 26px; display: none; z-index: 9100; }
+  .start-menu.open { display: block; }
+  .start-menu::before { content: "GitHub 98"; position: absolute; left: 2px; top: 2px; bottom: 2px; width: 22px; background: linear-gradient(0deg, #000080, #1084d0); color: #c0c0c0; writing-mode: vertical-rl; transform: rotate(180deg); font: bold 15px Arial, sans-serif; padding: 4px 0; text-align: left; letter-spacing: 1px; box-sizing: border-box; }
+  .start-menu button { display: flex; width: 100%; align-items: center; gap: 8px; box-shadow: none; background: none; text-align: left; min-height: 30px; padding: 2px 6px; }
+  .start-menu button:hover, .start-menu button:focus { background: #000080; color: #fff; outline: none; }
+  .start-menu img { width: 24px; height: 24px; image-rendering: pixelated; }
+  .start-menu hr { margin: 2px 0; border: 0; border-top: 1px solid #808080; border-bottom: 1px solid #fff; }
+  .foot { position: fixed; right: 8px; bottom: 36px; color: #cfe; font-size: 11px; text-align: right; max-width: 300px; line-height: 1.4; pointer-events: none; text-shadow: 1px 1px #064; }
+
+  @media (max-width: 640px) {
+    .window.open:not(.dlg) { inset: 0 0 28px 0 !important; width: auto !important; height: auto !important; }
+    .window.dlg.open { left: 4px !important; right: 4px; width: auto; top: 8px !important; max-height: calc(100% - 44px); overflow: auto; }
+    .window .title-bar { touch-action: auto; }
+    .foot { display: none; }
+    .tasks button { flex-basis: 40px; }
+    .tasks button span { display: none; }
+    .tray .dt { display: none; }
+    .toolbar .addr { min-width: 0; flex-basis: 100%; }
+    table.interactive td { font-size: 12px; padding: 3px 4px; }
+    .col-lang { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="desktop" id="desktop">
+  <div class="icons" id="icons"></div>
+  <div class="foot">v5-04 むかしのパソコンのデスクトップ — 1990年代の OS の画面（アイコン・ウィンドウ・タスクバー）の文法を借りた案。<br>素材: 98.css（MIT）／アイコン・壁紙は自作（Pillow）</div>
+</div>
+<div class="start-menu" id="startMenu" role="menu"></div>
+<div class="taskbar" id="taskbar">
+  <button class="start" id="startBtn" aria-haspopup="true" aria-expanded="false"><img src="assets/computer.png" alt=""><span>スタート</span></button>
+  <div class="sep"></div>
+  <div class="tasks" id="tasks"></div>
+  <div class="tray" aria-label="現在時刻（日本標準時）"><span class="dt" id="clockDate"></span><span id="clock"></span><span>JST</span></div>
+</div>
+
+<script>window.__errs = []; window.addEventListener("error", (e) => window.__errs.push(e.message));</script>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = window.PROTO, el = P.el, svg = P.svg, fmt = P.fmt;
+  const coarse = () => window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(max-width: 640px)").matches;
+  const windows = {}; let z = 10, activeId = null;
+
+  /* ---------- ウィンドウの共通部品 ---------- */
+  function makeWindow(id, title, icon, body, o) {
+    o = o || {};
+    const btns = el("div", { class: "title-bar-controls" },
+      o.min === false ? null : el("button", { "aria-label": "Minimize", title: "最小化", onclick: () => minimize(id) }),
+      o.max === false ? null : el("button", { "aria-label": "Maximize", title: "最大化", onclick: () => toggleMax(id) }),
+      el("button", { "aria-label": "Close", title: "閉じる", onclick: () => close(id) }));
+    const bar = el("div", { class: "title-bar" }, el("div", { class: "title-bar-text" }, el("img", { src: "assets/" + icon + ".png", alt: "" }), el("span", { class: "ttl" }, title)), btns);
+    const win = el("div", { class: "window" + (o.dlg ? " dlg" : ""), role: o.dlg ? "dialog" : "region", "aria-label": title, style: `left:${o.x ?? 120}px;top:${o.y ?? 20}px;` + (o.w ? `width:${o.w}px;` : "") + (o.h ? `height:${o.h}px;` : "") }, bar, el("div", { class: "window-body" }, body));
+    win.addEventListener("pointerdown", () => focus(id));
+    bar.addEventListener("dblclick", (e) => { if (!o.dlg && !e.target.closest("button")) toggleMax(id); });
+    drag(win, bar);
+    document.getElementById("desktop").append(win);
+    windows[id] = { id, win, title, icon, o, titleEl: bar.querySelector(".ttl"), restore: null };
+    return windows[id];
+  }
+  function drag(win, bar) {
+    let sx, sy, ox, oy, on = false;
+    bar.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("button") || coarse() || win.classList.contains("max")) return;
+      on = true; sx = e.clientX; sy = e.clientY; ox = win.offsetLeft; oy = win.offsetTop; bar.setPointerCapture(e.pointerId);
+    });
+    bar.addEventListener("pointermove", (e) => {
+      if (!on) return;
+      const d = document.getElementById("desktop");
+      win.style.left = Math.max(-win.offsetWidth + 80, Math.min(d.clientWidth - 60, ox + e.clientX - sx)) + "px";
+      win.style.top = Math.max(0, Math.min(d.clientHeight - 24, oy + e.clientY - sy)) + "px";
+    });
+    const end = () => { on = false; };
+    bar.addEventListener("pointerup", end); bar.addEventListener("pointercancel", end);
+  }
+  function open(id) {
+    const w = windows[id]; if (!w) return;
+    w.win.classList.add("open"); w.win.classList.remove("hidden");
+    focus(id); renderTasks();
+    const f = w.win.querySelector("[data-first]"); if (f && !coarse()) f.focus({ preventScroll: true });
+  }
+  function close(id) {
+    const w = windows[id]; w.win.classList.remove("open");
+    if (activeId === id) activeId = null;
+    renderTasks();
+    const top = Object.values(windows).filter((x) => x.win.classList.contains("open") && x.id !== id).sort((a, b) => +a.win.style.zIndex - +b.win.style.zIndex).pop();
+    if (top) focus(top.id);
+  }
+  function minimize(id) { const w = windows[id]; w.win.classList.remove("open"); w.min = true; if (activeId === id) activeId = null; renderTasks(); }
+  function toggleMax(id) {
+    const w = windows[id], s = w.win.style;
+    if (w.win.classList.toggle("max")) { w.restore = { l: s.left, t: s.top, w: s.width, h: s.height }; s.left = "0"; s.top = "0"; s.width = "100%"; s.height = "100%"; }
+    else if (w.restore) { s.left = w.restore.l; s.top = w.restore.t; s.width = w.restore.w; s.height = w.restore.h; }
+  }
+  function focus(id) {
+    activeId = id;
+    Object.values(windows).forEach((w) => w.win.classList.toggle("inactive", w.id !== id));
+    windows[id].win.style.zIndex = ++z;
+    renderTasks();
+  }
+  function renderTasks() {
+    const box = document.getElementById("tasks"); box.replaceChildren();
+    Object.values(windows).filter((w) => w.win.classList.contains("open")).forEach((w) => {
+      box.append(el("button", { class: w.id === activeId ? "active" : "", title: w.title, onclick: () => (w.id === activeId ? minimize(w.id) : open(w.id)) },
+        el("img", { src: "assets/" + w.icon + ".png", alt: "" }), el("span", {}, w.title)));
+    });
+    // 最小化したウィンドウも一覧に残す
+    Object.values(windows).filter((w) => w.min && !w.win.classList.contains("open")).forEach((w) => {
+      box.append(el("button", { title: w.title, onclick: () => { w.min = false; open(w.id); } }, el("img", { src: "assets/" + w.icon + ".png", alt: "" }), el("span", {}, w.title)));
+    });
+  }
+
+  /* ---------- データ ---------- */
+  const allItems = () => {
+    const m = new Map();
+    P.day.trending.items.forEach((x) => m.set(x.repo, x));
+    P.day.topics.forEach((t) => t.items.forEach((x) => { if (!m.has(x.repo)) m.set(x.repo, Object.assign({ today: x.delta }, x)); }));
+    return m;
+  };
+  const chgNum = (repo) => { const c = V3.change(repo); return c.kind === "new" ? 9999 : c.kind === "up" ? c.n : c.kind === "down" ? -c.n : 0; };
+  const chgText = (repo) => { const c = V3.change(repo); return c.kind === "new" ? "NEW" : c.kind === "up" ? "▲" + c.n : c.kind === "down" ? "▼" + c.n : "―"; };
+  const chgCls = (repo) => V3.change(repo).kind === "up" || V3.change(repo).kind === "new" ? "up" : V3.change(repo).kind === "down" ? "down" : "";
+  const jstStamp = () => { const u = P.day.updatedAt; return u.slice(0, 10).replace(/-/g, "/") + " " + u.slice(11, 16); };
+
+  /* ---------- 並べ替えできる詳細表示の表 ---------- */
+  function listView(cols, rows, onOpen, state) {
+    // cols: [{key,label,num,cls,get(row),cell(row)}]
+    const table = el("table", { class: "interactive", role: "grid" });
+    const head = el("tr"); const tbody = el("tbody");
+    table.append(el("thead", {}, head), tbody);
+    function render() {
+      head.replaceChildren(...cols.map((c) => {
+        const th = el("th", { scope: "col", class: (c.num ? "num " : "") + (c.cls || ""), "aria-sort": state.key === c.key ? (state.dir > 0 ? "ascending" : "descending") : null },
+          el("button", { onclick: () => { state.dir = state.key === c.key ? -state.dir : (c.num ? -1 : 1); state.key = c.key; render(); }, title: c.label + "で並べ替え" }, c.label));
+        return th;
+      }));
+      const col = cols.find((c) => c.key === state.key) || cols[0];
+      const sorted = rows.slice().sort((a, b) => { const x = col.get(a), y = col.get(b); return (typeof x === "string" ? x.localeCompare(y) : x - y) * state.dir; });
+      tbody.replaceChildren(...sorted.map((r) => {
+        const tr = el("tr", { tabindex: "0", "aria-selected": state.sel === r.repo ? "true" : "false", "data-repo": r.repo },
+          cols.map((c) => el("td", { class: (c.num ? "num " : "") + (c.cls || "") }, c.cell(r))));
+        const select = () => { state.sel = r.repo; tbody.querySelectorAll("tr").forEach((x) => x.setAttribute("aria-selected", x === tr ? "true" : "false")); tr.focus({ preventScroll: true }); };
+        tr.addEventListener("click", () => { select(); if (coarse()) onOpen(r); });
+        tr.addEventListener("dblclick", () => onOpen(r));
+        tr.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") onOpen(r);
+          else if (e.key === "ArrowDown" && tr.nextElementSibling) { e.preventDefault(); tr.nextElementSibling.focus(); tr.nextElementSibling.click(); }
+          else if (e.key === "ArrowUp" && tr.previousElementSibling) { e.preventDefault(); tr.previousElementSibling.focus(); tr.previousElementSibling.click(); }
+        });
+        return tr;
+      }));
+      if (table.dataset.count) {}
+    }
+    render();
+    return { table, render };
+  }
+
+  /* ---------- きょうのランキング ---------- */
+  const rankState = { key: "today", dir: -1 };
+  let rankView, addrSel, statusL, statusR, backBtn, fwdBtn;
+  function buildRanking() {
+    addrSel = el("select", { "aria-label": "アドレス（日付）", "data-first": "", onchange: (e) => P.setDate(e.target.value) });
+    P.data.DATES.slice().reverse().forEach((d) => addrSel.append(el("option", { value: d }, `C:\\きょうのランキング\\${d}（${P.weekday(d)}）`)));
+    backBtn = el("button", { title: "戻る（前の日）", onclick: () => P.step(-1) }, "◀ 戻る");
+    fwdBtn = el("button", { title: "進む（次の日）", onclick: () => P.step(1) }, "進む ▶");
+    const cols = [
+      { key: "name", label: "名前", get: (r) => r.repo, cell: (r) => [el("img", { src: "assets/doc16.png", alt: "" }), r.repo] , cls: "nm" },
+      { key: "lang", label: "言語", get: (r) => r.lang, cell: (r) => r.lang, cls: "col-lang" },
+      { key: "today", label: "今日の★", num: true, get: (r) => r.today, cell: (r) => fmt(r.today) },
+      { key: "stars", label: "総★", num: true, get: (r) => r.stars, cell: (r) => fmt(r.stars) },
+      { key: "chg", label: "前日比", num: true, get: (r) => chgNum(r.repo), cell: (r) => el("span", { class: chgCls(r.repo) }, chgText(r.repo)) },
+    ];
+    rankView = listView(cols, P.day.trending.items, (r) => showProps(r), rankState);
+    statusL = el("p", { class: "status-bar-field" }); statusR = el("p", { class: "status-bar-field" });
+    const body = el("div", { style: "display:flex;flex-direction:column;flex:1;min-height:0" },
+      el("div", { class: "menubar" }, el("span", {}, "ファイル(F)"), el("span", {}, "編集(E)"), el("span", {}, "表示(V)"), el("span", {}, "ヘルプ(H)")),
+      el("div", { class: "toolbar" }, backBtn, fwdBtn, el("div", { class: "addr" }, el("span", {}, "アドレス"), addrSel)),
+      el("div", { class: "sunken-panel", id: "rankPanel" }, rankView.table),
+      el("div", { class: "status-bar" }, statusL, statusR));
+    makeWindow("rank", "きょうのランキング", "ranking", body, { x: 110, y: 14, w: 640, h: 520 });
+  }
+  function refreshRanking() {
+    const items = P.day.trending.items;
+    rankView.table.remove();
+    const cols = null; // 日付が変わったので表を作り直す
+    buildRankTable();
+    addrSel.value = P.date; backBtn.disabled = !P.hasPrev(); fwdBtn.disabled = !P.hasNext();
+    statusL.textContent = `${items.length} 個のオブジェクト（選択: ${rankState.sel || "なし"}）`;
+    statusR.textContent = `更新 ${jstStamp()} JST`;
+    windows.rank.titleEl.textContent = `きょうのランキング - ${P.date.replace(/-/g, "/")}`;
+  }
+  function buildRankTable() {
+    const cols = [
+      { key: "name", label: "名前", get: (r) => r.repo, cell: (r) => [el("img", { src: "assets/doc16.png", alt: "" }), r.repo], cls: "nm" },
+      { key: "lang", label: "言語", get: (r) => r.lang, cell: (r) => r.lang, cls: "col-lang" },
+      { key: "today", label: "今日の★", num: true, get: (r) => r.today, cell: (r) => fmt(r.today) },
+      { key: "stars", label: "総★", num: true, get: (r) => r.stars, cell: (r) => fmt(r.stars) },
+      { key: "chg", label: "前日比", num: true, get: (r) => chgNum(r.repo), cell: (r) => el("span", { class: chgCls(r.repo) }, chgText(r.repo)) },
+    ];
+    rankView = listView(cols, P.day.trending.items, (r) => showProps(r), rankState);
+    document.getElementById("rankPanel").append(rankView.table);
+    rankView.table.addEventListener("click", () => { statusL.textContent = `${P.day.trending.items.length} 個のオブジェクト（選択: ${rankState.sel || "なし"}）`; });
+  }
+
+  /* ---------- プロパティ ---------- */
+  let propsWin = null, propsRepo = null;
+  function graphEl(repo, stars) {
+    const pts = P.history(repo, stars);
+    const vals = pts.map((p) => p.stars).filter((v) => v != null);
+    const min = Math.min(...vals), max = Math.max(...vals), W = 300, H = 76, n = pts.length, bw = W / n;
+    const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", role: "img", "aria-label": `★の推移 ${pts[0].date} から ${pts[n - 1].date}。${fmt(vals[0])} から ${fmt(max)}` });
+    pts.forEach((p, i) => {
+      if (p.stars == null) { s.append(svg("rect", { x: i * bw + 1, y: H - 4, width: bw - 2, height: 3, fill: "#c00" })); return; }
+      const h = 8 + (H - 12) * ((p.stars - min) / Math.max(1, max - min));
+      // 98 の進捗バーのような、すき間のあるブロック
+      for (let y = H; y > H - h; y -= 7) s.append(svg("rect", { x: i * bw + 1, y: y - 6, width: bw - 2, height: 6, fill: "#000080" }));
+    });
+    return el("div", { class: "graph" }, s, el("div", { class: "cap" }, el("span", {}, pts[0].date.slice(5).replace("-", "/")), el("span", {}, "★の推移（赤い線＝記録なしの日）"), el("span", {}, pts[n - 1].date.slice(5).replace("-", "/"))));
+  }
+  function showProps(r) {
+    if (propsWin) { propsWin.win.remove(); delete windows.props; }
+    propsRepo = r.repo;
+    const cb = el("input", { type: "checkbox", id: "favcb", onchange: () => { P.fav.toggle(r.repo); refreshFav(); } });
+    cb.checked = P.fav.has(r.repo);
+    const desc = r.desc || "（英語の説明はありません）";
+    const body = el("div", {},
+      el("div", { class: "row" }, el("img", { src: "assets/doc16.png", alt: "" }), el("strong", { style: "word-break:break-all;align-self:center" }, r.repo)),
+      el("fieldset", {}, el("legend", {}, "全般"),
+        el("dl", {},
+          el("dt", {}, "種類:"), el("dd", {}, `${r.lang} のリポジトリ`),
+          el("dt", {}, "場所:"), el("dd", {}, `C:\\きょうのランキング\\${P.date}`),
+          el("dt", {}, "今日の★:"), el("dd", {}, fmt(r.today)),
+          el("dt", {}, "総★:"), el("dd", {}, fmt(r.stars)),
+          el("dt", {}, "前日比:"), el("dd", {}, chgText(r.repo)),
+          el("dt", {}, "要約:"), el("dd", {}, r.summary),
+          el("dt", {}, "説明:"), el("dd", {}, desc))),
+      graphEl(r.repo, r.stars),
+      el("div", { class: "field-row" }, cb, el("label", { for: "favcb" }, "お気に入りに入れる")),
+      el("div", { class: "btns" },
+        el("button", { "data-first": "", onclick: () => close("props") }, "OK"),
+        el("button", { onclick: () => close("props") }, "キャンセル")));
+    const w = makeWindow("props", `${V3.name(r.repo)} のプロパティ`, "info", body, { dlg: true, x: Math.max(8, (window.innerWidth - 340) / 2), y: 50, min: false, max: false });
+    propsWin = w; open("props");
+  }
+
+  /* ---------- 関心領域 ---------- */
+  const topicState = { key: "delta", dir: -1 }; let topicId = null;
+  function buildTopics() {
+    const body = el("div", { style: "display:flex;flex-direction:column;flex:1;min-height:0" },
+      el("div", { class: "menubar" }, el("span", {}, "ファイル(F)"), el("span", {}, "表示(V)")),
+      el("div", { class: "tabs-row" }, el("menu", { role: "tablist", id: "topicTabs", style: "margin:0 0 -2px;padding:0" })),
+      el("div", { class: "sunken-panel", id: "topicPanel", role: "tabpanel" }),
+      el("div", { class: "status-bar" }, el("p", { class: "status-bar-field", id: "topicStat" })));
+    makeWindow("topics", "関心領域", "topics", body, { x: 150, y: 60, w: 560, h: 420 });
+  }
+  function refreshTopics() {
+    const tabs = document.getElementById("topicTabs"); topicId = topicId || P.day.topics[0].id;
+    tabs.replaceChildren(...P.day.topics.map((t) => el("li", { role: "tab", "aria-selected": t.id === topicId ? "true" : "false" },
+      el("a", { href: "#", onclick: (e) => { e.preventDefault(); topicId = t.id; refreshTopics(); } }, t.label))));
+    const t = P.day.topics.find((x) => x.id === topicId);
+    const cols = [
+      { key: "name", label: "名前", get: (r) => r.repo, cell: (r) => [el("img", { src: "assets/doc16.png", alt: "" }), r.repo], cls: "nm" },
+      { key: "lang", label: "言語", get: (r) => r.lang, cell: (r) => r.lang, cls: "col-lang" },
+      { key: "delta", label: "今日の★", num: true, get: (r) => r.delta ?? -1, cell: (r) => (r.delta == null ? "NEW" : "+" + fmt(r.delta)) },
+      { key: "stars", label: "総★", num: true, get: (r) => r.stars, cell: (r) => fmt(r.stars) },
+    ];
+    const rows = t.items.map((x) => Object.assign({ today: x.delta }, x));
+    const v = listView(cols, rows, (r) => showProps(r), topicState);
+    document.getElementById("topicPanel").replaceChildren(v.table);
+    document.getElementById("topicStat").textContent = `${rows.length} 個のオブジェクト　（${t.label} の★急上昇）`;
+  }
+
+  /* ---------- お気に入り ---------- */
+  const favState = { key: "name", dir: 1 };
+  function buildFav() {
+    const body = el("div", { style: "display:flex;flex-direction:column;flex:1;min-height:0" },
+      el("div", { class: "menubar" }, el("span", {}, "ファイル(F)"), el("span", {}, "表示(V)")),
+      el("div", { class: "sunken-panel", id: "favPanel" }),
+      el("div", { class: "status-bar" }, el("p", { class: "status-bar-field", id: "favStat" })));
+    makeWindow("fav", "お気に入り", "fav", body, { x: 190, y: 100, w: 440, h: 300 });
+  }
+  function refreshFav() {
+    if (!windows.fav) return;
+    const m = allItems(); const rows = [];
+    for (const [repo, x] of m) if (P.fav.has(repo)) rows.push(x);
+    const panel = document.getElementById("favPanel");
+    if (!rows.length) { panel.replaceChildren(el("p", { class: "note" }, "このフォルダは空です。リポジトリの「プロパティ」で「お気に入りに入れる」にチェックすると、ここに入ります。" + (P.fav.available() ? "" : "（この環境では保存できないため、閉じると消えます）"))); }
+    else {
+      const cols = [
+        { key: "name", label: "名前", get: (r) => r.repo, cell: (r) => [el("img", { src: "assets/doc16.png", alt: "" }), r.repo], cls: "nm" },
+        { key: "stars", label: "総★", num: true, get: (r) => r.stars, cell: (r) => fmt(r.stars) },
+      ];
+      panel.replaceChildren(listView(cols, rows, (r) => showProps(r), favState).table);
+    }
+    document.getElementById("favStat").textContent = `${rows.length} 個のオブジェクト`;
+  }
+
+  /* ---------- ごみ箱 ---------- */
+  function buildTrash() {
+    const body = el("div", { style: "display:flex;flex-direction:column;flex:1;min-height:0" },
+      el("div", { class: "sunken-panel" }, el("p", { class: "note" }, "ごみ箱は空です。", el("br"), "記録を取り始めたのは 2026/11/01 から。それより前の★は、さかのぼって集めないので、ここにはありません。")),
+      el("div", { class: "status-bar" }, el("p", { class: "status-bar-field" }, "0 個のオブジェクト")));
+    makeWindow("trash", "ごみ箱", "trash", body, { x: 230, y: 140, w: 420, h: 200 });
+  }
+
+  /* ---------- 警告ダイアログ ---------- */
+  function msgbox(id, title, text) {
+    const body = el("div", {}, el("div", { class: "row" }, el("div", { style: "width:32px;height:32px;border-radius:50%;background:#c00;color:#fff;font:bold 22px/32px Arial;text-align:center;flex:none" }, "×"), el("p", { style: "margin:0;line-height:1.5" }, text)),
+      el("div", { class: "btns", style: "justify-content:center" }, el("button", { "data-first": "", onclick: () => close(id) }, "OK")));
+    makeWindow(id, title, "info", body, { dlg: true, x: Math.max(8, (window.innerWidth - 340) / 2), y: 120, min: false, max: false });
+  }
+
+  /* ---------- デスクトップとスタートメニュー ---------- */
+  const ICONS = [["rank", "ranking", "きょうの\nランキング"], ["topics", "topics", "関心領域"], ["fav", "fav", "お気に入り"], ["trash", "trash", "ごみ箱"]];
+  function buildIcons() {
+    const box = document.getElementById("icons");
+    ICONS.forEach(([id, ic, label]) => {
+      const b = el("button", { class: "dicon", "aria-label": label.replace("\n", "") + "を開く（ダブルクリック、またはEnter）" }, el("img", { src: `assets/${ic}.png`, alt: "" }), el("span", {}, label.replace("\n", "")));
+      const act = () => { if (id === "fav") refreshFav(); if (id === "topics") refreshTopics(); windows[id].min = false; open(id); };
+      b.addEventListener("click", () => { box.querySelectorAll(".dicon").forEach((x) => x.classList.toggle("sel", x === b)); if (coarse()) act(); });
+      b.addEventListener("dblclick", act);
+      b.addEventListener("keydown", (e) => { if (e.key === "Enter") act(); });
+      box.append(b);
+    });
+    document.getElementById("desktop").addEventListener("pointerdown", (e) => { if (e.target.id === "desktop") box.querySelectorAll(".dicon").forEach((x) => x.classList.remove("sel")); });
+  }
+  function buildStart() {
+    const menu = document.getElementById("startMenu"), btn = document.getElementById("startBtn");
+    const items = [["きょうのランキング", "ranking", "rank"], ["関心領域", "topics", "topics"], ["お気に入り", "fav", "fav"], ["ごみ箱", "trash", "trash"]];
+    items.forEach(([t, ic, id]) => menu.append(el("button", { role: "menuitem", onclick: () => { toggle(false); if (id === "fav") refreshFav(); if (id === "topics") refreshTopics(); windows[id].min = false; open(id); } }, el("img", { src: `assets/${ic}.png`, alt: "" }), t)));
+    menu.append(el("hr"), el("button", { role: "menuitem", onclick: () => { toggle(false); msgbox("down" + Date.now(), "終了", "ランキングは毎朝 6 時台に自動で更新されます。このページを閉じても大丈夫です。"); open(Object.keys(windows).pop()); } }, el("img", { src: "assets/computer.png", alt: "" }), "シャットダウン…"));
+    function toggle(v) { const o = v ?? !menu.classList.contains("open"); menu.classList.toggle("open", o); btn.setAttribute("aria-expanded", o); btn.classList.toggle("active", o); if (o) menu.querySelector("button").focus(); }
+    btn.addEventListener("click", (e) => { e.stopPropagation(); toggle(); });
+    document.addEventListener("pointerdown", (e) => { if (!e.target.closest("#startMenu,#startBtn")) toggle(false); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") toggle(false); });
+  }
+
+  /* ---------- 時計（日本標準時） ---------- */
+  function tick() {
+    const d = new Date();
+    const f = (o) => new Intl.DateTimeFormat("ja-JP", Object.assign({ timeZone: "Asia/Tokyo" }, o)).format(d);
+    document.getElementById("clock").textContent = f({ hour: "2-digit", minute: "2-digit", hour12: false });
+    document.getElementById("clockDate").textContent = f({ month: "numeric", day: "numeric", weekday: "short" });
+  }
+
+  /* ---------- 起動 ---------- */
+  buildRanking(); buildTopics(); buildFav(); buildTrash(); buildIcons(); buildStart();
+  P.onDate(() => { refreshRanking(); refreshTopics(); refreshFav(); if (windows.props && windows.props.win.classList.contains("open")) close("props"); });
+  refreshRanking(); refreshTopics(); refreshFav();
+  open("rank");
+  if (P.state === "stale") { msgbox("stale", "警告", "ランキングの更新が止まっています。ここに出ているのは前回までの記録で、今朝の分はまだ集められていません。"); open("stale"); }
+  const demo = new URLSearchParams(location.search).get("open"); // 確認用: ?open=props / topics / fav / start
+  if (demo === "props") showProps(P.day.trending.items[0]);
+  if (demo === "topics") { refreshTopics(); open("topics"); }
+  if (demo === "fav") { P.fav.toggle(P.day.trending.items[1].repo); refreshFav(); open("fav"); }
+  if (demo === "start") document.getElementById("startBtn").click();
+  tick(); setInterval(tick, 20000);
+})();
+</script>
+<script>if (location.search.includes("diag")) window.addEventListener("load", () => setTimeout(() => { document.title = "DIAG errs=" + window.__errs.length + " sw=" + document.documentElement.scrollWidth + " iw=" + innerWidth; }, 300));</script>
+</body>
+</html>

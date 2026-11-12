@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5686a5"/><stop offset="1" stop-color="#0d2433"/></linearGradient></defs>
+<rect width="320" height="180" fill="url(#g)"/>
+<polygon points="187,89 -205.9,14.1 -179.4,-71.5" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 -134.5,-149.0 -73.5,-214.6" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 0.6,-264.9 84.0,-297.5" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 172.6,-310.7 261.9,-303.9" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 347.5,-277.4 425.0,-232.5" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 490.6,-171.5 540.9,-97.4" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 573.5,-14.0 586.7,74.6" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 579.9,163.9 553.4,249.5" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 508.5,327.0 447.5,392.6" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 373.4,442.9 290.0,475.5" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 201.4,488.7 112.1,481.9" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 26.5,455.4 -51.0,410.5" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 -116.6,349.5 -166.9,275.4" fill="#fff" fill-opacity="0.13"/><polygon points="187,89 -199.5,192.0 -212.7,103.4" fill="#fff" fill-opacity="0.13"/>
+<g transform="rotate(0 90 110)">
+<rect x="26" y="70" width="104" height="72" fill="#101418" stroke="#fff" stroke-width="3"/>
+<rect x="26" y="70" width="104" height="13" fill="#fff"/>
+<rect x="31" y="74" width="5" height="5" fill="#e33"/><rect x="39" y="74" width="5" height="5" fill="#eb3"/><rect x="47" y="74" width="5" height="5" fill="#3b4"/>
+<text x="34" y="106" font-family="Consolas, monospace" font-size="15" font-weight="bold" fill="#7fe07f">&gt;_ run</text>
+<rect x="34" y="114" width="52" height="5" fill="#5686a5"/><rect x="34" y="124" width="76" height="5" fill="#fff" fill-opacity=".55"/><rect x="34" y="133" width="38" height="4" fill="#fff" fill-opacity=".35"/>
+</g>
+<g font-family="Impact, 'Arial Black', 'Yu Gothic', sans-serif" font-weight="900" text-anchor="end">
+<text x="308" y="82" font-size="52" fill="#fff" stroke="#0d2433" stroke-width="9" paint-order="stroke" stroke-linejoin="round">GLSL</text>
+</g>
+<g font-family="'Yu Gothic','Meiryo',sans-serif" font-weight="bold">
+<rect x="198" y="98" width="110" height="26" fill="#ffe400" stroke="#000" stroke-width="2.5" transform="rotate(-3 253 111)"/>
+<text x="253" y="117" font-size="17" fill="#d00" text-anchor="middle" transform="rotate(-3 253 111)">★急上昇！</text>
+</g>
+</svg>

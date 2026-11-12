@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>星くずクロニクル攻略Wiki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#d9e4df;--ln:#2f6b5c;--hd:#2f6b5c;--hd2:#e3efe9;--lk:#1a4fb4;--vis:#7a2a9a;--red:#c8161d;--tx:#222}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;font:13px/1.55 Meiryo,"Yu Gothic UI","MS PGothic",sans-serif;color:var(--tx);background:var(--bg)}
+a{color:var(--lk);text-decoration:underline}
+a:visited{color:var(--vis)}
+a:hover{background:#fff3b0}
+.wrap{max-width:1000px;margin:0 auto;background:#fff;border:1px solid #8aa89e;border-top:0;border-bottom:0;padding:6px}
+.banner{border:1px solid var(--ln);background:#18263a;height:104px;position:relative;overflow:hidden;color:#fff}
+.banner h1{margin:0;position:absolute;left:18px;bottom:14px;font:400 30px/1 "DotGothic16",monospace;letter-spacing:.06em;text-shadow:2px 2px 0 #000}
+.banner .sub{position:absolute;left:20px;top:10px;font-size:11px;color:#cfe3ff;right:10px}
+.banner .stars{position:absolute;right:0;top:0;bottom:0;width:60%}
+.banner .stars i{position:absolute;display:block;background:#fff;animation:tw 3s steps(2) infinite}
+@keyframes tw{50%{opacity:.25}}
+.nav{border:1px solid var(--ln);border-top:0;background:var(--hd2);display:flex;flex-wrap:wrap;align-items:center;padding:3px 8px}
+.nav a{padding:2px 12px;border-right:1px solid #9bb7ad;font-size:12px}
+.nav a:last-of-type{border-right:0}
+.nav form{margin-left:auto;display:flex;gap:2px}
+.nav input{width:150px;border:1px solid #888;font-size:12px;padding:1px 3px}
+.nav button{font-size:12px;padding:1px 8px}
+.bar{display:flex;justify-content:space-between;border-bottom:1px solid #555;padding:4px 4px;margin:4px 0 8px;font-size:11px;color:#555;gap:8px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:172px minmax(0,1fr);gap:14px;align-items:start}
+.menu{border:1px solid var(--ln);background:#f3f8f5;font-size:12px}
+.menu h3{margin:0;background:var(--hd);color:#fff;font-size:12px;text-align:center;padding:2px 0;border-bottom:1px solid #fff;font-weight:700}
+.menu ul{margin:0;padding:5px 7px 8px;list-style:none}
+.menu li{line-height:1.7}
+.menu li.now a{font-weight:700;color:#000;text-decoration:none;background:#ffe9a8}
+.menu .n{color:#666;font-size:11px}
+.title{background:var(--hd2);border:1px solid var(--ln);border-left-width:8px;padding:5px 10px;margin:0 0 8px}
+.title h1{margin:0;font:700 19px/1.3 Meiryo,sans-serif;overflow-wrap:anywhere}
+.title .mod{font-size:11px;color:#555}
+.title .edit{float:right;font-size:11px}
+h2{font-size:15px;margin:18px 0 8px;padding:3px 8px;border-left:8px solid var(--ln);border-bottom:1px solid #9bb7ad;background:#eef5f2}
+h3.s{font-size:13px;margin:12px 0 4px;border-left:4px solid #8ab5a8;padding-left:6px}
+.toc{border:1px solid #9bb7ad;background:#f7faf8;display:inline-block;min-width:260px;padding:4px 14px 6px 8px;margin:4px 0 10px}
+.toc b{display:block;font-size:12px}
+.toc ol{margin:2px 0 0;padding-left:22px}
+table.t{border-collapse:collapse;width:100%;font-size:12px;margin:4px 0 10px}
+table.t th,table.t td{border:1px solid #6f8f85;padding:2px 6px;vertical-align:middle}
+table.t th{background:#cfe2db;text-align:center;white-space:nowrap}
+table.t td.c{text-align:center;white-space:nowrap}
+table.t td.r{text-align:right;white-space:nowrap}
+table.t tbody tr:nth-child(even) td{background:#f7fbf9}
+table.tier td.lab{width:46px;text-align:center;font:400 22px/1 "DotGothic16",monospace;color:#fff;text-shadow:1px 1px 0 #0006}
+table.tier td.cond{width:150px;white-space:nowrap;font-size:11px;color:#444;background:#f3f3f3!important}
+table.tier td.ic{background:#fff!important}
+.ico{display:inline-block;text-align:center;width:74px;margin:2px 1px;vertical-align:top;font-size:10px;line-height:1.2;overflow-wrap:anywhere}
+.ico img{width:30px;height:30px;image-rendering:pixelated;display:block;margin:0 auto 1px}
+.em{color:var(--red);font-weight:700}
+.sm{font-size:11px;color:#555}
+.ico2{width:20px;height:20px;image-rendering:pixelated;vertical-align:middle;margin-right:4px}
+.warn{border:2px solid var(--red);background:#fff2f2;padding:6px 10px;margin:0 0 10px;color:#900;font-weight:700}
+.dl dt{font-weight:700;margin-top:6px}.dl dd{margin:0 0 0 1.4em}
+.foot{border-top:1px solid #555;margin-top:20px;padding-top:6px;font-size:11px;color:#444}
+.fav{font:inherit;font-size:12px;cursor:pointer}
+.spark{border:1px solid #9bb7ad;background:#fbfdfc;display:block;max-width:100%;height:auto}
+pre.code{background:#f1f1f1;border:1px solid #bbb;padding:4px 8px;margin:4px 0;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 Consolas,monospace}
+.cl{overflow-x:auto}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.banner h1{font-size:21px}.title h1{font-size:16px}.nav form{margin-left:0;width:100%;margin-top:4px}.nav input{flex:1;width:auto}.menu{order:2}.nav a{padding:2px 8px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner" role="banner"><div class="sub">GitHub のリポジトリを「キャラ」として攻略する非公式Wiki（試作・仮データ）</div><div class="stars" id="stars" aria-hidden="true"></div><h1>星くずクロニクル 攻略Wiki</h1></div>
+  <div class="nav" id="nav"></div>
+  <div class="bar" id="bar"></div>
+  <div class="grid"><aside class="menu" id="menu" aria-label="Wiki のメニュー"></aside><main id="main"></main></div>
+  <div class="foot">v5-05 ゲーム攻略Wiki ／ 日本の攻略 Wiki の「左メニュー・太線の見出し・Tier 表・キャラ一覧表・個別ページ」の作りを借りた試作（名前・画像は写していない）／ 素材: 自作ドット絵（CC0 相当）・DotGothic16（SIL OFL 1.1）</div>
+</div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function(){
+const P=PROTO, el=P.el, fmt=P.fmt, $=(id)=>document.getElementById(id);
+const SHAPES=["sword","shield","potion","gem","heart","star","scroll","key"];
+const KNOWN=["Python","TypeScript","JavaScript","Rust","Go","Zig","Markdown","Shell","HTML","GLSL"];
+const TIERS=[{k:"SS",min:700,c:"#c8161d"},{k:"S",min:400,c:"#e0701a"},{k:"A",min:250,c:"#b48f00"},{k:"B",min:120,c:"#3f8f4f"},{k:"C",min:0,c:"#4a6fa5"}];
+const tierOf=(n)=>TIERS.find(t=>n>=t.min);
+const src=(i)=>"assets/"+SHAPES[V3.hash(i.repo)%SHAPES.length]+"_"+(KNOWN.includes(i.lang)?i.lang:"_")+".png";
+const icon=(i,cls,size)=>el("img",{src:src(i),alt:"",class:cls||"",width:size||12,height:size||12});
+const WD=(d)=>d+" ("+P.weekday(d)+")";
+const stamp=(u)=>u.slice(0,10)+" "+u.slice(11,16)+" JST";
+let view=location.hash.replace(/^#/,"")||"top";
+
+function allChars(){
+  const m=new Map();
+  P.day.trending.items.forEach(i=>m.set(i.repo,{...i,src:"trending"}));
+  P.day.topics.forEach(t=>t.items.forEach(i=>{if(!m.has(i.repo))m.set(i.repo,{...i,today:i.delta,src:"topic"});}));
+  return m;
+}
+const link=(repo,text)=>el("a",{href:"#c/"+repo},text||repo);
+const go=(v)=>{location.hash=v;};
+
+function nav(){
+  const n=$("nav");n.textContent="";
+  [["ホーム","top"],["最新の20件","recent"],["Tier 表","tier"],["ヘルプ","glossary"],["ブックマーク ("+P.fav.count()+")","fav"]].forEach(([t,v])=>n.append(el("a",{href:"#"+v},t)));
+  const inp=el("input",{type:"search",placeholder:"サイト内検索","aria-label":"サイト内検索"});
+  n.append(el("form",{onsubmit:(e)=>{e.preventDefault();const q=inp.value.trim();if(q)go("s/"+encodeURIComponent(q));}},inp,el("button",{type:"submit"},"検索")));
+}
+function menu(){
+  const m=$("menu");m.textContent="";
+  const li=(t,v,note)=>el("li",{class:view===v?"now":null},el("a",{href:"#"+v},t),note?el("span",{class:"n"}," "+note):null);
+  const last=P.data.DATES[P.data.DATES.length-1];
+  m.append(el("h3",{},"メニュー"),el("ul",{},li("トップページ","top"),li("最新の20件","recent"),li("Tier 表","tier"),li("用語集","glossary"),li("ブックマーク","fav","("+P.fav.count()+")")));
+  m.append(el("h3",{},"関心領域（別ジャンル）"),el("ul",{},P.day.topics.map(t=>li(t.label,"t/"+t.id))));
+  m.append(el("h3",{},"ページの履歴"),el("ul",{},P.data.DATES.slice().reverse().map(d=>el("li",{class:d===P.date?"now":null},el("a",{href:"#"+view,onclick:(e)=>{e.preventDefault();P.setDate(d);}},WD(d)),d===last?el("span",{class:"n"}," 最新"):null))));
+  m.append(el("h3",{},"このWikiについて"),el("ul",{},el("li",{class:"n"},"データ元: GitHub Trending と関心領域の★の増え"),el("li",{class:"n"},"毎朝 6 時台に更新")));
+}
+function crumb(){
+  if(view==="top")return "トップページ";
+  if(view==="recent")return "最新の20件";
+  if(view==="tier")return "Tier 表";
+  if(view==="glossary")return "用語集";
+  if(view==="fav")return "ブックマーク";
+  if(view.startsWith("t/"))return "関心領域";
+  if(view.startsWith("s/"))return "検索結果";
+  if(view.startsWith("c/"))return "キャラ一覧 ＞ "+view.slice(2).split("/")[1];
+  return view;
+}
+function bar(){
+  const b=$("bar");b.textContent="";
+  b.append(el("span",{},"ホーム ＞ "+crumb()),el("span",{},"最終更新: "+stamp(P.day.updatedAt)));
+}
+function head(title,editable){
+  return el("div",{class:"title"},
+    editable?el("a",{class:"edit",href:"#"+view,onclick:(e)=>{e.preventDefault();alert("試作のため編集はできません。");}},"このページを編集"):null,
+    el("h1",{},title),
+    el("div",{class:"mod"},"最終更新: "+stamp(P.day.updatedAt)+"（"+WD(P.date)+" 版）"));
+}
+const stale=()=>P.state==="stale"?el("div",{class:"warn"},"【お知らせ】Wiki の自動更新が止まっています。表示しているのは "+stamp(P.day.updatedAt)+" 時点の内容です。"):null;
+
+function tierTable(items){
+  return el("table",{class:"t tier"},el("tbody",{},TIERS.map(t=>{
+    const its=items.filter(i=>tierOf(i.today).k===t.k);
+    return el("tr",{},el("td",{class:"lab",style:"background:"+t.c},t.k),
+      el("td",{class:"ic"},its.length?its.map(i=>el("span",{class:"ico"},el("a",{href:"#c/"+i.repo,title:i.repo+" ／ "+i.summary},icon(i,"",30),V3.name(i.repo)))):el("span",{class:"sm"},"（該当なし）")),
+      el("td",{class:"cond"},t.k==="C"?"今日の★増 120 未満":"今日の★増 "+t.min+" 以上"));
+  })));
+}
+function charTable(items,col){
+  return el("div",{class:"cl"},el("table",{class:"t"},
+    el("thead",{},el("tr",{},el("th",{},"No."),el("th",{},"名前"),el("th",{},"属性"),el("th",{},"評価"),el("th",{},col||"今日の★増"),el("th",{},"ひとこと"))),
+    el("tbody",{},items.map((i,k)=>{
+      const t=i.today==null?null:tierOf(i.today);
+      return el("tr",{},el("td",{class:"c"},i.rank||k+1),
+        el("td",{},icon(i,"ico2",20),link(i.repo,V3.name(i.repo)),el("span",{class:"sm"}," "+V3.owner(i.repo))),
+        el("td",{class:"c"},i.lang),
+        el("td",{class:"c"},t?el("b",{style:"color:"+t.c},t.k):el("b",{class:"em"},"新")),
+        el("td",{class:"r"},i.today==null?"新規":"+"+fmt(i.today)),
+        el("td",{},i.summary));
+    }))));
+}
+const toc=(list)=>el("div",{class:"toc"},el("b",{},"目次"),el("ol",{},list.map(([t,id])=>el("li",{},el("a",{href:"#"+view,onclick:(e)=>{e.preventDefault();const n=document.getElementById(id);if(n)n.scrollIntoView({behavior:P.reduced()?"auto":"smooth"});}},t)))));
+
+function pageTop(){
+  const it=P.day.trending.items;
+  return [head("トップページ",true),stale(),
+    el("p",{},"ここは GitHub の Trending（毎日25件）を「キャラ」、今日の★の増えを「強さ」として分類した攻略Wiki です。"+WD(P.date)+" 版。",el("span",{class:"em"}," 毎朝 6 時台に更新されます。")),
+    toc([["Tier 表（今日の★増）","h-tier"],["キャラ一覧","h-list"],["関心領域の攻略ページ","h-topic"]]),
+    el("h2",{id:"h-tier"},"Tier 表（今日の★増）"),el("p",{class:"sm"},"今日1日で増えた★の数で分類。アイコンの形は名前から決まり、色は主な言語（属性）の色です。"),tierTable(it),
+    el("h2",{id:"h-list"},"キャラ（リポジトリ）一覧"),charTable(it),
+    el("h2",{id:"h-topic"},"関心領域の攻略ページ"),el("ul",{},P.day.topics.map(t=>el("li",{},el("a",{href:"#t/"+t.id},t.label+" 攻略"),"（今日の急上昇 "+t.items.length+" 件）")))];
+}
+function pageRecent(){
+  return [head("最新の20件",false),stale(),el("p",{class:"sm"},"今日のページで★の増えが多かった順に20件。"),
+    el("ul",{},P.day.trending.items.slice(0,20).map(i=>el("li",{},el("span",{class:"sm"},WD(P.date)+" "),link(i.repo),"　★+"+fmt(i.today)+" ["+tierOf(i.today).k+"] ",V3.changeEl(i.repo,"chg"))))];
+}
+function pageTier(){
+  const out=[head("Tier 表",true),stale(),el("p",{},"評価の基準は今日の★増です。SS は 700 以上、S は 400 以上、A は 250 以上、B は 120 以上、それ未満は C。"),tierTable(P.day.trending.items),el("h2",{},"関心領域の Tier")];
+  P.day.topics.forEach(t=>out.push(el("h3",{class:"s"},t.label),tierTable(t.items.filter(i=>i.delta!=null).map(i=>({...i,today:i.delta})))));
+  return out;
+}
+function pageGloss(){
+  const dl=[["★（スター）","GitHub で「いいね」に近い印。多いほど注目されている。"],["Trending","GitHub が公開している「今日伸びているリポジトリ」の一覧。毎日25件を取っている。"],["★増","今日1日で増えた★の数。このWikiの「強さ」。"],["Tier","★増で SS〜C に分けた強さの段階。"],["属性","主なプログラミング言語。"],["関心領域","shadcn/ui・GSAP・Three.js・Phaser・Claude Code など、あらかじめ決めた注目分野。"],["新規","前日の記録に無かったもの（表では「新」）。"]];
+  return [head("用語集",true),stale(),el("dl",{class:"dl"},dl.map(([a,b])=>[el("dt",{},a),el("dd",{},b)]))];
+}
+function pageTopic(id){
+  const t=P.day.topics.find(x=>x.id===id);
+  if(!t)return [head("ページが見つかりません",false)];
+  return [head(t.label+" 攻略",true),stale(),el("p",{},t.label+" に関係するリポジトリのうち、昨日より★が増えたもの。"),charTable(t.items.map((i,k)=>({...i,today:i.delta,rank:k+1})),"★増")];
+}
+function pageFav(){
+  const list=[...allChars().values()].filter(i=>P.fav.has(i.repo));
+  return [head("ブックマーク",false),stale(),
+    P.fav.available()?null:el("p",{class:"em"},"このブラウザでは保存できないため、閉じると消えます。"),
+    list.length?charTable(list):el("p",{},"まだ何も入っていません。キャラのページの「ブックマークに入れる」から追加できます。")];
+}
+function pageSearch(q){
+  const t=decodeURIComponent(q),ql=t.toLowerCase();
+  const m=[...allChars().values()].filter(i=>(i.repo+" "+i.summary+" "+i.lang).toLowerCase().includes(ql));
+  return [head("検索結果: "+t,false),el("p",{},m.length+" 件見つかりました。"),m.length?charTable(m):null];
+}
+function spark(h){
+  const pts=h.filter(p=>p.stars!=null),W=420,H=90,pad=8;
+  const lo=Math.min(...pts.map(p=>p.stars)),hi=Math.max(...pts.map(p=>p.stars));
+  const x=(i)=>pad+(W-pad*2)*i/(h.length-1),y=(v)=>H-pad-(H-pad*2)*(v-lo)/Math.max(1,hi-lo);
+  const s=P.svg("svg",{viewBox:"0 0 "+W+" "+H,width:W,class:"spark",role:"img","aria-label":"★の推移のグラフ"});
+  let d="";h.forEach((p,i)=>{if(p.stars==null)return;d+=(d&&h[i-1]&&h[i-1].stars!=null?"L":"M")+x(i).toFixed(1)+" "+y(p.stars).toFixed(1);});
+  s.append(P.svg("path",{d,fill:"none",stroke:"#2f6b5c","stroke-width":2}));
+  h.forEach((p,i)=>{if(p.stars==null)s.append(P.svg("line",{x1:x(i),x2:x(i),y1:pad,y2:H-pad,stroke:"#c8161d","stroke-dasharray":"3 3"}));});
+  return s;
+}
+function pageChar(repo){
+  const i=allChars().get(repo);
+  if(!i)return [head("ページが見つかりません",false),el("p",{},"この日の記録に "+repo+" はありません。")];
+  const t=i.today==null?null:tierOf(i.today),h=P.history(repo,i.stars),fav=P.fav.has(repo);
+  const ch=i.src==="trending"?V3.change(repo):null;
+  const chT=ch?(ch.kind==="new"?"前日の記録に無い（新規）":ch.kind==="up"?"▲"+ch.n+" 上がった":ch.kind==="down"?"▼"+ch.n+" 下がった":"変わらず"):"―";
+  const st=[["名前",V3.name(repo)],["作者",V3.owner(repo)],["属性",i.lang],["評価",t?t.k+"（今日の★増 "+fmt(i.today)+"）":"新規（比べる記録なし）"],["今日の順位",i.rank?i.rank+" 位":"―"],["前日比",chT],["累計★",fmt(i.stars)]];
+  return [head(V3.name(repo),true),stale(),
+    el("p",{},icon(i,"ico2",20),el("button",{class:"fav",type:"button","aria-pressed":String(fav),onclick:()=>{P.fav.toggle(repo);render();}},fav?"ブックマークから外す":"ブックマークに入れる")),
+    toc([["ステータス","h-st"],["解説","h-ex"],["★の推移","h-hi"],["入手方法","h-ge"]]),
+    el("h2",{id:"h-st"},"ステータス"),el("table",{class:"t",style:"max-width:520px"},el("tbody",{},st.map(([a,b])=>el("tr",{},el("th",{style:"width:110px"},a),el("td",{},b))))),
+    el("h2",{id:"h-ex"},"解説"),el("p",{},i.summary),el("p",{class:"sm"},"原文（英語）"),el("pre",{class:"code"},i.desc||"（説明なし）"),
+    el("h2",{id:"h-hi"},"★の推移"),spark(h),
+    el("table",{class:"t",style:"max-width:420px;margin-top:8px"},el("thead",{},el("tr",{},el("th",{},"日付"),el("th",{},"★"),el("th",{},"前の日から"))),
+      el("tbody",{},h.slice().reverse().map((p,k,a)=>{const nx=a[k+1];return el("tr",{},el("td",{class:"c"},p.date),el("td",{class:"r"},p.stars==null?"記録なし":fmt(p.stars)),el("td",{class:"r"},p.stars!=null&&nx&&nx.stars!=null?"+"+fmt(p.stars-nx.stars):"―"));}))),
+    el("h2",{id:"h-ge"},"入手方法"),el("p",{},"次の名前で GitHub から探せます。"),el("pre",{class:"code"},repo)];
+}
+function body(){
+  if(view==="recent")return pageRecent();
+  if(view==="tier")return pageTier();
+  if(view==="glossary")return pageGloss();
+  if(view==="fav")return pageFav();
+  if(view.startsWith("t/"))return pageTopic(view.slice(2));
+  if(view.startsWith("s/"))return pageSearch(view.slice(2));
+  if(view.startsWith("c/"))return pageChar(view.slice(2));
+  return pageTop();
+}
+function render(){
+  nav();menu();bar();
+  const m=$("main");m.textContent="";body().forEach(n=>{if(n)m.append(n);});
+  document.title=crumb().replace(/＞/g,"-")+" - 星くずクロニクル攻略Wiki";
+}
+window.addEventListener("hashchange",()=>{view=location.hash.replace(/^#/,"")||"top";render();window.scrollTo(0,0);});
+P.onDate(render);
+const st=$("stars");
+for(let k=0;k<26;k++){const z=2+(k%2)*2;st.append(el("i",{style:"left:"+(V3.hash("s"+k)%100)+"%;top:"+(V3.hash("t"+k)%90)+"%;width:"+z+"px;height:"+z+"px;animation-delay:"+((k%5)*0.4)+"s"}));}
+render();
+})();
+</script>
+</body>
+</html>

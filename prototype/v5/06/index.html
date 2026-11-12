@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ほしの☆あさ刊 ～GitHubの流行をまいあさチェック～</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: #000; background: #fff7d6 url("assets/tile.png");
+  font-family: "MS PGothic", "ＭＳ Ｐゴシック", "Osaka", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  font-size: 12px; line-height: 1.5;
+}
+a, button.l { color: #0000cc; text-decoration: underline; cursor: pointer; }
+a:hover, button.l:hover { color: #ff0066; }
+button.l { font: inherit; background: none; border: 0; padding: 0; text-align: inherit; }
+button.l:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, button:focus-visible { outline: 2px dotted #ff0066; outline-offset: 1px; }
+.wrap { width: 860px; max-width: 100%; margin: 0 auto; padding: 6px; display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 8px; align-items: start; }
+.top { grid-column: 1 / -1; text-align: center; }
+.top img { max-width: 100%; height: auto; display: block; margin: 0 auto; image-rendering: pixelated; }
+
+/* 左のメニュー（フレーム風の固定列） */
+.menu { position: sticky; top: 6px; display: grid; gap: 8px; }
+.box { background: #ffffff; border: 2px outset #d8c8a8; padding: 4px 5px; }
+.box h3 { margin: -4px -5px 4px; padding: 1px 5px; font-size: 12px; color: #fff; background: #cc3366; border-bottom: 2px solid #ffcc33; }
+.menu ul { list-style: none; margin: 0; padding: 0; }
+.menu li { padding: 1px 0 1px 12px; background: url("assets/star.png") no-repeat 0 4px / 8px 8px; }
+.menu .sm { font-size: 11px; color: #666; }
+.bm li { background: none; padding-left: 0; font-size: 11px; word-break: break-all; }
+
+/* 本文 */
+.main { min-width: 0; }
+.sec { margin: 0 0 8px; }
+.sec h2 { margin: 0; padding: 1px 6px; font-size: 13px; color: #fff; background: #3366cc; border-left: 10px solid #ffcc33; letter-spacing: .05em; }
+.sec .in { background: #ffffffee; border: 1px solid #3366cc; border-top: 0; padding: 6px 8px; }
+.line { height: 3px; background: url("assets/hr.png") repeat-x; margin: 6px 0; }
+.red { color: #ff0000; } .big { font-size: 16px; } .bold { font-weight: bold; }
+.blink { animation: bl 1s steps(1) infinite; color: #ff0000; font-weight: bold; }
+@keyframes bl { 50% { visibility: hidden; } }
+
+.mq { overflow: hidden; border: 1px solid #cc3366; background: #fff0f6; margin-bottom: 8px; white-space: nowrap; }
+.mq span { display: inline-block; padding-left: 100%; animation: mq 26s linear infinite; color: #cc0033; }
+@keyframes mq { to { transform: translateX(-100%); } }
+
+.ctr { display: inline-flex; vertical-align: middle; border: 2px inset #999; background: #000; }
+.ctr i { width: 12px; height: 18px; background: url("assets/digits.png") no-repeat; background-size: 120px 18px; image-rendering: pixelated; }
+.stale { border: 2px solid #ff0000; background: #ffffcc; padding: 4px 6px; margin-bottom: 8px; font-weight: bold; color: #cc0000; }
+
+/* 更新履歴・ジャンル */
+.hist { margin: 0; padding: 0; list-style: none; }
+.hist li { padding: 1px 0; }
+.hist .now { background: #ffffa8; }
+.gen { line-height: 1.9; }
+
+/* 本日のランキング（border=1 風の灰色の表） */
+.rk { width: 100%; border: 2px outset #cccccc; border-collapse: separate; border-spacing: 1px; background: #c0c0c0; table-layout: fixed; }
+.rk th { background: #cccccc; border: 1px inset #999; padding: 2px 3px; font-weight: normal; font-size: 12px; text-align: center; color: #000; }
+.rk td { background: #ffffff; border: 1px inset #aaa; padding: 2px 4px; vertical-align: top; overflow-wrap: anywhere; }
+.rk tr:nth-child(4n+1) td, .rk tr:nth-child(4n+2) td { background: #f4f4ff; }
+.rk .c { text-align: center; white-space: nowrap; } .rk .r { text-align: right; white-space: nowrap; }
+.rk .nm { font-size: 13px; font-weight: bold; }
+.rk .ex { font-size: 11px; color: #555; }
+.rk .sum { display: block; font-size: 12px; color: #000; }
+.rk .dt td { background: #ffffe0 !important; font-size: 11px; }
+.rk .dt table { border-collapse: collapse; margin-top: 3px; }
+.rk .dt td.g { padding: 0 4px; border: 1px dotted #999; background: #fff; }
+.rk .lg { display: inline-block; font-size: 10px; border: 1px solid #888; padding: 0 3px; color: #333; background: #eee; margin-right: 3px; }
+.k1 { width: 34px; } .k3 { width: 52px; } .k4 { width: 46px; } .k5 { width: 46px; } .k6 { width: 84px; }
+.bmshort { display: none; }
+.up { color: #cc0000; } .dn { color: #0033cc; }
+.rk button.bm { font: inherit; font-size: 11px; background: #e8e8e8; border: 2px outset #eee; padding: 0 3px; cursor: pointer; color: #000; white-space: normal; width: 100%; line-height: 1.3; }
+.rk button.bm:active { border-style: inset; }
+.rk button.bm[aria-pressed="true"] { background: #ffee88; }
+
+/* リンク・掲示板 */
+.links { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.links img { display: block; image-rendering: pixelated; border: 0; }
+.bbs .post { border-bottom: 1px dotted #999; padding: 3px 0; }
+.bbs .post b { color: #cc3366; }
+.bbs .post .d { color: #777; font-size: 11px; }
+.bbs form { margin-top: 6px; display: grid; gap: 3px; max-width: 420px; }
+.bbs input, .bbs textarea { font: inherit; border: 2px inset #999; padding: 1px 3px; background: #fff; width: 100%; }
+.bbs button.sub { font: inherit; border: 2px outset #eee; background: #ddd; padding: 1px 10px; width: max-content; cursor: pointer; }
+footer { grid-column: 1 / -1; text-align: center; font-size: 11px; color: #444; padding: 4px 0 18px; }
+footer .v { color: #666; margin-top: 6px; }
+
+@media (max-width: 640px) {
+  body { font-size: 15px; }
+  .wrap { grid-template-columns: minmax(0, 1fr); padding: 4px; }
+  .menu { position: static; }
+  .menu ul { display: grid; grid-template-columns: 1fr 1fr; column-gap: 8px; }
+  .menu li { padding: 3px 0 3px 12px; background-position: 0 8px; }
+  .menu .sm { font-size: 13px; }
+  .sec h2 { font-size: 15px; }
+  .rk th, .rk td { font-size: 13px; padding: 2px 2px; }
+  .rk .nm { font-size: 14px; } .rk .ex, .rk .dt td { font-size: 12px; } .rk .sum { font-size: 13px; }
+  .rk button.bm { font-size: 12px; }
+  .gen { line-height: 2.2; }
+  .hide-sp { display: none; }
+  .k1 { width: 24px; } .k3 { width: 46px; } .k4 { width: 48px; } .k6 { width: 44px; }
+  .bmfull { display: none; } .bmshort { display: inline; }
+  .rk td.c, .rk td.r { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mq span { animation: none; padding-left: 0; white-space: normal; display: block; }
+  .mq { white-space: normal; }
+  .blink { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><img src="assets/title.png" width="520" height="72" alt="ほしの☆あさ刊 ～GitHub の ながれを まいあさ ちぇっく～"></div>
+
+  <nav class="menu" aria-label="メニュー">
+    <div class="box"><h3>MENU</h3>
+      <ul>
+        <li><a href="#top">TOP</a></li>
+        <li><a href="#rireki">更新履歴</a></li>
+        <li><a href="#rank">本日のランキング</a></li>
+        <li><a href="#genre">注目ジャンル</a></li>
+        <li><a href="#link">リンク</a></li>
+        <li><a href="#bbs">掲示板</a></li>
+      </ul>
+    </div>
+    <div class="box bm" id="bmBox"><h3>ブックマーク</h3><ul id="bmList"></ul></div>
+    <div class="box"><h3>おしらせ</h3><div class="sm" style="font-size:11px">
+      推奨環境：1024×768 以上<br>
+      記録は 2026/11/01 から。それより前の★の動きは さかのぼれません。<br>
+      データは ぜんぶ 仮のものです。</div></div>
+  </nav>
+
+  <main class="main" id="top">
+    <div class="mq" role="marquee" aria-label="お知らせ"><span id="mq"></span></div>
+    <div id="staleBox"></div>
+
+    <div class="sec">
+      <h2>■ ようこそ！</h2>
+      <div class="in">
+        <span class="big bold">ようこそ「ほしの☆あさ刊」へ！</span><br>
+        ここは GitHub の <b>Trending</b>（今日 ★ がふえているリポジトリ）と、わたしの気になる分野の ★ 急上昇を
+        <b>まいあさ</b> 日本語の一言つきで まとめているページです☆彡<br>
+        <span id="upd"></span>
+        <div class="line"></div>
+        あなたは <span class="ctr" id="ctr" aria-label=""></span> 人目のお客様です。
+        <span class="sm" id="kiri" style="font-size:11px"></span>
+      </div>
+    </div>
+
+    <div class="sec" id="rireki">
+      <h2>■ 更新履歴</h2>
+      <div class="in"><ul class="hist" id="hist"></ul></div>
+    </div>
+
+    <div class="sec" id="genre">
+      <h2>■ 注目ジャンル（★ 急上昇）</h2>
+      <div class="in"><div class="gen" id="gen"></div></div>
+    </div>
+
+    <div class="sec" id="rank">
+      <h2 id="rkTitle">■ 本日のランキング</h2>
+      <div class="in">
+        <div id="rkNote" style="margin-bottom:4px"></div>
+        <table class="rk" id="rk"></table>
+      </div>
+    </div>
+
+    <div class="sec" id="link">
+      <h2>■ リンク（相互リンク募集中！）</h2>
+      <div class="in">
+        <div class="links">
+          <a href="#link" aria-label="ぷろぐらむごった煮（見本のバナー）"><img src="assets/ban1.png" width="88" height="31" alt="ぷろぐらむ ごった煮♪"></a>
+          <a href="#link" aria-label="ちいさな工房 Bit&Byte（見本のバナー）"><img src="assets/ban2.png" width="88" height="31" alt="ちいさな工房 Bit & Byte"></a>
+          <a href="#link" aria-label="月あかり へんな店（見本のバナー）"><img src="assets/ban3.png" width="88" height="31" alt="月あかり へんな店"></a>
+        </div>
+        <div class="line"></div>
+        当サイトのバナー：<img src="assets/ban_me.png" width="88" height="31" alt="ほしの☆あさ リンクフリー" style="vertical-align:middle;image-rendering:pixelated"><br>
+        リンクフリーです。報告は掲示板へお願いします。
+      </div>
+    </div>
+
+    <div class="sec bbs" id="bbs">
+      <h2>■ 掲示板</h2>
+      <div class="in">
+        <div id="posts">
+          <div class="post"><b>ぷろぐらむ好き</b> <span class="d">2026/11/12 05:48</span><br>今日も1位チェックしました！毎朝たすかります(^^)</div>
+          <div class="post"><b>名無しさん</b> <span class="d">2026/11/11 21:03</span><br>キリ番 ゲットしそこねた…orz つぎは ねらいます</div>
+          <div class="post"><b>管理人</b> <span class="d">2026/11/10 06:30</span><br>★の過去のデータは 11/01 からしかありません。ごめんなさい m(_ _)m</div>
+        </div>
+        <form id="bbsForm" autocomplete="off">
+          <label>お名前 <input name="n" maxlength="20" value="名無しさん"></label>
+          <label>コメント <textarea name="c" rows="2" maxlength="80"></textarea></label>
+          <button class="sub" type="submit">書き込む</button>
+          <span style="font-size:11px;color:#666">※ この掲示板は 見本です。このページを閉じると消えます。</span>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="line"></div>
+    Copyright (C) 2026 ほしの☆あさ刊 All rights reserved.<br>
+    このページ内の文章・画像の無断転載はご遠慮ください。リンクはフリーです。<br>
+    ※ 掲載の ★ の数は 仮のデータです。更新の時刻は 日本時間（JST）です。
+    <div class="v">v5-06 むかしの個人ホームページ — 2000年代前半の日本の個人サイト（左メニュー・カウンター・更新履歴・灰色の表・掲示板）の文法を借りた案。素材: 背景タイル・カウンターの数字・バナー・区切り線は自作（フォントは使用者の環境のもの）</div>
+  </footer>
+</div>
+
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, $ = (id) => document.getElementById(id);
+  const stale = P.state === "stale";
+  const name = (it) => V3.name(it.repo);
+  const slash = (d) => d.replace(/-/g, "/");
+  const jdw = (d) => slash(d) + "(" + P.weekday(d) + ")";
+  const jst = () => { const m = P.day.updatedAt.match(/T(\d\d:\d\d)/); return m[1] + " JST"; };
+  let src = "trending";
+  const open = new Set();
+
+  function items() {
+    if (src === "trending") return P.day.trending.items.map((it) => ({ ...it, gain: it.today }));
+    const t = P.day.topics.find((x) => x.id === src);
+    return t.items.map((it, i) => ({ ...it, rank: i + 1, gain: it.delta }));
+  }
+  const srcName = () => (src === "trending" ? "全体（Trending）" : P.day.topics.find((x) => x.id === src).label);
+
+  // カウンター（このブラウザでの来訪数。保存できなければ固定値）
+  function counter() {
+    let n = 12340;
+    try { n += (+localStorage.getItem("gr-v5-06-visits") || 0) + 1; localStorage.setItem("gr-v5-06-visits", String(n - 12340)); } catch (e) { n += 1; }
+    const s = String(n).padStart(6, "0"), c = $("ctr");
+    c.setAttribute("aria-label", s); c.setAttribute("role", "img"); c.textContent = "";
+    [...s].forEach((ch) => c.append(el("i", { style: "background-position:" + -12 * ch + "px 0", "aria-hidden": "true" })));
+    const next = Math.ceil((n + 1) / 100) * 100;
+    $("kiri").textContent = n % 100 === 0 || /777$/.test(s) ? "　★★ キリ番ゲット！おめでとう！掲示板で教えてね ★★" : "　（次のキリ番は " + String(next).padStart(6, "0") + " 番です。踏んだ人は 掲示板で 申告してね！）";
+  }
+
+  function head() {
+    const t = items()[0];
+    $("mq").textContent = "★★ ようこそ！ " + jdw(P.date) + " の GitHub 急上昇を お届け中 ★★ 1位は「" + name(t) + "」です！ ★★ 相互リンク募集中 ★★ キリ番を ふんだら 掲示板で 教えてね ★★";
+    $("upd").textContent = "";
+    $("upd").append("最終更新：" + slash(P.date) + "(" + P.weekday(P.date) + ") " + jst(), " ", el("span", { class: "blink" }, stale ? "" : "UPDATE!"));
+    const sb = $("staleBox"); sb.textContent = "";
+    if (stale) sb.append(el("div", { class: "stale" }, "※ おしらせ ※ 管理人がダウンしていて、更新が とまっています m(_ _)m　（最後の更新：" + slash(P.date) + " " + jst() + "。この下の内容は 古い かもしれません）"));
+  }
+
+  function history() {
+    const ul = $("hist"); ul.textContent = "";
+    P.data.DATES.slice().reverse().forEach((d) => {
+      const now = d === P.date;
+      ul.append(el("li", { class: now ? "now" : "" },
+        slash(d) + " ",
+        d === P.data.DATES[P.data.DATES.length - 1] && !stale ? el("span", { class: "blink" }, "NEW ") : "",
+        el("button", { type: "button", class: "l", onclick: () => P.setDate(d), "aria-current": now ? "date" : null }, jdw(d) + " のランキング"),
+        " を更新しました。", now ? " ← いま見ているのは ここ" : ""));
+    });
+    ul.append(el("li", {}, "2026/11/01 記録を取りはじめました。（これより前は さかのぼれません）"));
+  }
+
+  function genres() {
+    const g = $("gen"); g.textContent = "";
+    const mk = (id, label, n) => {
+      const on = id === src;
+      return el("span", {}, "［", on ? el("b", { class: "red", "aria-current": "true" }, label) : el("button", { type: "button", class: "l", onclick: () => { src = id; open.clear(); renderAll(); } }, label), n != null ? el("span", { class: "sm", style: "font-size:11px" }, "(" + n + ")") : "", "］ ");
+    };
+    g.append(mk("trending", "全体", P.day.trending.items.length), ...P.day.topics.map((t) => mk(t.id, t.label, t.items.length)));
+    g.append(el("br"), el("span", { style: "font-size:11px;color:#666" }, "↑ ジャンルを えらぶと、下の表が そのジャンルの「★ 急上昇」に かわります。"));
+  }
+
+  const favs = () => {
+    const seen = new Map();
+    P.data.DATES.forEach((d) => { const day = P.data.days[d]; day.trending.items.forEach((it) => seen.set(it.repo, it)); day.topics.forEach((t) => t.items.forEach((it) => seen.set(it.repo, it))); });
+    return [...seen.values()].filter((it) => P.fav.has(it.repo));
+  };
+  function bookmarks() {
+    const ul = $("bmList"); ul.textContent = "";
+    const f = favs();
+    if (!f.length) ul.append(el("li", {}, "（まだ ありません）"));
+    f.forEach((it) => ul.append(el("li", {}, "◆ " + it.repo)));
+    if (!P.fav.available()) ul.append(el("li", {}, "※ このブラウザでは 保存できません"));
+  }
+
+  function ranking() {
+    const list = items();
+    $("rkTitle").textContent = "■ 本日のランキング ― " + srcName();
+    const note = $("rkNote"); note.textContent = "";
+    note.append(slash(P.date) + " 分 / " + list.length + " 件。「" + (src === "trending" ? "本日" : "★増") + "」は 今日ふえた ★ の数です。 ", el("span", { class: "red" }, "※ 数字は 仮のデータ"));
+    const tb = $("rk"); tb.textContent = "";
+    const cg = el("colgroup", {}, el("col", { class: "k1" }), el("col"), el("col", { class: "k3" }), el("col", { class: "k4" }), el("col", { class: "hide-sp k5" }), el("col", { class: "k6" }));
+    tb.append(cg, el("thead", {}, el("tr", {}, el("th", {}, "順位"), el("th", {}, "リポジトリ ／ 一言"), el("th", {}, "★"), el("th", {}, src === "trending" ? "本日" : "★増"), el("th", { class: "hide-sp" }, "前日比"), el("th", {}, "登録"))));
+    const body = el("tbody");
+    list.forEach((it) => {
+      const isOpen = open.has(it.repo), fav = P.fav.has(it.repo);
+      const c = src === "trending" ? V3.change(it.repo) : null;
+      const chg = !c ? el("span", {}, "") : c.kind === "new" ? el("span", { class: "blink" }, "NEW") : c.kind === "up" ? el("span", { class: "up" }, "▲" + c.n) : c.kind === "down" ? el("span", { class: "dn" }, "▼" + c.n) : el("span", {}, "―");
+      body.append(el("tr", {},
+        el("td", { class: "c" }, it.rank <= 3 ? el("b", { class: "red" }, it.rank) : it.rank),
+        el("td", {}, el("span", { class: "lg" }, it.lang), el("span", { class: "nm" }, it.repo), el("span", { class: "sum" }, it.summary),
+          el("span", { class: "ex" }, "［", el("button", { type: "button", class: "l", "aria-expanded": isOpen ? "true" : "false", onclick: () => { isOpen ? open.delete(it.repo) : open.add(it.repo); ranking(); } }, isOpen ? "詳細をとじる" : "詳細"), "］")),
+        el("td", { class: "r" }, P.fmt(it.stars)),
+        el("td", { class: "r" }, it.gain == null ? el("span", { class: "blink" }, "NEW") : "+" + P.fmt(it.gain)),
+        el("td", { class: "c hide-sp" }, chg),
+        el("td", { class: "c" }, el("button", { type: "button", class: "bm", "aria-pressed": fav ? "true" : "false", onclick: () => { P.fav.toggle(it.repo); ranking(); bookmarks(); } }, fav ? "登録済" : [el("span", { class: "bmfull" }, "ブックマークに登録"), el("span", { class: "bmshort" }, "登録")]))));
+      if (isOpen) body.append(detail(it));
+    });
+    tb.append(body);
+  }
+  function detail(it) {
+    const pts = P.history(it.repo, it.stars).slice(-7);
+    const real = pts.map((p) => p.stars).filter((v) => v != null), lo = Math.min(...real) * 0.9, hi = Math.max(...real);
+    const t = el("table");
+    pts.forEach((p) => t.append(el("tr", {}, el("td", { class: "g" }, slash(p.date).slice(5)), el("td", { class: "g", style: "text-align:right" }, p.stars == null ? "記録なし" : P.fmt(p.stars)),
+      el("td", { class: "g", style: "color:#cc3366;letter-spacing:-1px" }, p.stars == null ? "×" : "■".repeat(Math.max(1, Math.round(((p.stars - lo) / (hi - lo || 1)) * 14)))))));
+    return el("tr", { class: "dt" }, el("td", {}), el("td", { colspan: 5 }, el("b", {}, "英語の説明："), it.desc, el("br"), el("b", {}, "★の推移（直近7日）："), t));
+  }
+
+  function renderAll() { head(); history(); genres(); ranking(); bookmarks(); }
+  P.onDate(() => { renderAll(); });
+  counter(); renderAll();
+
+  $("bbsForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = e.target, n = f.n.value.trim() || "名無しさん", c = f.c.value.trim();
+    if (!c) return;
+    const now = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 16).replace("T", " ").replace(/-/g, "/");
+    $("posts").prepend(el("div", { class: "post" }, el("b", {}, n), " ", el("span", { class: "d" }, now + " JST"), el("br"), c));
+    f.c.value = "";
+  });
+})();
+</script>
+</body>
+</html>

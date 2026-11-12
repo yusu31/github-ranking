@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ほしの ぼうけん</title>
+<style>
+@font-face { font-family: "DotGothic16"; src: url("assets/DotGothic16-Regular.ttf") format("truetype"); font-display: swap; }
+* { box-sizing: border-box; }
+html { background: #000; }
+body {
+  margin: 0; background: #000; color: #fff;
+  font-family: "DotGothic16", "MS Gothic", monospace; font-size: 18px; line-height: 1.6;
+  letter-spacing: .04em; -webkit-font-smoothing: none; min-height: 100vh;
+}
+button { font: inherit; color: inherit; letter-spacing: inherit; background: none; border: 0; padding: 0; text-align: left; cursor: pointer; }
+.hid { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ウィンドウ＝黒い地に白い太枠（自作の 16x16 の枠画像を 9 分割で伸ばす） */
+.win {
+  position: relative; background: #000; padding: 6px 8px;
+  border: 8px solid transparent;
+  border-image: url("assets/win.png") 4 fill / 8px / 0 stretch;
+  image-rendering: pixelated; min-width: 0;
+}
+.win > h2 { margin: -14px 0 4px; font-size: 16px; font-weight: normal; line-height: 1; }
+.win > h2 span { background: #000; padding: 0 6px; margin-left: -2px; }
+
+.screen { max-width: 980px; margin: 0 auto; padding: 14px 14px 10px; display: grid; gap: 10px;
+  grid-template-columns: 210px minmax(0, 1fr) 340px;
+  grid-template-areas: "hdr hdr hdr" "cmd field list" "party field list" "msg msg msg"; grid-template-rows: auto auto 1fr auto; }
+#hdr { grid-area: hdr; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+#cmd { grid-area: cmd; } #party { grid-area: party; } #field { grid-area: field; } #list { grid-area: list; } #msg { grid-area: msg; }
+
+#hdr .t { display: flex; align-items: center; gap: 10px; min-width: 0; }
+#hdr .t img { width: 32px; height: 32px; image-rendering: pixelated; flex: none; }
+#hdr .big { font-size: 22px; }
+#hdr .sub { font-size: 14px; color: #bbb; }
+.zzz { color: #ffd84a; }
+
+/* コマンド */
+#cmd ul { list-style: none; margin: 0; padding: 0; }
+#cmd button, .menu button { display: block; width: 100%; padding: 1px 0 1px 22px; position: relative; font-size: 20px; line-height: 1.75; }
+#cmd button small { display: block; font-size: 11px; color: #aaa; line-height: 1.1; margin: -2px 0 3px; white-space: nowrap; }
+#cmd button { line-height: 1.5; }
+#cmd button:hover::before, #cmd button:focus-visible::before, .menu button:hover::before, .menu button:focus-visible::before { content: "▶"; position: absolute; left: 0; }
+button:focus-visible { outline: none; background: #222; }
+#cmd button[aria-expanded="true"]::before { content: "▶"; position: absolute; left: 0; color: #ffd84a; }
+
+/* 戦闘画面 */
+#field { padding: 6px 8px 8px; display: flex; flex-direction: column; }
+#field #hist { margin-top: auto; }
+#note { font-size: 17px; line-height: 1.6; margin: 0 0 10px; padding: 6px 4px; border-top: 3px dotted #444; border-bottom: 3px dotted #444; min-height: 3.4em; }
+#note small { display: block; font-size: 12px; color: #999; }
+#stage { position: relative; min-height: 250px; display: grid; justify-items: center; align-content: center; gap: 2px; text-align: center; padding: 6px 0 10px; }
+#stage .spr { width: 128px; height: 128px; image-rendering: pixelated; animation: bob 1s steps(1) infinite; }
+@keyframes bob { 0% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+#stage .nm { font-size: 26px; line-height: 1.2; overflow-wrap: anywhere; max-width: 100%; }
+#stage .own { font-size: 13px; color: #999; }
+#stage .st { font-size: 15px; color: #ddd; }
+#stage .st b { font-weight: normal; color: #ffd84a; }
+.gr { display: flex; align-items: flex-end; gap: 4px; height: 66px; }
+.gr i { display: block; width: 100%; max-width: 22px; min-width: 6px; flex: 1; background: repeating-linear-gradient(to top, #fff 0 4px, transparent 4px 6px); }
+.gr i.x { background: none; color: #888; font-style: normal; font-size: 12px; text-align: center; }
+.grl { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; }
+#hist { min-width: 0; }
+
+/* 一覧（てきの れつ） */
+#list ol { list-style: none; margin: 0; padding: 0; max-height: 560px; overflow: auto; scrollbar-width: thin; scrollbar-color: #fff #000; }
+#list li button { display: grid; grid-template-columns: 22px 34px minmax(0, 1fr) auto; align-items: center; gap: 4px; width: 100%; padding: 1px 2px; font-size: 16px; line-height: 1.5; }
+#list li button[aria-current="true"] { color: #ffd84a; }
+#list li button[aria-current="true"] .cur { visibility: visible; }
+.cur { visibility: hidden; }
+#list .ic { width: 32px; height: 32px; image-rendering: pixelated; }
+#list .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#list .xp { font-size: 13px; color: #9fe; white-space: nowrap; }
+#list .chg { font-size: 12px; color: #aaa; }
+.hd { font-size: 14px; color: #aaa; display: flex; justify-content: space-between; margin-bottom: 4px; }
+
+/* なかま */
+#party ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; min-height: 36px; }
+#party li img { width: 32px; height: 32px; image-rendering: pixelated; display: block; }
+#party .none { font-size: 13px; color: #999; line-height: 1.4; }
+#party .cnt { font-size: 13px; color: #aaa; margin-top: 4px; }
+
+/* メッセージ */
+#msg { min-height: 130px; cursor: pointer; }
+#msg:focus-visible { outline: 3px solid #ffd84a; outline-offset: 2px; }
+#msgText { font-size: 21px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; display: block; padding-right: 22px; }
+#arrow { position: absolute; right: 16px; bottom: 10px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.keys { font-size: 12px; color: #888; margin-top: 2px; }
+
+/* サブメニュー（ぼうけんのしょ・ちず） */
+.menu { position: absolute; inset: 8px 8px auto 8px; z-index: 5; background: #000; max-height: calc(100% - 16px); overflow: auto; }
+.menu[hidden] { display: none; }
+.menu button .n { font-size: 13px; color: #aaa; margin-left: 6px; }
+.menu button[aria-checked="true"] { color: #ffd84a; }
+
+footer { max-width: 980px; margin: 0 auto; padding: 4px 18px 22px; font-size: 12px; line-height: 1.6; color: #888; }
+footer b { font-weight: normal; color: #bbb; }
+
+@media (max-width: 860px) {
+  .screen { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hdr" "field" "msg" "cmd" "list" "party"; grid-template-rows: none; padding: 10px; }
+  #cmd ul { display: grid; grid-template-columns: 1fr 1fr; column-gap: 8px; }
+  body { font-size: 17px; }
+  #stage { min-height: 230px; }
+  #list ol { max-height: 440px; }
+  #msgText { font-size: 19px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #stage .spr, #arrow { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="screen">
+  <header class="win" id="hdr" role="banner"></header>
+  <nav class="win" id="cmd" aria-label="コマンド"><h2><span>コマンド</span></h2><ul id="cmdList"></ul></nav>
+  <section class="win" id="party" aria-label="なかま"><h2><span>なかま</span></h2><ul id="partyList"></ul><div class="cnt" id="partyCnt"></div></section>
+  <main class="win" id="field" aria-label="せんとうの がめん">
+    <div id="stage"></div>
+    <p id="note"></p>
+    <div id="hist"></div>
+    <div class="menu win" id="menu" hidden role="menu"></div>
+  </main>
+  <section class="win" id="list" aria-label="てきの れつ"><h2><span id="listTitle">てきの れつ</span></h2><div class="hd" id="listHd"></div><ol id="listOl"></ol></section>
+  <div class="win" id="msg" tabindex="0" role="button" aria-label="メッセージ。Enter で つぎへ"><span id="msgText"></span><span id="arrow" aria-hidden="true">▼</span><div class="hid" id="live" aria-live="polite"></div></div>
+</div>
+<footer>
+  <div class="keys">そうさ: ↑↓ で えらぶ ／ Enter・クリックで メッセージを おくる ／ 1〜5 で コマンド ／ Esc で とじる</div>
+  <b>v5-01 ドット絵RPG</b> — 1990年代の日本のRPGの戦闘画面（黒地に白い太枠のウィンドウ・コマンド・メッセージ送り）の文法を借りた案。
+  素材: DotGothic16（SIL OFL 1.1）・ドット絵と枠は自作（assets/CREDITS.md）。リポジトリ名・数値はすべて架空の仮データ。
+</footer>
+
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el;
+  const $ = (id) => document.getElementById(id);
+  const stale = P.state === "stale";
+
+  // 言語ごとの顔（自作のドット絵 16x16）
+  const SPR = { Python: "snake", Rust: "crab", TypeScript: "knight", JavaScript: "slime_y", Go: "ghost_c", Shell: "slime_g", HTML: "mush", Zig: "dragon_o", Markdown: "ghost_w", GLSL: "dragon_p" };
+  const OTHER = ["slime_n", "ghost_w", "mush", "slime_g"];
+  const spriteOf = (it) => "assets/" + (SPR[it.lang] || OTHER[V3.hash(it.repo) % OTHER.length]) + ".png";
+  const spImg = (it, cls, alt) => el("img", { src: spriteOf(it), class: cls, alt: alt || "", width: 16, height: 16 });
+
+  const nm = (it) => V3.name(it.repo);
+  const jd = (d) => { const m = +d.slice(5, 7), dd = +d.slice(8, 10); return m + "がつ" + dd + "にち"; };
+  const jdw = (d) => jd(d) + "（" + P.weekday(d) + "）";
+  const jstTime = () => { const m = P.day.updatedAt.match(/T(\d\d):(\d\d)/); return +m[1] + ":" + m[2] + " JST"; };
+  const lv = (stars) => Math.min(99, 1 + Math.floor(stars / 600));
+
+  let src = "trending", idx = 0;
+  const items = () => {
+    if (src === "trending") return P.day.trending.items.map((it) => ({ ...it, xp: it.today }));
+    const t = P.day.topics.find((x) => x.id === src);
+    return t.items.map((it, i) => ({ ...it, rank: i + 1, xp: it.delta }));
+  };
+  const srcLabel = () => (src === "trending" ? "ぜんこくの れつ" : P.day.topics.find((x) => x.id === src).label + "の ちず");
+  const cur = () => items()[idx];
+
+  // ---------- メッセージ送り ----------
+  const msgBox = $("msg"), msgText = $("msgText"), arrow = $("arrow"), live = $("live");
+  let pages = [], pi = 0, timer = null, typing = false;
+  function showPage() {
+    clearInterval(timer);
+    const txt = pages[pi];
+    live.textContent = txt;
+    arrow.hidden = true;
+    if (P.reduced()) { msgText.textContent = txt; typing = false; endPage(); return; }
+    let n = 0; typing = true; msgText.textContent = "";
+    timer = setInterval(() => {
+      n++; msgText.textContent = txt.slice(0, n);
+      if (n >= txt.length) { clearInterval(timer); typing = false; endPage(); }
+    }, 28);
+  }
+  function endPage() { arrow.hidden = false; arrow.textContent = pi < pages.length - 1 ? "▼" : "▽"; }
+  function say(arr) { pages = arr; pi = 0; showPage(); }
+  function advance() {
+    if (typing) { clearInterval(timer); msgText.textContent = pages[pi]; typing = false; endPage(); return; }
+    if (pi < pages.length - 1) { pi++; showPage(); }
+  }
+  msgBox.addEventListener("click", advance);
+  msgBox.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); advance(); } });
+
+  // ---------- 画面の描画 ----------
+  function renderHdr() {
+    const h = $("hdr"); h.textContent = "";
+    const total = items().reduce((s, x) => s + (x.xp || 0), 0);
+    h.append(
+      el("div", { class: "t" }, el("img", { src: "assets/hero.png", alt: "", width: 16, height: 16 }),
+        el("div", {}, el("div", { class: "big" }, "ほしの ぼうけん　" + jdw(P.date)),
+          el("div", { class: "sub" }, stale ? el("span", { class: "zzz" }, "ZZZ… ゆうしゃは ねむっている（こうしんが とまっている）") : "さいごの ぼうけん " + jd(P.date) + " " + jstTime() + "　" + srcLabel()))),
+      el("div", { class: "sub" }, items().length + "ひきの てき ／ きょうの けいけんち ごうけい +" + P.fmt(total))
+    );
+  }
+
+  function renderList() {
+    $("listTitle").textContent = srcLabel();
+    $("listHd").textContent = "";
+    $("listHd").append(el("span", {}, "れつ"), el("span", {}, "けいけんち（★の ふえた かず）"));
+    const ol = $("listOl"); ol.textContent = "";
+    items().forEach((it, i) => {
+      const c = src === "trending" ? V3.change(it.repo) : null;
+      const ct = !c ? "" : c.kind === "new" ? "NEW" : c.kind === "up" ? "▲" + c.n : c.kind === "down" ? "▼" + c.n : "";
+      const b = el("button", { type: "button", "data-i": i, "aria-current": i === idx ? "true" : "false", onclick: () => select(i, true), onkeydown: listKey },
+        el("span", { class: "cur", "aria-hidden": "true" }, "▶"), spImg(it, "ic"),
+        el("span", { class: "nm" }, (fav(it) ? "♥ " : "") + (i + 1) + " " + nm(it)),
+        el("span", { class: "xp" }, it.xp == null ? "NEW" : "+" + P.fmt(it.xp), ct && el("span", { class: "chg" }, " " + ct)));
+      ol.append(el("li", {}, b));
+    });
+  }
+  function listKey(e) {
+    const btns = [...$("listOl").querySelectorAll("button")];
+    const i = btns.indexOf(e.currentTarget);
+    let j = null;
+    if (e.key === "ArrowDown") j = Math.min(btns.length - 1, i + 1);
+    else if (e.key === "ArrowUp") j = Math.max(0, i - 1);
+    else if (e.key === "Home") j = 0; else if (e.key === "End") j = btns.length - 1;
+    if (j == null) return;
+    e.preventDefault(); select(j, false); btns[j].focus();
+  }
+  function select(i, scroll) {
+    idx = i;
+    document.querySelectorAll("#listOl button").forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+    renderStage();
+  }
+
+  function renderStage() {
+    const it = cur(); if (!it) return;
+    const st = $("stage"); st.textContent = "";
+    const c = src === "trending" ? V3.change(it.repo) : null;
+    const rk = c ? (c.kind === "new" ? "はじめて あらわれた" : c.kind === "up" ? c.n + " れつ すすんだ" : c.kind === "down" ? c.n + " れつ さがった" : "れつは そのまま") : "";
+    st.append(
+      el("img", { src: spriteOf(it), class: "spr", alt: it.lang + "ぞくせいの モンスター", width: 16, height: 16 }),
+      el("div", { class: "nm" }, nm(it)),
+      el("div", { class: "own" }, V3.owner(it.repo) + " の もちもの"),
+      el("div", { class: "st" }, "ぞくせい: " + it.lang + "　Lv." + lv(it.stars) + "　れつ: " + it.rank + (rk ? "（" + rk + "）" : "")),
+      el("div", { class: "st" }, "★ ", el("b", {}, P.fmt(it.stars)), "　きょうの けいけんち ", el("b", {}, it.xp == null ? "NEW" : "+" + P.fmt(it.xp)))
+    );
+    const nt = $("note"); nt.textContent = ""; nt.append(el("small", {}, "モンスターの ひとこと"), it.summary);
+    const pts = P.history(it.repo, it.stars).slice(-14);
+    const real = pts.map((p) => p.stars).filter((v) => v != null);
+    const lo = Math.min(...real) * 0.9, hi = Math.max(...real);
+    const g = el("div", { class: "gr", role: "img", "aria-label": "★の すいい。" + pts.map((p) => jd(p.date) + (p.stars == null ? " きろくなし" : " " + P.fmt(p.stars))).join("、") });
+    pts.forEach((p) => {
+      if (p.stars == null) g.append(el("i", { class: "x", title: "きろくが ない ひ" }, "×"));
+      else g.append(el("i", { style: "height:" + Math.max(6, Math.round(((p.stars - lo) / (hi - lo || 1)) * 60)) + "px", title: jd(p.date) + " ★" + P.fmt(p.stars) }));
+    });
+    const h = $("hist"); h.textContent = "";
+    h.append(el("div", { class: "grl" }, el("span", {}, "★の すいい"), el("span", {}, jd(pts[0].date) + " 〜 " + jd(pts[pts.length - 1].date))), g);
+  }
+
+  function favs() {
+    const seen = new Map();
+    P.data.DATES.forEach((d) => {
+      const day = P.data.days[d];
+      day.trending.items.forEach((it) => seen.set(it.repo, it));
+      day.topics.forEach((t) => t.items.forEach((it) => seen.set(it.repo, it)));
+    });
+    return [...seen.values()].filter((it) => P.fav.has(it.repo));
+  }
+  const fav = (it) => P.fav.has(it.repo);
+  function renderParty() {
+    const l = $("partyList"); l.textContent = "";
+    const f = favs();
+    if (!f.length) l.append(el("li", { class: "none" }, "まだ だれも いない。「なかまにする」で くわわる"));
+    f.slice(0, 12).forEach((it) => l.append(el("li", { title: it.repo }, spImg(it, "", nm(it)))));
+    $("partyCnt").textContent = f.length ? f.length + "にんの なかま" + (P.fav.available() ? "" : "（このブラウザでは ほぞんできない）") : "";
+  }
+
+  // ---------- コマンド ----------
+  const CMDS = [
+    ["たたかう", "くわしく", fight], ["しらべる", "えいごの せつめい", inspect], ["なかまにする", "おきにいり", recruit],
+    ["ぼうけんのしょ", "ひづけ", () => openMenu("ぼうけんのしょ", P.data.DATES.slice().reverse().map((d) => ({ id: d, label: jdw(d) + (d === P.date ? "（さいしん）" : ""), on: d === P.date })),
+       (d) => { P.setDate(d); }, "どの ひの ぼうけんを よみますか？")],
+    ["ちず", "かんしんの りょういき", () => openMenu("ちず", [{ id: "trending", label: "ぜんこくの れつ（Trending）", on: src === "trending" }].concat(P.day.topics.map((t) => ({ id: t.id, label: t.label, n: t.items.length + "ひき", on: src === t.id }))),
+       (id) => { src = id; idx = 0; renderAll(); say(["ちずを ひらいた。" + srcLabel() + "に " + items().length + "ひきの てきが いる！"]); }, "どこへ いきますか？")],
+  ];
+  const cl = $("cmdList");
+  CMDS.forEach(([a, b, fn], i) => cl.append(el("li", {}, el("button", { type: "button", "data-c": i, onclick: () => run(i), onkeydown: cmdKey }, a, el("small", {}, "（" + b + "）")))));
+  function run(i) { closeMenu(); CMDS[i][2](); }
+  function cmdKey(e) {
+    const btns = [...cl.querySelectorAll("button")]; const i = btns.indexOf(e.currentTarget);
+    let j = null; if (e.key === "ArrowDown") j = (i + 1) % btns.length; else if (e.key === "ArrowUp") j = (i + btns.length - 1) % btns.length;
+    if (j != null) { e.preventDefault(); btns[j].focus(); }
+  }
+  function fight() {
+    const it = cur(), n = nm(it);
+    say([n + "に こうげき！", it.summary, n + "を たおした！　けいけんち " + (it.xp == null ? "（NEW）" : "+" + P.fmt(it.xp)) + " を えた！\n★は ぜんぶで " + P.fmt(it.stars) + "。"]);
+  }
+  function inspect() {
+    const it = cur();
+    say([nm(it) + "を しらべた！", "【" + it.repo + "】\n" + it.desc]);
+  }
+  function recruit() {
+    const it = cur(), on = P.fav.toggle(it.repo);
+    say([on ? nm(it) + "が なかまに くわわった！" : nm(it) + "は パーティから はなれていった…"].concat(on && !P.fav.available() ? ["（このブラウザでは ほぞんが できないので、とじると きえる）"] : []));
+    renderParty(); renderList(); setCurrent();
+  }
+  function setCurrent() { const b = $("listOl").querySelector('[aria-current="true"]'); if (b) b.focus({ preventScroll: true }); }
+
+  // ---------- サブメニュー ----------
+  const menu = $("menu"); let menuCb = null;
+  function openMenu(title, opts, cb, prompt) {
+    menu.textContent = ""; menuCb = cb;
+    menu.append(el("h2", {}, el("span", {}, title)));
+    opts.forEach((o) => menu.append(el("button", { type: "button", role: "menuitemradio", "aria-checked": o.on ? "true" : "false", onclick: () => { const f = menuCb; closeMenu(); f(o.id); }, onkeydown: menuKey }, o.label, o.n && el("span", { class: "n" }, o.n))));
+    menu.append(el("button", { type: "button", role: "menuitem", onclick: closeMenu, onkeydown: menuKey }, "やめる"));
+    menu.hidden = false;
+    document.querySelectorAll("#cmdList button").forEach((b) => b.setAttribute("aria-expanded", b.textContent.startsWith(title) ? "true" : "false"));
+    say([prompt]);
+    menu.querySelector("button").focus();
+  }
+  function closeMenu() { menu.hidden = true; document.querySelectorAll("#cmdList button").forEach((b) => b.removeAttribute("aria-expanded")); }
+  function menuKey(e) {
+    const btns = [...menu.querySelectorAll("button")]; const i = btns.indexOf(e.currentTarget);
+    let j = null; if (e.key === "ArrowDown") j = (i + 1) % btns.length; else if (e.key === "ArrowUp") j = (i + btns.length - 1) % btns.length;
+    if (j != null) { e.preventDefault(); btns[j].focus(); }
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !menu.hidden) { closeMenu(); say(["やめた。"]); return; }
+    if (e.target.closest && e.target.closest("button") === null && /^[1-5]$/.test(e.key)) run(+e.key - 1);
+    else if (/^[1-5]$/.test(e.key) && e.target.closest("#cmdList, #listOl")) run(+e.key - 1);
+  });
+
+  function renderAll() { renderHdr(); renderList(); renderStage(); renderParty(); }
+  P.onDate(() => {
+    idx = Math.min(idx, items().length - 1);
+    renderAll();
+    say(stale ? staleMsg() : [jdw(P.date) + "の ぼうけんのしょを ひらいた。", "きょうの ゆうしゃ " + nm(items()[0]) + "が あらわれた！"]);
+  });
+  const staleMsg = () => ["…ゆうしゃは ねむったままだ。", "さいごの ぼうけんは " + jd(P.date) + " " + jstTime() + "。\nそれから あたらしい ぼうけんは きろくされていない。"];
+
+  renderAll();
+  say(stale ? staleMsg() : ["きょうの ゆうしゃ " + nm(items()[0]) + "が あらわれた！", "コマンドを えらんでください。"]);
+})();
+</script>
+</body>
+</html>

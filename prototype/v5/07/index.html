@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>【毎朝】GitHub急上昇を語るスレ - プログラミング板</title>
+<style>
+  :root { color-scheme: light; }
+  html { background: #efefef; }
+  body { margin: 0; padding: 6px 8px 40px; background: #efefef; color: #000; font-family: "MS PGothic", "ＭＳ Ｐゴシック", "IPAMonaPGothic", "Mona", "Osaka", "Noto Sans JP", sans-serif; font-size: 16px; line-height: 1.15; font-kerning: none; }
+  a, button.lk { color: #0000ee; text-decoration: underline; background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+  a:visited { color: #800080; }
+  a:hover, button.lk:hover { color: #ff0000; }
+  a:focus-visible, button.lk:focus-visible { outline: 1px dotted #000; outline-offset: 1px; }
+  hr { border: 0; border-top: 1px solid #888; margin: 6px 0; }
+  .small { font-size: 12px; line-height: 1.3; }
+  .red { color: #ff0000; }
+
+  #menu { background: #d0d0d0; border: 1px solid #999; padding: 2px 6px; font-size: 13px; line-height: 1.5; }
+  #menu .sep { color: #666; margin: 0 4px; }
+  #bannerline { margin: 6px 0 2px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+  #banner { image-rendering: pixelated; border: 1px solid #000; max-width: 100%; height: auto; display: block; }
+  #boardname { font-size: 24px; font-weight: bold; margin: 0; line-height: 1.2; }
+  #boarddesc { font-size: 12px; margin: 0; }
+  #notice { background: #ffffff; border: 1px solid #ff0000; color: #ff0000; font-weight: bold; padding: 4px 8px; margin: 8px 0; }
+  #notice[hidden] { display: none; }
+
+  #title { margin: 14px 0 2px; }
+  #title h1 { margin: 0; color: #ff0000; font-size: 20px; line-height: 1.3; font-weight: bold; }
+  #sub { font-size: 12px; margin: 2px 0 6px; }
+  #nav { margin: 4px 0 6px; font-size: 14px; }
+
+  #thread { margin: 0; }
+  .res { margin: 0 0 14px; }
+  .res .head { margin: 0; }
+  .res .no { font-weight: normal; }
+  .res .name { color: #008000; font-weight: bold; }
+  .res .mail { color: #0000ee; }
+  .res .body { margin: 6px 0 0 24px; line-height: 1.2; white-space: pre-wrap; word-break: break-all; }
+  .res .body div { min-height: 1.2em; }
+  .res .ops { margin: 6px 0 0 24px; font-size: 14px; }
+  .res .ops .sep { margin: 0 4px; color: #888; }
+  .res .more { margin: 6px 0 0 24px; padding: 4px 8px; border-left: 3px solid #aaa; background: #e6e6e6; font-size: 14px; word-break: break-all; }
+  .res .more[hidden] { display: none; }
+  .res.fav .name::after { content: " ★"; color: #e08000; }
+  .res.up1 .head { background: #fff8c0; }
+  .anc { color: #0000ee; text-decoration: underline; cursor: pointer; background: none; border: 0; font: inherit; padding: 0; }
+  #pop { position: absolute; z-index: 5; max-width: min(560px, calc(100vw - 16px)); background: #ffffe0; border: 1px solid #000; padding: 4px 8px; box-shadow: 2px 2px 0 rgba(0,0,0,.35); }
+  #pop[hidden] { display: none; }
+
+  .box { background: #fff; border: 1px solid #888; margin: 14px 0; padding: 6px 10px; }
+  .box h2 { margin: 0 0 4px; font-size: 16px; background: #cccccc; padding: 1px 6px; }
+  .box ol, .box ul { margin: 0; padding-left: 34px; font-size: 15px; line-height: 1.5; }
+  .box li { margin: 0; }
+  .box li.cur { font-weight: bold; }
+  #write { font-size: 14px; border: 1px solid #999; background: #e9e9e9; padding: 6px 10px; }
+  footer { margin-top: 18px; font-size: 11px; color: #444; line-height: 1.5; border-top: 1px solid #888; padding-top: 4px; }
+  .newimg { vertical-align: -5px; width: 22px; height: 22px; image-rendering: pixelated; }
+
+  @media (max-width: 600px) {
+    body { font-size: 15px; }
+    #title h1 { font-size: 18px; }
+    .res .body, .res .ops, .res .more { margin-left: 8px; }
+    #boardname { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div id="top"></div>
+<div id="menu" role="navigation" aria-label="メニュー"></div>
+
+<div id="bannerline">
+  <img id="banner" src="assets/banner.png" width="468" height="60" alt="板のバナー（ドット絵・星と棒グラフ）">
+  <div>
+    <h1 id="boardname" style="font-size:24px">プログラミング板</h1>
+    <p id="boarddesc">プログラミングの話題と、毎朝の GitHub 急上昇を読む板。<span class="red">※自動投稿専用・読み取り専用</span></p>
+  </div>
+</div>
+
+<div id="notice" role="alert" hidden></div>
+
+<div id="title"><h1 id="t"></h1></div>
+<div id="sub"></div>
+<div id="nav" class="small"></div>
+<hr>
+<div id="thread"></div>
+<hr>
+<div id="nav2" class="small"></div>
+
+<div class="box" id="related"><h2>関連スレ（関心領域）</h2><ol id="relList"></ol></div>
+<div class="box" id="logs"><h2>過去ログ倉庫（dat落ち）</h2><ul id="logList"></ul></div>
+<div class="box" id="favs"><h2>お気に入りスレ</h2><div id="favList"></div></div>
+<div id="write">このスレッドは自動投稿ボット専用です。書き込みフォームはありません（人の書き込みを装った文章は載せていません）。</div>
+
+<footer>
+  v5-07 掲示板 ／ 匿名掲示板のスレッド表示（板名・スレタイ赤字・「番号 ：名前：日時 ID」の見出し行・レスアンカー・関連スレ・過去ログ）の文法を借りた ／ 素材: バナーと NEW の星は Pillow で描いたドット絵（自作）、書体は OS 付属の MS P ゴシック（同梱なし）<br>
+  ※この板・スレ・ボットは架空。レスはすべてボットの定型文で、人の書き込みは載せていません。
+</footer>
+<div id="pop" hidden role="tooltip"></div>
+
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el;
+  const $ = (id) => document.getElementById(id);
+  const BOT_ID = "ID:Mrn5Bot0";
+  let view = "trend"; // "trend" または topic.id
+  const opened = new Set();
+
+  const pad = (n, w) => String(n).padStart(w || 2, "0");
+  function stamp(day, k) {
+    const d = new Date(day.updatedAt);
+    const j = new Date(d.getTime() + 9 * 3600e3 + Math.floor(k * 0.4) * 1000);
+    const cs = (V3.hash(day.date + k) % 100);
+    return j.getUTCFullYear() + "/" + pad(j.getUTCMonth() + 1) + "/" + pad(j.getUTCDate()) + "(" + P.weekday(day.date) + ") " + pad(j.getUTCHours()) + ":" + pad(j.getUTCMinutes()) + ":" + pad(j.getUTCSeconds()) + "." + pad(cs);
+  }
+  function jstShort(day) {
+    const d = new Date(new Date(day.updatedAt).getTime() + 9 * 3600e3);
+    return d.getUTCFullYear() + "/" + pad(d.getUTCMonth() + 1) + "/" + pad(d.getUTCDate()) + " " + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + " JST";
+  }
+  const part = (day) => "Part" + day.issueNo;
+  const topicOf = (id) => P.day.topics.find((t) => t.id === id);
+  const link = (txt, fn, title) => el("button", { type: "button", class: "lk", onclick: fn, title }, txt);
+  const sep = () => el("span", { class: "sep" }, "|");
+
+  /* 上のメニュー */
+  function menu() {
+    const m = $("menu"); m.textContent = "";
+    m.append("[ ", el("a", { href: "#bottom" }, "▼"), " ] ", el("a", { href: "#related" }, "関連スレ"), el("span", { class: "sep" }, "／"),
+      el("a", { href: "#logs" }, "過去ログ"), el("span", { class: "sep" }, "／"),
+      el("a", { href: "#favs" }, "お気に入りスレ(" + P.fav.count() + ")"), el("span", { class: "sep" }, "／"),
+      "更新 " + jstShort(P.day));
+  }
+
+  /* 本文の部品 */
+  function sparkline(repo, stars) {
+    const h = P.history(repo, stars), v = h.map((p) => p.stars);
+    const real = v.filter((x) => x != null), mn = Math.min(...real), mx = Math.max(...real), B = "▁▂▃▄▅▆▇█";
+    return v.map((x) => x == null ? "　" : B[Math.min(7, Math.floor(((x - mn) / Math.max(1, mx - mn)) * 8))]).join("") + "\n" + h[0].date.slice(5).replace("-", "/") + " ～ " + h[h.length - 1].date.slice(5).replace("-", "/") + "　（空白は記録のない日）";
+  }
+  function showPop(anchor, k) {
+    const src = document.querySelector('.res[data-no="' + k + '"]');
+    const pop = $("pop"); pop.textContent = "";
+    if (!src) { pop.append("（存在しないレス）"); }
+    else {
+      pop.append(el("div", {}, src.querySelector(".head").textContent));
+      src.querySelectorAll(".body div").forEach((d) => pop.append(el("div", {}, d.textContent)));
+    }
+    pop.hidden = false;
+    const r = anchor.getBoundingClientRect();
+    pop.style.left = Math.max(4, Math.min(window.scrollX + r.left, window.scrollX + document.documentElement.clientWidth - pop.offsetWidth - 4)) + "px";
+    pop.style.top = (window.scrollY + r.bottom + 2) + "px";
+  }
+  function anchorLine(prefix, k) {
+    return el("div", {}, prefix, el("button", { type: "button", class: "anc", onclick: (e) => { e.stopPropagation(); showPop(e.currentTarget, k); } }, ">>" + k));
+  }
+  const chgText = (repo) => { const c = V3.change(repo); return c.kind === "new" ? "NEW（前日の一覧に無し）" : c.kind === "up" ? "▲" + c.n + "（前日比）" : c.kind === "down" ? "▼" + c.n + "（前日比）" : "変わらず（前日比）"; };
+
+  function post(k, day, lines, it, opts) {
+    const rid = "r" + k;
+    const wrap = el("div", { class: "res" + (P.fav.has(it ? it.repo : "") ? " fav" : "") + (opts && opts.hot ? " up1" : ""), "data-no": k, id: rid });
+    wrap.append(el("div", { class: "head" },
+      el("span", { class: "no" }, k + " "), "：", el("span", { class: "name" }, "朝刊ボット◆Trending"), "：", el("span", { class: "mail" }, " "),
+      stamp(day, k) + " " + BOT_ID));
+    const body = el("div", { class: "body" }); lines.forEach((l) => body.append(l instanceof Node ? l : el("div", {}, l)));
+    wrap.append(body);
+    if (it) {
+      const more = el("div", { class: "more", hidden: !opened.has(it.repo) });
+      more.append(el("div", {}, "元の説明（英語）: " + (it.desc || "（なし）")), el("div", { style: "white-space:pre-wrap" }, "★の推移: " + sparkline(it.repo, it.stars)));
+      const ops = el("div", { class: "ops" });
+      const tg = link(opened.has(it.repo) ? "[詳細を閉じる]" : "[詳細]", () => { opened.has(it.repo) ? opened.delete(it.repo) : opened.add(it.repo); render(rid); });
+      const fv = link(P.fav.has(it.repo) ? "[お気に入りスレから外す]" : "[お気に入りスレに追加]", () => { P.fav.toggle(it.repo); render(rid); });
+      ops.append(tg, sep(), fv);
+      wrap.append(ops, more);
+    }
+    return el("div", {}, wrap);
+  }
+
+  function render(focusId) {
+    const day = P.day, thr = $("thread"); thr.textContent = ""; $("pop").hidden = true;
+    menu();
+    let titleText, items, hotK = 0, mode;
+    if (view === "trend") {
+      mode = "trend"; items = day.trending.items;
+      titleText = "【毎朝】GitHub急上昇を語るスレ " + part(day);
+    } else {
+      const t = topicOf(view) || (view = "trend", null); if (!t) return render();
+      mode = "topic"; items = t.items;
+      titleText = "【関心領域】" + t.label + " ★急上昇スレ " + part(day);
+    }
+    document.title = titleText + " - プログラミング板";
+    $("t").textContent = titleText + "(" + items.length + ")";
+    $("sub").textContent = "立てた人: 朝刊ボット◆Trending ／ " + P.date.replace(/-/g, "/") + "(" + P.weekday(P.date) + ") の朝刊 ／ 最終更新 " + jstShort(day) + " ／ レス数 " + (items.length + 1);
+    $("nav").textContent = ""; $("nav").append("[", el("a", { href: "#bottom" }, "下へ"), "] [", link("今日のスレ", () => { view = "trend"; render(); }), "] ", view === "trend" ? "" : "← 戻る");
+    $("nav2").textContent = ""; $("nav2").append("[", el("a", { href: "#top" }, "上へ"), "] [", link("リロード", () => render()), "]");
+    const n = $("notice");
+    if (P.state === "stale") { n.hidden = false; n.textContent = "■■■ 注意 ■■■ 朝刊ボットの更新が止まっています。最終更新は " + jstShort(day) + "。下の内容は古い情報です。"; } else n.hidden = true;
+
+    if (mode === "trend") {
+      let best = items.slice().sort((a, b) => b.today - a.today)[0];
+      items.forEach((it) => {
+        const lines = [
+          "【順位】" + it.rank + "位　" + chgText(it.repo),
+          "【リポジトリ】" + it.repo,
+          "【要約】" + it.summary,
+          "【★】" + P.fmt(it.stars) + "（本日 +" + P.fmt(it.today) + "）　【言語】" + it.lang,
+        ];
+        thr.append(post(it.rank, day, lines, it, { hot: it.rank === 1 }));
+      });
+      const k = items.length + 1;
+      thr.append(post(k, day, [
+        "【まとめ】全 " + items.length + " 件。以上で今日の分は終わりです。",
+        anchorLine("本日の増加がいちばん大きかったのは ", best.rank),
+        "（+" + P.fmt(best.today) + " ★／" + best.repo + "）",
+        "また明日 06:20 ごろに次のスレが立ちます。",
+      ], null));
+    } else {
+      const t = topicOf(view);
+      items.forEach((it, i) => {
+        const up = it.delta == null ? "NEW（前日の記録なし）" : "+" + P.fmt(it.delta) + "（前日比）";
+        thr.append(post(i + 1, day, ["【急上昇】" + (i + 1) + "位　★" + up, "【リポジトリ】" + it.repo, "【要約】" + it.summary, "【★】" + P.fmt(it.stars) + "　【言語】" + it.lang], it, { hot: i === 0 }));
+      });
+      thr.append(post(items.length + 1, day, ["【まとめ】「" + t.label + "」の急上昇は以上 " + items.length + " 件です。"], null));
+    }
+
+    // 関連スレ（関心領域）
+    const rl = $("relList"); rl.textContent = "";
+    rl.append(el("li", { class: view === "trend" ? "cur" : "" }, link("【毎朝】GitHub急上昇を語るスレ " + part(day), () => { view = "trend"; render(); window.scrollTo(0, 0); }), " (" + day.trending.items.length + ")"));
+    day.topics.forEach((t) => rl.append(el("li", { class: view === t.id ? "cur" : "" }, link("【関心領域】" + t.label + " ★急上昇スレ " + part(day), () => { view = t.id; render(); window.scrollTo(0, 0); }), " (" + t.items.length + ")")));
+    // 過去ログ
+    const ll = $("logList"); ll.textContent = "";
+    P.data.DATES.slice().reverse().forEach((d) => {
+      const dd = P.data.days[d];
+      ll.append(el("li", { class: d === P.date ? "cur" : "" }, d === P.date ? "" : link(d.replace(/-/g, "/") + "(" + P.weekday(d) + ") 【毎朝】GitHub急上昇を語るスレ " + part(dd), () => { P.setDate(d); window.scrollTo(0, 0); }),
+        d === P.date ? d.replace(/-/g, "/") + "(" + P.weekday(d) + ") 【毎朝】GitHub急上昇を語るスレ " + part(dd) + " ← 今開いている" : "", " (" + dd.trending.items.length + ")"));
+    });
+    ll.append(el("li", {}, el("span", { class: "small" }, "記録は 2026/11/01 から。それより前のスレは存在しません。")));
+    // お気に入り
+    const fl = $("favList"); fl.textContent = "";
+    const all = day.trending.items.concat(day.topics.flatMap((t) => t.items)).filter((x, i, a) => a.findIndex((y) => y.repo === x.repo) === i).filter((x) => P.fav.has(x.repo));
+    if (!all.length) fl.append(el("div", { class: "small" }, "まだありません。各レスの「お気に入りスレに追加」で入ります。" + (P.fav.available() ? "（このブラウザに保存）" : "（この環境では保存できず、閉じると消えます）")));
+    else { const ul = el("ul"); all.forEach((x) => ul.append(el("li", {}, x.repo + " ― " + x.summary + " ", link("[外す]", () => { P.fav.toggle(x.repo); render(); })))); fl.append(ul); }
+
+    if (focusId) { const f = document.getElementById(focusId); if (f) f.scrollIntoView({ block: "nearest" }); }
+  }
+  document.addEventListener("click", (e) => { if (!e.target.closest(".anc") && !e.target.closest("#pop")) $("pop").hidden = true; });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("pop").hidden = true; });
+  P.onDate(() => { view = "trend"; opened.clear(); render(); });
+  const bottom = el("div", { id: "bottom" }); document.body.insertBefore(bottom, document.querySelector("footer"));
+  render();
+})();
+</script>
+</body>
+</html>

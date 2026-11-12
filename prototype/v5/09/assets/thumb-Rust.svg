@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dea584"/><stop offset="1" stop-color="#fff"/></linearGradient></defs>
+<rect width="320" height="180" fill="url(#g)"/>
+<polygon points="229,103 406.9,461.3 322.7,491.9" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 233.8,503.0 144.7,494.0" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 59.8,465.4 -16.6,418.7" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 -80.7,356.1 -129.3,280.9" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 -159.9,196.7 -171.0,107.8" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 -162.0,18.7 -133.4,-66.2" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 -86.7,-142.6 -24.1,-206.7" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 51.1,-255.3 135.3,-285.9" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 224.2,-297.0 313.3,-288.0" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 398.2,-259.4 474.6,-212.7" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 538.7,-150.1 587.3,-74.9" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 617.9,9.3 629.0,98.2" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 620.0,187.3 591.4,272.2" fill="#fff" fill-opacity="0.13"/><polygon points="229,103 544.7,348.6 482.1,412.7" fill="#fff" fill-opacity="0.13"/>
+<g transform="rotate(-4 90 110)">
+<rect x="26" y="70" width="104" height="72" fill="#101418" stroke="#fff" stroke-width="3"/>
+<rect x="26" y="70" width="104" height="13" fill="#fff"/>
+<rect x="31" y="74" width="5" height="5" fill="#e33"/><rect x="39" y="74" width="5" height="5" fill="#eb3"/><rect x="47" y="74" width="5" height="5" fill="#3b4"/>
+<text x="34" y="106" font-family="Consolas, monospace" font-size="15" font-weight="bold" fill="#7fe07f">&gt;_ run</text>
+<rect x="34" y="114" width="52" height="5" fill="#dea584"/><rect x="34" y="124" width="76" height="5" fill="#fff" fill-opacity=".55"/><rect x="34" y="133" width="38" height="4" fill="#fff" fill-opacity=".35"/>
+</g>
+<g font-family="Impact, 'Arial Black', 'Yu Gothic', sans-serif" font-weight="900" text-anchor="end">
+<text x="308" y="82" font-size="52" fill="#2b1306" stroke="#fff" stroke-width="9" paint-order="stroke" stroke-linejoin="round">Rust</text>
+</g>
+<g font-family="'Yu Gothic','Meiryo',sans-serif" font-weight="bold">
+<rect x="198" y="98" width="110" height="26" fill="#ffe400" stroke="#000" stroke-width="2.5" transform="rotate(-3 253 111)"/>
+<text x="253" y="117" font-size="17" fill="#d00" text-anchor="middle" transform="rotate(-3 253 111)">★急上昇！</text>
+</g>
+</svg>

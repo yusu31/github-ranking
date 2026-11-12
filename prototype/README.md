@@ -12,7 +12,10 @@
 - HTML・CSS・JS だけの静的なページでよい（ビルドもサーバーも不要）。データは仮のもの
 - 大きく作り直したら版を分ける（例: `prototype/v2/`）。古い版は消さずに残し、最新の版をこの README に書く
 
-最新の版: **prototype/v4/**（2026-11-12・Issue #9）— E・F を磨いた2案と、アニメ・ゲーム・テレビの文法を借りた8案、計10案（I〜R）を `prototype/v4/index.html` の1ページで見比べる。決め方は `prototype/v4/README.md`
+最新の版: **prototype/v5/**（2026-11-12・Issue #9）— 骨組みから違う12案（ゲーム風・Webサイトそのもの・遊べるゲーム）を `prototype/v5/index.html` で見比べる。決め方は `prototype/v5/README.md`
+
+### v4 は「どれも同じ・AI感」（2026-11-12）
+E・F を磨いた2案＋8案の計10案（I〜R）。同じ骨組みの着せ替えだった。`prototype/v4/index.html` に残す。
 
 ### v3 は「E・F が好き」（2026-11-12）
 4案（E〜H）と v2 の4案を `prototype/v3/index.html` で見比べられる。

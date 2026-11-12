@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ほしっこ — きょうの せわ ランキング</title>
+<style>
+@font-face { font-family: "DotGothic16"; src: url("assets/DotGothic16.ttf") format("truetype"); font-display: swap; }
+:root {
+  --lcd: #a9b98f; --lcd-d: #98a97f; --ink: #1a2412;
+  --body: #e84f8c; --body-d: #b8326a; --body-l: #ff8fb8;
+  --desk: #d9cfb8; --paper: #f4efe0;
+}
+* { box-sizing: border-box; }
+html { background: var(--desk); }
+body {
+  margin: 0; color: #2a2118; font-family: "DotGothic16", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.025) 0 1px, transparent 1px 4px),
+    var(--desk);
+  min-height: 100vh;
+}
+.wrap { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 28px 40px; max-width: 1040px; margin: 0 auto; padding: 28px 24px 24px; align-items: start; }
+@media (max-width: 860px) { .wrap { grid-template-columns: minmax(0, 1fr); justify-items: center; padding: 20px 12px; } }
+
+/* ===== 本体（たまご型の筐体）===== */
+.toy { position: relative; width: 340px; padding-top: 44px; }
+.ring { position: absolute; top: 0; left: 50%; margin-left: -22px; width: 44px; height: 44px; border: 7px solid #b9bcc4; border-radius: 50%; box-shadow: inset 0 0 0 1px #8e929c, 0 1px 0 #fff; background: transparent; }
+.shell {
+  position: relative; width: 320px; height: 400px; margin: 0 auto; z-index: 1;
+  border-radius: 50% 50% 48% 48% / 52% 52% 48% 48%;
+  background:
+    radial-gradient(ellipse 60px 90px at 28% 20%, rgba(255,255,255,.55), rgba(255,255,255,0) 70%),
+    radial-gradient(ellipse at 50% 38%, var(--body-l) 0%, var(--body) 55%, var(--body-d) 100%);
+  box-shadow: inset 0 -10px 18px rgba(90,10,50,.35), inset 0 6px 10px rgba(255,255,255,.35), 0 14px 0 -4px rgba(0,0,0,.14), 0 18px 18px rgba(0,0,0,.25);
+}
+.face { position: absolute; left: 36px; top: 54px; width: 248px; height: 250px; background: #f2eedf; border-radius: 22px; padding: 6px 8px; box-shadow: inset 0 0 0 2px #d9d3bd, inset 0 3px 6px rgba(0,0,0,.2); }
+.icons { display: flex; justify-content: space-between; height: 20px; padding: 3px 4px 0; }
+.icons img { width: 12px; height: 13px; image-rendering: pixelated; opacity: .75; }
+.icons img.on { opacity: 1; }
+.lcd {
+  position: relative; width: 192px; height: 190px; margin: 0 auto; padding: 6px 6px 4px; overflow: hidden;
+  background: var(--lcd); color: var(--ink); font-size: 16px; line-height: 18px;
+  border: 5px solid #4a4a52; border-radius: 6px; box-shadow: inset 2px 2px 0 rgba(0,0,0,.25);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(20,30,10,.07) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(20,30,10,.07) 0 1px, transparent 1px 3px);
+  background-color: var(--lcd);
+  text-shadow: 1px 1px 0 rgba(20,30,10,.15);
+}
+.lcd, .lcd * { font-family: "DotGothic16", monospace; }
+.lcd .row { display: flex; justify-content: space-between; gap: 4px; height: 18px; white-space: nowrap; overflow: hidden; }
+.lcd .name { height: 18px; overflow: hidden; white-space: nowrap; }
+.lcd .name span { display: inline-block; padding-left: 0; }
+.lcd .name.long span { animation: marq 6s ease-in-out infinite alternate; }
+@keyframes marq { 0%, 20% { transform: translateX(0); } 80%, 100% { transform: translateX(var(--d, 0px)); } }
+.sprite-area { height: 90px; display: flex; align-items: center; justify-content: center; position: relative; }
+.sprite { width: 80px; height: 85px; image-rendering: pixelated; }
+.sprite-area .evo { position: absolute; top: 0; left: 0; right: 0; text-align: center; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.hearts { letter-spacing: 1px; }
+.page { height: 134px; overflow: hidden; word-break: break-all; }
+.dots { display: flex; align-items: flex-end; gap: 2px; height: 52px; margin: 4px 0; }
+.dots i { flex: 1; background: var(--ink); min-height: 2px; }
+.dots i.gap { background: transparent; border-bottom: 2px dotted var(--ink); }
+.buttons { position: absolute; left: 0; right: 0; bottom: 38px; height: 70px; }
+.buttons button {
+  position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 0; cursor: pointer; font: inherit; font-size: 16px; color: #fff; padding: 0;
+  background: radial-gradient(circle at 35% 30%, #ffe28a, #f1b418 55%, #b9810a 100%);
+  box-shadow: 0 4px 0 #8a5d08, 0 6px 6px rgba(0,0,0,.35), inset 0 1px 2px rgba(255,255,255,.7);
+  text-shadow: 1px 1px 0 #8a5d08;
+}
+.buttons button:active { transform: translateY(3px); box-shadow: 0 1px 0 #8a5d08, inset 0 1px 2px rgba(255,255,255,.7); }
+.buttons button:focus-visible { outline: 3px solid #1a2412; outline-offset: 3px; }
+.buttons .a { left: 62px; top: 0; } .buttons .b { left: 137px; top: 14px; } .buttons .c { left: 212px; top: 0; }
+.buttons small { position: absolute; font-size: 11px; color: #fff; text-shadow: 1px 1px 0 var(--body-d); white-space: nowrap; }
+.brand { position: absolute; top: 26px; left: 0; right: 0; text-align: center; font-size: 11px; color: #fff; letter-spacing: 3px; text-shadow: 1px 1px 0 var(--body-d); }
+.hint { text-align: center; font-size: 12px; color: #6b5c44; margin-top: 18px; line-height: 1.6; }
+.hint kbd { font-family: inherit; border: 1px solid #8f8366; border-radius: 3px; padding: 0 4px; background: #efe9d6; }
+
+/* ===== せわ ランキング（液晶風の一覧）===== */
+.board { min-width: 0; }
+.board h1 { margin: 0 0 6px; font-size: 22px; font-weight: normal; letter-spacing: 1px; }
+.board h1 small { font-size: 13px; color: #6b5c44; margin-left: 8px; }
+.ctrl { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin: 8px 0; font-size: 14px; }
+.ctrl .grp { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.ctrl .lab { color: #6b5c44; }
+.tab { font: inherit; font-size: 14px; background: #efe9d6; border: 2px solid #4a4a52; border-radius: 3px; padding: 2px 8px; cursor: pointer; color: #2a2118; }
+.tab[aria-pressed="true"], .tab[aria-selected="true"] { background: var(--ink); color: var(--lcd); }
+.tab:focus-visible { outline: 3px solid var(--body); outline-offset: 2px; }
+.panel { background: var(--lcd); border: 6px solid #4a4a52; border-radius: 8px; padding: 8px 6px; color: var(--ink); box-shadow: inset 2px 2px 0 rgba(0,0,0,.25), 0 3px 0 rgba(0,0,0,.18);
+  background-image: repeating-linear-gradient(0deg, rgba(20,30,10,.07) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(20,30,10,.07) 0 1px, transparent 1px 3px); }
+.panel .cap { display: flex; justify-content: space-between; gap: 8px; padding: 0 4px 4px; border-bottom: 2px dotted var(--ink); font-size: 14px; }
+.panel .warn { margin: 6px 4px; padding: 3px 6px; border: 2px solid var(--ink); background: var(--ink); color: var(--lcd); font-size: 14px; animation: blink 1.2s steps(2) infinite; }
+ol.list { list-style: none; margin: 4px 0 0; padding: 0; }
+ol.list li { display: grid; grid-template-columns: 18px 26px minmax(0, 1fr) auto 28px; align-items: center; gap: 4px; font-size: 15px; line-height: 22px; padding: 0 2px; }
+ol.list li.sel { background: var(--ink); color: var(--lcd); }
+ol.list li .cur { visibility: hidden; }
+ol.list li.sel .cur { visibility: visible; }
+ol.list li .nm { background: none; border: 0; padding: 0; margin: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+ol.list li .nm:focus-visible, ol.list li .hb:focus-visible { outline: 2px solid currentColor; outline-offset: 1px; }
+ol.list li .st { font-size: 14px; white-space: nowrap; }
+ol.list li .hb { background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; text-align: center; }
+ol.list li .lv { font-size: 10px; }
+.foot { margin: 22px 0 0; font-size: 12px; color: #6b5c44; line-height: 1.7; border-top: 1px dashed #9b8f72; padding-top: 8px; grid-column: 1 / -1; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .lcd .name.long span { padding-left: 0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="toy" aria-label="携帯育成ゲーム機の画面">
+    <div class="ring" aria-hidden="true"></div>
+    <div class="shell">
+      <div class="brand">ほしっこ ポケット</div>
+      <div class="face">
+        <div class="icons" id="icons-top" aria-hidden="true"></div>
+        <div class="lcd" id="lcd" role="status" aria-live="polite"></div>
+        <div class="icons" id="icons-bot" aria-hidden="true"></div>
+      </div>
+      <div class="buttons">
+        <button class="a" id="btn-a" aria-label="Aボタン つぎの リポジトリ">A</button>
+        <button class="b" id="btn-b" aria-label="Bボタン けってい（くわしく）">B</button>
+        <button class="c" id="btn-c" aria-label="Cボタン もどる">C</button>
+      </div>
+    </div>
+    <p class="hint">A つぎ ／ B けってい・なかよし ／ C もどる<br>キーボードの <kbd>A</kbd> <kbd>B</kbd> <kbd>C</kbd> でも あそべます</p>
+  </section>
+
+  <section class="board">
+    <h1>きょうの せわ ランキング <small id="upd"></small></h1>
+    <div class="ctrl">
+      <div class="grp" id="days"><span class="lab">ひにち</span></div>
+      <div class="grp" id="topics" role="tablist" aria-label="おでかけ先"><span class="lab">おでかけ先</span></div>
+    </div>
+    <div class="panel">
+      <div class="cap"><span id="cap-l"></span><span>★ふえた かず</span></div>
+      <div id="warn"></div>
+      <ol class="list" id="list"></ol>
+    </div>
+  </section>
+
+  <p class="foot">v5-03 育成ゲーム（たまご型の携帯ゲーム）／ 1990年代後半の携帯育成ゲーム機の文法（楕円の筐体・3ボタン・灰緑の液晶・成長段階）を借りた画面。名前・絵は自作の架空。<br>素材: DotGothic16（SIL Open Font License 1.1）・ドット絵は Pillow で自作（assets/CREDITS.md）</p>
+</div>
+
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el;
+  const ICONS = ["meal", "light", "game", "med", "toilet", "meter", "love", "call"];
+  const $ = (id) => document.getElementById(id);
+  const lcd = $("lcd");
+
+  // 画面のまわりの小さな絵（飾り。いま押せる操作に近いものだけ明るくする）
+  const icon = (n) => el("img", { src: "assets/i-" + n + ".png", alt: "", "data-n": n });
+  ICONS.slice(0, 4).forEach((n) => $("icons-top").append(icon(n)));
+  ICONS.slice(4).forEach((n) => $("icons-bot").append(icon(n)));
+
+  const S = { topic: "trend", idx: 0, mode: "home", page: 0, frame: 1 };
+  const stageOf = (g) => (g >= 500 ? 2 : g >= 200 ? 1 : 0);
+  const STAGE = [["egg", "たまご"], ["child", "こども"], ["adult", "おとな"]];
+
+  function items() {
+    if (S.topic === "trend") return P.day.trending.items.map((x) => ({ ...x, gain: x.today }));
+    const t = P.day.topics.find((t) => t.id === S.topic) || P.day.topics[0];
+    return t.items.map((x, i) => ({ ...x, rank: i + 1, gain: x.delta == null ? 0 : x.delta, fresh: x.delta == null }));
+  }
+  function yesterdayGain(repo) {
+    const i = P.data.DATES.indexOf(P.date); if (i <= 0) return null;
+    const d = P.data.days[P.data.DATES[i - 1]];
+    const arr = S.topic === "trend" ? d.trending.items.map((x) => x.today) : null;
+    if (S.topic === "trend") { const f = d.trending.items.find((x) => x.repo === repo); return f ? f.today : null; }
+    return arr;
+  }
+  const num = (n) => P.fmt(n);
+  const hhmm = (iso) => iso.slice(5, 10).replace("-", "/") + " " + iso.slice(11, 16) + " JST";
+  const cur = () => items()[S.idx];
+
+  function pickInitial() {
+    const it = items();
+    const f = it.findIndex((x) => P.fav.has(x.repo));
+    S.idx = f >= 0 ? f : 0;
+  }
+
+  /* ---------- 液晶 ---------- */
+  function line(l, r, cls) { return el("div", { class: "row " + (cls || "") }, el("span", null, l), r != null ? el("span", null, r) : null); }
+  function wrapText(parent, t) { parent.append(document.createTextNode(t)); }
+
+  function renderLcd() {
+    lcd.replaceChildren();
+    const it = items(), c = it[S.idx];
+    const dayLabel = P.date === P.data.DATES[P.data.DATES.length - 1] ? "きょう" : P.date === P.data.DATES[P.data.DATES.length - 2] ? "きのう" : P.date.slice(5).replace("-", "/");
+    document.querySelectorAll("#icons-top img, #icons-bot img").forEach((i) => i.classList.toggle("on", (S.mode === "home" && i.dataset.n === "meal") || (S.mode === "detail" && i.dataset.n === "meter") || (P.fav.has(c.repo) && i.dataset.n === "love")));
+    if (P.state === "stale") {
+      lcd.append(line("★ でんち ぎれ", ""), el("div", { style: "margin-top:10px" }, "こうしんが とまって います"),
+        el("div", { style: "margin-top:8px" }, "さいごの こうしん"), el("div", null, hhmm(P.day.updatedAt)),
+        el("div", { style: "margin-top:8px" }, "いまの ひょうじは ふるい もの です"));
+      return;
+    }
+    const g = c.gain, st = stageOf(g), [key, label] = STAGE[st];
+    if (S.mode === "home") {
+      lcd.append(line("No." + String(c.rank).padStart(2, "0") + " " + dayLabel, P.fav.has(c.repo) ? "♥" : ""));
+      const nm = el("div", { class: "name" + (c.repo.length > 11 ? " long" : "") }, el("span", null, c.repo));
+      lcd.append(nm); { const sp = nm.firstChild; nm.style.setProperty("--d", "0px"); sp.style.setProperty("--d", Math.min(0, 180 - sp.offsetWidth) + "px"); }
+      const y = yesterdayGain(c.repo), evolved = y != null && stageOf(y) < st;
+      const img = el("img", { class: "sprite", alt: label + "の すがた", src: "assets/" + key + S.frame + ".png" });
+      lcd.append(el("div", { class: "sprite-area" }, img, evolved ? el("div", { class: "evo" }, "しんか！") : c.fresh ? el("div", { class: "evo" }, "うまれた！") : null));
+      lcd.append(line(label, "★+" + num(g)));
+      lcd.append(el("div", { class: "row hearts" }, "♥".repeat(Math.min(5, 1 + Math.floor(g / 300))) + "♡".repeat(5 - Math.min(5, 1 + Math.floor(g / 300)))));
+    } else {
+      const pages = 3;
+      lcd.append(line(c.repo.split("/")[1].slice(0, 9), (S.page + 1) + "/" + pages));
+      const body = el("div", { class: "page" });
+      if (S.page === 0) {
+        body.append(el("div", null, "【ひとこと】"), el("div", null, c.summary), el("div", { style: "margin-top:6px" }, c.lang + " / " + label), el("div", null, "★ " + num(c.stars)), el("div", null, c.fresh ? "あたらしい なかま" : "きょう +" + num(g)));
+      } else if (S.page === 1) {
+        body.append(el("div", null, "【えいご】"), el("div", null, c.desc || "(なし)"));
+      } else {
+        const h = P.history(c.repo, c.stars);
+        const mx = Math.max(...h.map((p) => p.stars || 0)), mn = Math.min(...h.filter((p) => p.stars != null).map((p) => p.stars));
+        const bars = el("div", { class: "dots" }, h.map((p) => p.stars == null ? el("i", { class: "gap", style: "height:6px" }) : el("i", { style: "height:" + Math.round(4 + 44 * (p.stars - mn) / Math.max(1, mx - mn)) + "px" })));
+        body.append(el("div", null, "【★のすいい】"), bars, el("div", null, h[0].date.slice(5).replace("-", "/") + "〜" + h[h.length - 1].date.slice(5).replace("-", "/")), el("div", null, "かけた ひは ・ で ひょうじ"));
+      }
+      lcd.append(body, line(P.fav.has(c.repo) ? "♥ なかよし" : "B: なかよし", "A:つぎ"));
+    }
+  }
+
+  /* ---------- 一覧 ---------- */
+  function renderList() {
+    const it = items(), ol = $("list");
+    ol.replaceChildren();
+    const tl = S.topic === "trend" ? "きょうの トレンド" : (P.day.topics.find((t) => t.id === S.topic) || {}).label;
+    $("cap-l").textContent = tl + "  " + it.length + "ひき";
+    $("upd").textContent = "こうしん " + hhmm(P.day.updatedAt);
+    $("warn").replaceChildren(...(P.state === "stale" ? [el("div", { class: "warn", role: "alert" }, "★ でんち ぎれ: こうしんが とまっています（さいごの こうしん " + hhmm(P.day.updatedAt) + "）")] : []));
+    it.forEach((x, i) => {
+      const sel = i === S.idx, st = stageOf(x.gain);
+      const li = el("li", { class: sel ? "sel" : null },
+        el("span", { class: "cur", "aria-hidden": "true" }, "▶"),
+        el("span", null, String(x.rank).padStart(2, "0")),
+        el("button", { class: "nm", title: x.repo + " — " + x.summary, "aria-label": x.repo + " をえらぶ", "aria-current": sel ? "true" : null, onclick: () => { S.idx = i; S.mode = "home"; S.page = 0; redraw(); } }, x.repo),
+        el("span", { class: "st" }, "★+" + num(x.gain), " ", el("span", { class: "lv" }, STAGE[st][1])),
+        el("button", { class: "hb", "aria-pressed": P.fav.has(x.repo) ? "true" : "false", "aria-label": x.repo + (P.fav.has(x.repo) ? " のなかよしを やめる" : " と なかよしになる"), onclick: () => { P.fav.toggle(x.repo); redraw(); } }, P.fav.has(x.repo) ? "♥" : "♡"));
+      ol.append(li);
+    });
+  }
+  function renderCtrl() {
+    const dv = $("days"); [...dv.querySelectorAll("button")].forEach((b) => b.remove());
+    const D = P.data.DATES, last = D[D.length - 1], prev = D[D.length - 2];
+    [["きのう", prev], ["きょう", last]].forEach(([l, d]) => dv.append(el("button", { class: "tab", "aria-pressed": P.date === d ? "true" : "false", onclick: () => P.setDate(d) }, l)));
+    const tv = $("topics"); [...tv.querySelectorAll("button")].forEach((b) => b.remove());
+    [["trend", "トレンド"], ...P.day.topics.map((t) => [t.id, t.label])].forEach(([id, l]) => tv.append(el("button", { class: "tab", role: "tab", "aria-selected": S.topic === id ? "true" : "false", onclick: () => { S.topic = id; S.mode = "home"; pickInitial(); redraw(); } }, l)));
+  }
+  function redraw() { renderCtrl(); renderList(); renderLcd(); }
+
+  /* ---------- ボタン ---------- */
+  function pressA() { if (S.mode === "detail") S.page = (S.page + 1) % 3; else { S.idx = (S.idx + 1) % items().length; } renderList(); renderLcd(); }
+  function pressB() { if (S.mode === "home") { S.mode = "detail"; S.page = 0; } else { P.fav.toggle(cur().repo); } redraw(); }
+  function pressC() { if (S.mode === "detail") S.mode = "home"; else pickInitial(); redraw(); }
+  $("btn-a").addEventListener("click", pressA); $("btn-b").addEventListener("click", pressB); $("btn-c").addEventListener("click", pressC);
+  document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey || /^(INPUT|TEXTAREA)$/.test((e.target.tagName || ""))) return;
+    const k = e.key.toLowerCase();
+    if (e.target.tagName === "BUTTON" && (k === " " || k === "enter")) return;
+    if (k === "a") pressA(); else if (k === "b") pressB(); else if (k === "c") pressC();
+  });
+  P.onDate(() => { S.mode = "home"; S.page = 0; pickInitial(); redraw(); });
+
+  // 生き物の2コマ（動きを減らす設定では止める）
+  if (!P.reduced()) setInterval(() => { if (S.mode !== "home" || P.state === "stale") return; S.frame = S.frame === 1 ? 2 : 1; const s = lcd.querySelector(".sprite"); if (s) s.src = s.src.replace(/(egg|child|adult)[12]\.png/, "$1" + S.frame + ".png"); }, 600);
+
+  pickInitial(); redraw();
+})();
+</script>
+</body>
+</html>

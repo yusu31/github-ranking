@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ほしめぐり双六（v5-12）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yusei+Magic&family=Mochiy+Pop+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2b2130; --paper:#fff6cf; --sky:#8fd6d0; --red:#ff5a5f; --yel:#ffd23f; --blu:#4aa8ff; --grn:#6fd36a; --pink:#ff9bb8; --dim:#6a5c70;
+  --f:"Yusei Magic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  --fh:"Mochiy Pop One","Yusei Magic",sans-serif;
+  --w1:255px 15px 225px 15px/15px 225px 15px 255px;
+  --w2:15px 225px 15px 255px/255px 15px 225px 15px;
+  --w3:225px 15px 255px 15px/15px 255px 15px 225px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--sky)}
+body{margin:0;font-family:var(--f);color:var(--ink);font-size:15px;line-height:1.55;background:var(--sky);
+  background-image:radial-gradient(circle at 12% 18%,#ffffff55 0 22px,transparent 23px),radial-gradient(circle at 88% 8%,#ffffff55 0 30px,transparent 31px),radial-gradient(circle at 70% 60%,#ffffff33 0 40px,transparent 41px)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+:focus-visible{outline:4px solid var(--blu);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:12px 14px 40px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:6px 18px;margin:4px 0 10px}
+h1{margin:0;font-family:var(--fh);font-weight:400;font-size:34px;line-height:1.1;transform:rotate(-1.2deg);display:inline-block;background:var(--red);color:#fff;padding:4px 18px 6px;border:3px solid var(--ink);border-radius:var(--w1);text-shadow:2px 2px 0 var(--ink)}
+.upd{font-size:13px;background:#fff9;padding:1px 10px;border-radius:var(--w2);border:2px dashed var(--ink)}
+.bar{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin:6px 0 10px}
+.bar .lab{font-size:12.5px;color:#3f6f6a;margin-right:4px;font-weight:700}
+.chip{display:inline-block;border:3px solid var(--ink);padding:0 11px;margin:0 5px 5px 0;background:#fff;border-radius:var(--w2)}
+.chip:nth-child(2n){border-radius:var(--w3)}
+.chip[aria-pressed="true"]{background:var(--yel);transform:rotate(-1.5deg)}
+.btn{display:inline-block;border:3px solid var(--ink);padding:3px 14px;background:#fff;border-radius:var(--w1)}
+.btn:hover{background:var(--yel)}
+.btn.red{background:var(--red);color:#fff;text-shadow:1px 1px 0 var(--ink)} .btn.red:hover{background:#ff7a7e}
+.warn{border:3px solid var(--ink);background:#ffe0a6;border-radius:var(--w3);padding:5px 14px;margin:0 0 10px;transform:rotate(.4deg)}
+.warn b{font-family:var(--fh);font-weight:400;color:var(--red);margin-right:6px}
+.stage{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+@media (min-width:900px){.stage{grid-template-columns:minmax(0,1fr) 330px}}
+
+/* ===== 盤 ===== */
+.boardwrap{background:var(--paper);border:4px solid var(--ink);border-radius:var(--w3);padding:14px 12px 16px;position:relative}
+.board{position:relative;display:grid;gap:18px 14px}
+#path{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible}
+.cell{position:relative;z-index:1;border:3px solid var(--ink);padding:3px 4px 4px;text-align:center;min-height:112px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;background:var(--c,#fff);border-radius:var(--w1);width:100%}
+.cell:nth-child(3n+2){border-radius:var(--w2)} .cell:nth-child(3n){border-radius:var(--w3)}
+.cell:hover{transform:rotate(-1.5deg) scale(1.03)}
+.cell .no{position:absolute;left:-7px;top:-9px;min-width:30px;height:30px;line-height:24px;border:3px solid var(--ink);background:#fff;border-radius:50% 45% 55% 50%;font-family:var(--fh);font-size:15px;padding:0 3px}
+.cell img.m{width:52px;height:52px;margin-top:8px}
+.cell .nm{font-size:11.5px;line-height:1.2;word-break:break-all;max-height:2.5em;overflow:hidden}
+.cell.done::after{content:"済";position:absolute;right:-5px;bottom:-7px;width:24px;height:24px;line-height:19px;border:2px solid var(--red);color:var(--red);border-radius:50%;background:#fff;font-size:13px;transform:rotate(-12deg)}
+.stamp{position:absolute;right:-8px;top:-10px;width:30px;height:30px;line-height:25px;border:3px solid var(--red);color:var(--red);border-radius:50%;background:#fff;font-size:15px;transform:rotate(10deg);font-family:var(--fh)}
+.stamp.blue{border-color:#2b78d8;color:#2b78d8} .stamp.pink{border-color:#d4458a;color:#d4458a}
+.cell.start,.cell.goal{background:#fff}
+.cell.start img.m,.cell.goal img.f{width:56px;height:56px;margin-top:6px}
+.cell.cur{outline:4px solid var(--blu);outline-offset:1px}
+#koma{position:absolute;z-index:3;width:42px;height:42px;pointer-events:none;transition:left .18s ease-out,top .18s ease-out;filter:drop-shadow(2px 3px 0 #0003)}
+#koma.hop{animation:hop .18s}
+@keyframes hop{50%{margin-top:-14px}}
+
+/* ===== 横のパネル ===== */
+.side{position:sticky;top:8px;z-index:5;display:flex;flex-direction:column;gap:10px}
+.panel{background:#fff;border:3px solid var(--ink);padding:8px 12px 10px;border-radius:var(--w2)}
+.panel h2{margin:0 0 4px;font-family:var(--fh);font-weight:400;font-size:17px}
+.prog{height:12px;border:2px solid var(--ink);border-radius:8px;background:#fff;overflow:hidden;margin:4px 0}
+.prog i{display:block;height:100%;background:var(--grn);width:0}
+.diceRow{display:flex;gap:12px;align-items:center}
+.dice{width:70px;height:70px;border:4px solid var(--ink);background:#fff;border-radius:var(--w1);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:9px;gap:3px;flex:none}
+.dice i{border-radius:50%;background:transparent}
+.dice i.on{background:var(--red);border:2px solid var(--ink)}
+.dice.roll{animation:shake .12s infinite}
+@keyframes shake{0%{transform:rotate(-8deg)}50%{transform:rotate(9deg) translateY(-4px)}100%{transform:rotate(-8deg)}}
+.rollBtn{flex:1;text-align:center;border:4px solid var(--ink);background:var(--yel);padding:8px 6px;border-radius:var(--w3);font-family:var(--fh);font-size:19px;line-height:1.2}
+.rollBtn small{display:block;font-family:var(--f);font-size:11.5px;color:var(--dim)}
+.rollBtn:hover:not(:disabled){background:#ffe27a}
+.rollBtn:disabled{background:#eee;color:#999;cursor:default}
+.card .top{display:flex;gap:10px;align-items:center}
+.card img.m{width:56px;height:56px;flex:none}
+.card .rk{font-family:var(--fh);font-size:22px;line-height:1}
+.card .rn{font-size:15px;word-break:break-all}
+.card .rn span{color:var(--dim);font-size:12px}
+.card p{margin:4px 0 0}
+.card .sum{font-size:15.5px}
+.ev{margin-top:6px;border:3px dashed var(--red);border-radius:var(--w2);padding:2px 10px;color:#c2343a;background:#fff3f0}
+.ev.blue{border-color:#2b78d8;color:#1e5fb0;background:#eef6ff}
+.stats{font-size:13px;color:var(--dim)}
+.cardBtns{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.cardBtns .btn{font-size:13px;padding:1px 10px}
+details.dt{margin-top:6px;font-size:13px}
+details.dt summary{cursor:pointer;color:#2b78d8}
+details.dt p{margin:3px 0;overflow-wrap:anywhere}
+svg.spark{display:block;width:100%;max-width:300px;height:56px;border:2px solid var(--ink);background:#fffdf0;border-radius:8px}
+.trail{display:flex;flex-wrap:wrap;gap:3px 5px;font-size:12px;margin:0;padding:0;list-style:none}
+.trail li{background:var(--paper);border:2px solid var(--ink);padding:0 7px;border-radius:var(--w3)}
+@media (max-width:899px){
+  .side{top:0;order:-1;background:var(--sky);padding:6px 0 4px;margin:0 -2px;gap:6px}
+  .panel{position:relative;padding:5px 10px 7px}
+  .prog{display:none}
+  .panel h2{font-size:15px;margin-bottom:2px}
+  .dice{width:54px;height:54px;padding:6px}
+  .rollBtn{padding:4px 6px;font-size:17px}
+  .panel:first-child .cardBtns{position:absolute;right:8px;top:4px;margin:0}
+  .panel:first-child .cardBtns .btn{font-size:11.5px;padding:0 8px}
+  .card img.m{width:40px;height:40px}.card .rk{font-size:18px}
+  .cell .nm{font-size:10.5px;overflow-wrap:anywhere;word-break:normal}
+  .card .sum{font-size:14px}
+  .panel.trailp,.card details.dt{display:none}
+  .cell{min-height:100px}
+  h1{font-size:27px}
+}
+
+/* ===== 一覧 ===== */
+.listwrap{margin-top:16px;background:var(--paper);border:4px solid var(--ink);border-radius:var(--w1);padding:12px 14px 16px}
+.listwrap h2{margin:0;font-family:var(--fh);font-weight:400;font-size:24px;display:inline-block;transform:rotate(-1deg);background:var(--grn);border:3px solid var(--ink);padding:0 14px;border-radius:var(--w2)}
+.lrows{list-style:none;margin:10px 0 0;padding:0}
+.lrow{border-bottom:3px dotted #c9b97a;padding:7px 0}
+.lmain{display:grid;grid-template-columns:44px 52px 1fr auto;gap:2px 10px;align-items:center;width:100%;text-align:left}
+.lmain .no{font-family:var(--fh);font-size:15px;border:3px solid var(--ink);background:#fff;border-radius:50% 45% 55% 50%;text-align:center;min-width:38px;height:38px;line-height:31px}
+.lmain img{width:50px;height:50px}
+.lmain .t{word-break:break-all;font-size:16px}
+.lmain .t .ow{color:var(--dim);font-size:12.5px}
+.lmain .s{font-size:13.5px;color:var(--dim);white-space:nowrap}
+.lsum{grid-column:3 / 5;font-size:14px}
+.lt{display:inline-block;font-size:11.5px;border:2px solid var(--red);color:var(--red);padding:0 6px;margin-left:5px;border-radius:var(--w3);vertical-align:middle}
+.lt.blue{border-color:#2b78d8;color:#2b78d8}
+.ldet{margin:6px 0 4px 56px;font-size:14px}
+.ldet p{margin:3px 0;overflow-wrap:anywhere}
+.lbtns{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+@media (max-width:560px){
+  .lmain{grid-template-columns:38px 44px 1fr}.lmain .s{grid-column:3;white-space:normal}.lsum{grid-column:3}
+  .lmain img{width:42px;height:42px}.ldet{margin-left:0}
+}
+.foot{margin-top:22px;font-size:12px;color:#2f5f5a;border-top:3px dashed #2f5f5a88;padding-top:8px}
+.small{font-size:12.5px;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){
+  #koma{transition:none}.dice.roll{animation:none}#koma.hop{animation:none}.cell:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>ほしめぐり双六</h1>
+    <span class="upd" id="upd"></span>
+  </header>
+  <div class="warn" id="warn" hidden></div>
+
+  <div class="bar">
+    <span><span class="lab">どの日の盤？</span><span id="cDates"></span></span>
+    <span><span class="lab">別の盤（関心領域）</span><span id="cTopics"></span></span>
+  </div>
+
+  <div class="stage" id="stage">
+    <section id="boardSec" aria-label="双六の盤">
+      <div class="boardwrap"><div class="board" id="board"><svg id="path" aria-hidden="true"></svg><img id="koma" src="assets/koma.png" alt="" width="42" height="42"></div></div>
+    </section>
+    <aside class="side" id="side" aria-label="サイコロとマスのカード">
+      <div class="panel">
+        <h2 id="posTitle">ふりだし</h2>
+        <div class="prog" aria-hidden="true"><i id="progBar"></i></div>
+        <div class="diceRow">
+          <div class="dice" id="dice" aria-hidden="true"></div>
+          <button class="rollBtn" id="roll">サイコロをふる<small id="rollHint">クリック／Space</small></button>
+        </div>
+        <div class="cardBtns"><button class="btn" id="bSkip">スキップして一覧</button></div>
+      </div>
+      <div class="panel card" id="card" aria-live="polite"><p class="small" style="margin:0">サイコロをふって、止まったマスのリポジトリを読んでいく。25位から1位の「上がり」まで。</p></div>
+      <div class="panel trailp"><h2>ここまでの道のり</h2><ol class="trail" id="trail"><li>ふりだし</li></ol></div>
+    </aside>
+  </div>
+
+  <section class="listwrap" id="listSec" hidden aria-label="全マスの一覧">
+    <div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between">
+      <h2 id="lTitle">全マスの一覧</h2>
+      <span><button class="btn" id="bFavOnly" aria-pressed="false"></button> <button class="btn red" id="bToBoard">盤であそぶ</button></span>
+    </div>
+    <p class="small" id="lSub" style="margin:6px 0 0"></p>
+    <ol class="lrows" id="lrows"></ol>
+  </section>
+
+  <div class="foot">
+    v5-12 ほしめぐり双六 ／ 借りたジャンル: 日本の絵双六（ふりだし→上がり、くねくね進む道、マスごとの絵と一言、「○マス進む」の指示、サイコロ）。マスの絵の生き物は言語ごとのらくがき。<br>
+    素材: 手描き風の絵は自作（Pillow で描画・自由利用）／フォント Yusei Magic・Mochiy Pop One（SIL OFL 1.1・Google Fonts）。★急上昇マスの基準は仮データに合わせて「今日+400★以上」。仮データ。
+  </div>
+</div>
+
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  "use strict";
+  const P = window.PROTO, el = P.el, V3 = window.V3;
+  const $ = (id) => document.getElementById(id);
+  const LANGS = ["Python", "TypeScript", "JavaScript", "Rust", "Go", "Zig", "Markdown", "Shell", "HTML"];
+  const mName = (l) => (LANGS.includes(l) ? l : "other");
+  const TINT = { Python: "#e3edff", TypeScript: "#eee6ff", JavaScript: "#fff8c4", Rust: "#ffe6d6", Go: "#d9f6fa", Zig: "#ffe0eb", Markdown: "#eef1f7", Shell: "#e2f7d9", HTML: "#ffdedb", other: "#f4ead2" };
+  const mascot = (lang, px) => el("img", { class: "m", src: "assets/mascot-" + mName(lang) + ".png", alt: "", width: px, height: px });
+  const reduced = () => P.reduced();
+  const sleep = (ms) => new Promise((r) => setTimeout(r, reduced() ? 0 : ms));
+
+  // ---------- 盤のデータ（今日のデータ → マス） ----------
+  let boardKey = "trend";
+  const topicOf = () => P.day.topics.find((t) => t.id === boardKey);
+  function itemsNow() {
+    if (boardKey === "trend") return P.day.trending.items.map((x) => ({ rank: x.rank, repo: x.repo, desc: x.desc, summary: x.summary, lang: x.lang, stars: x.stars, gain: x.today, isNew: false, trend: true }));
+    const t = topicOf() || P.day.topics[0];
+    return t.items.map((x, i) => ({ rank: i + 1, repo: x.repo, desc: x.desc, summary: x.summary, lang: x.lang, stars: x.stars, gain: x.delta == null ? 0 : x.delta, isNew: x.delta == null, trend: false }));
+  }
+  const boardLabel = () => (boardKey === "trend" ? "Trending" : (topicOf() || {}).label || boardKey);
+  const BIG = () => (boardKey === "trend" ? 400 : 300);
+
+  // マスのイベント（今日のデータで決まる）
+  function eventOf(it) {
+    if (it.isNew) return { kind: "again", mark: "新", cls: "pink", text: "新顔マス！ 前の記録に無かった。もう1回ふれる", move: 0 };
+    if (it.gain >= BIG()) return { kind: "jump", mark: "急", cls: "", text: "★急上昇マス！ 今日 +" + P.fmt(it.gain) + "★ → 2マス進む", move: 2 };
+    if (it.trend) {
+      const c = V3.change(it.repo);
+      if (c.kind === "new") return { kind: "again", mark: "新", cls: "pink", text: "新顔マス！ 前日の Trending に無かった。もう1回ふれる", move: 0 };
+      if (c.kind === "up" && c.n >= 10) return { kind: "wind", mark: "追", cls: "blue", text: "追い風マス！ 順位が前日より " + c.n + " 上がった → 1マス進む", move: 1 };
+      if (c.kind === "down" && c.n >= 8) return { kind: "back", mark: "戻", cls: "blue", text: "向かい風マス… 順位が前日より " + c.n + " 下がった → 1マス戻る", move: -1 };
+    }
+    return null;
+  }
+
+  // ---------- 状態 ----------
+  let cells = [];        // [{type:'start'}, {type:'item', it, ev}, ...]
+  let pos = 0, turns = 0, busy = false, finished = false, mode = "board", favOnly = false, openRepo = null;
+  let cur = null;        // いま表示しているカードの it
+  let stops = [];
+
+  function build() {
+    const its = itemsNow().sort((a, b) => b.rank - a.rank); // 25位 → 1位
+    cells = [{ type: "start" }].concat(its.map((it) => ({ type: "item", it, ev: eventOf(it) })));
+    pos = 0; turns = 0; busy = false; finished = false; cur = null; stops = [];
+  }
+  const LAST = () => cells.length - 1;
+  const diceMax = () => (LAST() > 10 ? 6 : 3);
+
+  // ---------- 盤の描画 ----------
+  let cols = 7;
+  function pickCols() {
+    const w = $("boardSec").clientWidth || document.documentElement.clientWidth;
+    const c = w < 600 ? 4 : 7;
+    return Math.min(c, cells.length);
+  }
+  function renderBoard() {
+    cols = pickCols();
+    const b = $("board");
+    [...b.querySelectorAll(".cell")].forEach((n) => n.remove());
+    b.style.gridTemplateColumns = "repeat(" + cols + ",minmax(0,1fr))";
+    cells.forEach((c, i) => {
+      const row = Math.floor(i / cols), k = i % cols, col = row % 2 === 0 ? k : cols - 1 - k;
+      const base = { type: "button", class: "cell" + (c.type === "start" ? " start" : i === LAST() ? " goal" : ""), style: "grid-row:" + (row + 1) + ";grid-column:" + (col + 1) + ";", "data-i": i };
+      let n;
+      if (c.type === "start") {
+        n = el("button", Object.assign(base, { "aria-label": "ふりだし" }), el("img", { class: "m", src: "assets/flag-start.png", alt: "", width: 56, height: 56 }), el("span", { class: "nm" }, "ふりだし"));
+      } else {
+        const it = c.it, nm = it.repo.split("/")[1];
+        base.style += "--c:" + (i === LAST() ? "#fff0b0" : TINT[mName(it.lang)]) + ";";
+        n = el("button", Object.assign(base, { "aria-label": it.rank + "位 " + it.repo }),
+          el("span", { class: "no" }, String(it.rank)),
+          c.ev ? el("span", { class: "stamp " + c.ev.cls, title: c.ev.text }, c.ev.mark) : null,
+          mascot(it.lang, 52),
+          el("span", { class: "nm" }, (i === LAST() ? "上がり！ " : "") + nm));
+        if (i === LAST()) n.append(el("img", { class: "f", src: "assets/flag-goal.png", alt: "", width: 30, height: 30, style: "position:absolute;right:-10px;bottom:-10px;width:34px;height:34px" }));
+      }
+      n.addEventListener("click", () => { if (i === 0) return; showCard(c.it, null, i > pos && !finished); });
+      if (i <= pos && i > 0) n.classList.add("done");
+      b.append(n);
+    });
+    placeKoma(false);
+    drawPath();
+    refreshCellState();
+  }
+  function refreshCellState() {
+    document.querySelectorAll(".cell").forEach((n) => {
+      const i = +n.dataset.i;
+      n.classList.toggle("done", i > 0 && i <= pos);
+      n.classList.toggle("cur", i === pos);
+    });
+  }
+  function centerOf(i) {
+    const n = document.querySelector('.cell[data-i="' + i + '"]');
+    return n ? { x: n.offsetLeft + n.offsetWidth / 2, y: n.offsetTop + n.offsetHeight / 2, top: n.offsetTop, h: n.offsetHeight } : { x: 0, y: 0, top: 0, h: 0 };
+  }
+  function placeKoma(hop) {
+    const c = centerOf(pos), k = $("koma");
+    k.style.left = c.x - 21 + "px"; k.style.top = c.y - 34 + "px";
+    if (hop && !reduced()) { k.classList.remove("hop"); void k.offsetWidth; k.classList.add("hop"); }
+  }
+  function drawPath() {
+    const s = $("path"); s.textContent = "";
+    const b = $("board");
+    s.setAttribute("viewBox", "0 0 " + b.clientWidth + " " + b.clientHeight);
+    let rnd = 7; const r = () => ((rnd = (rnd * 16807) % 2147483647) / 2147483647 - 0.5) * 5;
+    let d = "";
+    cells.forEach((_, i) => { const c = centerOf(i); d += (i ? "L" : "M") + (c.x + r()).toFixed(1) + " " + (c.y + r()).toFixed(1) + " "; });
+    s.append(P.svg("path", { d, fill: "none", stroke: "#2b2130", "stroke-width": "13", "stroke-linecap": "round", "stroke-linejoin": "round", opacity: ".9" }));
+    s.append(P.svg("path", { d, fill: "none", stroke: "#ff9bb8", "stroke-width": "7", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-dasharray": "2 14" }));
+  }
+
+  // ---------- カード ----------
+  function sparkEl(it) {
+    const h = P.history(it.repo, it.stars), pts = h.filter((p) => p.stars != null);
+    const min = Math.min(...pts.map((p) => p.stars)), max = Math.max(...pts.map((p) => p.stars));
+    const sw = 300, sh = 56, X = (i) => 5 + (i / (h.length - 1)) * (sw - 10), Y = (v) => sh - 6 - ((v - min) / Math.max(1, max - min)) * (sh - 12);
+    let d = "", pen = false;
+    h.forEach((p, i) => { if (p.stars == null) { pen = false; return; } d += (pen ? "L" : "M") + X(i).toFixed(1) + " " + Y(p.stars).toFixed(1) + " "; pen = true; });
+    return P.svg("svg", { class: "spark", viewBox: "0 0 " + sw + " " + sh, role: "img", "aria-label": "累計★の推移。" + h[0].date + " から " + h[h.length - 1].date }, P.svg("path", { d, fill: "none", stroke: "#ff5a5f", "stroke-width": "3", "stroke-linecap": "round" }));
+  }
+  const gainTxt = (it) => (it.isNew ? "NEW" : "+" + P.fmt(it.gain) + "★");
+  function showCard(it, ev, preview) {
+    cur = it;
+    const host = $("card"); host.textContent = "";
+    if (!it) { host.append(el("p", { class: "small", style: "margin:0" }, "サイコロをふって、止まったマスのリポジトリを読んでいく。")); return; }
+    const [ow, nm] = it.repo.split("/");
+    host.append(
+      el("div", { class: "top" }, mascot(it.lang, 56), el("div", {}, el("div", { class: "rk" }, it.rank + "位" + (preview ? "（まだ先のマス）" : "")), el("div", { class: "rn" }, el("span", {}, ow + "/"), nm))),
+      el("p", { class: "sum" }, it.summary),
+      el("p", { class: "stats" }, (it.trend ? "今日 " : "前回から ") + gainTxt(it) + "　累計 " + P.fmt(it.stars) + "★　" + (it.lang || "")),
+      ...(ev ? [el("div", { class: "ev " + (ev.cls === "blue" ? "blue" : "") }, ev.text)] : [])
+    );
+    const det = el("details", { class: "dt" }, el("summary", {}, "くわしく（英語の説明・★の推移）"), el("p", {}, it.desc || "—"), sparkEl(it));
+    host.append(det);
+    host.append(el("div", { class: "cardBtns" }, el("button", { class: "btn", onclick: () => { P.fav.toggle(it.repo); showCard(it, ev, preview); if (!$("listSec").hidden) renderList(); } }, P.fav.has(it.repo) ? "★ お気に入り中（はずす）" : "☆ お気に入りに入れる")));
+  }
+
+  // ---------- サイコロ ----------
+  const PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+  function setDice(n) {
+    const d = $("dice"); d.textContent = "";
+    for (let i = 0; i < 9; i++) d.append(el("i", { class: n && PIPS[n].includes(i) ? "on" : "" }));
+  }
+  async function roll() {
+    if (busy || finished || mode !== "board") return;
+    busy = true; $("roll").disabled = true; turns++;
+    const max = diceMax();
+    const dEl = $("dice");
+    if (!reduced()) { dEl.classList.add("roll"); for (let i = 0; i < 8; i++) { setDice(1 + Math.floor(Math.random() * max)); await sleep(70); } dEl.classList.remove("roll"); }
+    const n = 1 + Math.floor(Math.random() * max);
+    setDice(n);
+    $("posTitle").textContent = n + " が出た！";
+    await sleep(350);
+    await moveBy(n);
+    await land(false);
+    busy = false;
+    if (!finished) { $("roll").disabled = false; }
+  }
+  async function moveBy(n) {
+    const dir = n > 0 ? 1 : -1;
+    for (let k = 0; k < Math.abs(n); k++) {
+      if (pos >= LAST() && dir > 0) break;
+      pos = Math.max(0, Math.min(LAST(), pos + dir));
+      placeKoma(true); refreshCellState(); updProg();
+      scrollToKoma();
+      await sleep(210);
+    }
+  }
+  function scrollToKoma() {
+    const k = $("koma"); const r = k.getBoundingClientRect();
+    if (r.top < 160 || r.bottom > innerHeight - 30) k.scrollIntoView({ block: "center", behavior: reduced() ? "auto" : "smooth" });
+  }
+  async function land(chained) {
+    const c = cells[pos];
+    updProg();
+    if (c.type === "start") { $("posTitle").textContent = "ふりだし"; return; }
+    if (stops[stops.length - 1] !== c.it.repo) stops.push(c.it.repo);
+    renderTrail();
+    $("posTitle").textContent = pos === LAST() ? "上がり！" : pos + "マス目に止まった";
+    const ev = pos === LAST() ? null : chained ? null : c.ev;
+    showCard(c.it, ev, false);
+    if (pos === LAST()) { await sleep(300); finish(); return; }
+    if (ev && ev.kind === "again") { $("posTitle").textContent = "新顔！ もう1回ふれる"; return; }
+    if (ev && (ev.move > 0 || ev.move < 0)) {
+      await sleep(900);
+      await moveBy(ev.move);
+      await land(true);
+    }
+  }
+  function updProg() {
+    $("progBar").style.width = Math.round((pos / LAST()) * 100) + "%";
+    refreshCellState();
+  }
+  function renderTrail() {
+    const ol = $("trail"); ol.textContent = ""; ol.append(el("li", {}, "ふりだし"));
+    stops.slice(-6).forEach((r) => { const it = cells.find((c) => c.it && c.it.repo === r).it; ol.append(el("li", {}, it.rank + "位 " + it.repo.split("/")[1])); });
+  }
+  function finish() {
+    finished = true; busy = false;
+    $("roll").disabled = true; $("rollHint").textContent = "あがり！";
+    $("posTitle").textContent = "上がり！ " + turns + "回のサイコロで1位に着いた";
+    $("listSec").hidden = false; renderList();
+    $("listSec").scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" });
+  }
+
+  // ---------- 一覧 ----------
+  function renderList() {
+    $("lTitle").textContent = boardKey === "trend" ? "全マスの一覧" : "この盤の全マス";
+    $("bFavOnly").textContent = (favOnly ? "★" : "☆") + " お気に入りだけ (" + P.fav.count() + ")";
+    $("bFavOnly").setAttribute("aria-pressed", String(favOnly));
+    $("bToBoard").hidden = mode === "board";
+    $("lSub").textContent = boardLabel() + " ／ " + P.date + "(" + P.weekday(P.date) + ")　1位 → 25位の順" + (P.fav.available() ? "" : "　※この環境ではお気に入りを保存できません（開いている間だけ）");
+    const host = $("lrows"); host.textContent = "";
+    const list = cells.filter((c) => c.type === "item").map((c) => c).sort((a, b) => a.it.rank - b.it.rank).filter((c) => !favOnly || P.fav.has(c.it.repo));
+    if (!list.length) host.append(el("li", { class: "lrow" }, "お気に入りはまだありません。行を開いて ☆ を押すと入ります。"));
+    list.forEach((c) => host.append(listRow(c)));
+  }
+  function listRow(c) {
+    const it = c.it, [ow, nm] = it.repo.split("/"), open = openRepo === it.repo;
+    const main = el("button", { class: "lmain", "aria-expanded": String(open), "data-r": it.repo, onclick: () => { openRepo = open ? null : it.repo; renderList(); const b = document.querySelector('.lmain[data-r="' + CSS.escape(it.repo) + '"]'); if (b) b.focus({ preventScroll: true }); } },
+      el("span", { class: "no" }, String(it.rank)),
+      mascot(it.lang, 50),
+      el("span", { class: "t" }, el("span", { class: "ow" }, ow + "/"), nm, c.ev ? el("span", { class: "lt " + (c.ev.cls === "blue" ? "blue" : "") }, c.ev.mark === "急" ? "★急上昇" : c.ev.mark === "新" ? "新顔" : c.ev.mark === "追" ? "追い風" : "向かい風") : null, P.fav.has(it.repo) ? el("span", { class: "lt", style: "border-color:#e0a000;color:#b07800" }, "★お気に入り") : null),
+      el("span", { class: "s" }, gainTxt(it)),
+      el("span", { class: "lsum" }, it.summary));
+    const li = el("li", { class: "lrow" }, main);
+    if (open) {
+      li.append(el("div", { class: "ldet" },
+        el("p", {}, "英語の説明: " + (it.desc || "—")),
+        el("p", { class: "small" }, "言語 " + (it.lang || "—") + "　累計 " + P.fmt(it.stars) + "★　" + (c.ev ? c.ev.text : "盤のイベントなし")),
+        sparkEl(it),
+        el("div", { class: "lbtns" }, el("button", { class: "btn", onclick: () => { P.fav.toggle(it.repo); renderList(); } }, P.fav.has(it.repo) ? "★ お気に入りをはずす" : "☆ お気に入りに入れる"))));
+    }
+    return li;
+  }
+
+  // ---------- 画面のモード ----------
+  function applyMode() {
+    $("stage").hidden = mode !== "board";
+    $("listSec").hidden = !(mode === "list" || finished);
+    if (!$("listSec").hidden) renderList();
+    if (mode === "board") { renderBoard(); }
+  }
+  function toList() { mode = "list"; applyMode(); }
+  $("bSkip").addEventListener("click", () => { toList(); });
+  $("bToBoard").addEventListener("click", () => { mode = "board"; applyMode(); });
+  $("bFavOnly").addEventListener("click", () => { favOnly = !favOnly; renderList(); });
+  $("roll").addEventListener("click", roll);
+  addEventListener("keydown", (e) => {
+    if (e.key === " " && document.activeElement === document.body && mode === "board") { e.preventDefault(); roll(); }
+  });
+
+  // ---------- 日付・盤の切替 ----------
+  const fmtDate = (d) => d.slice(5).replace("-", "/") + "(" + P.weekday(d) + ")";
+  function renderControls() {
+    const cd = $("cDates"); cd.textContent = "";
+    P.data.DATES.forEach((d, i) => cd.append(el("button", { class: "chip", "aria-pressed": String(d === P.date), onclick: () => P.setDate(d) }, fmtDate(d) + (i === P.data.DATES.length - 1 ? " きょう" : ""))));
+    const ct = $("cTopics"); ct.textContent = "";
+    ct.append(el("button", { class: "chip", "aria-pressed": String(boardKey === "trend"), onclick: () => setBoard("trend") }, "Trending（25マス）"));
+    P.day.topics.forEach((t) => ct.append(el("button", { class: "chip", "aria-pressed": String(boardKey === t.id), onclick: () => setBoard(t.id) }, t.label + "の盤")));
+  }
+  function setBoard(k) { boardKey = k; reset(); }
+  function reset() {
+    build(); setDice(0);
+    $("roll").disabled = false; $("rollHint").textContent = diceMax() === 6 ? "クリック／Space（1〜6）" : "クリック／Space（小さい盤は1〜3）";
+    $("posTitle").textContent = "ふりだし"; $("progBar").style.width = "0";
+    showCard(null); renderTrail(); renderControls(); updUpd();
+    $("trail").textContent = ""; $("trail").append(el("li", {}, "ふりだし"));
+    applyMode();
+  }
+  function updUpd() {
+    const u = P.day.updatedAt || "";
+    $("upd").textContent = P.date + " " + (u.slice(11, 16) || "--:--") + " JST にできた盤";
+    const w = $("warn");
+    if (P.state === "stale") { w.hidden = false; w.textContent = ""; w.append(el("b", {}, "かわら版がとどいていません"), "今日の Trending を取れていません。いまの盤は " + (u.slice(0, 16).replace("T", " ") || "前回") + " JST までの記録です。"); }
+    else w.hidden = true;
+  }
+  P.onDate(reset);
+  let lastCols = 0;
+  new ResizeObserver(() => { if (mode !== "board" || !cells.length) return; if (pickCols() !== cols) renderBoard(); else { placeKoma(false); drawPath(); } }).observe($("boardSec"));
+
+  // ---------- 起動 ----------
+  mode = reduced() ? "list" : "board";
+  reset();
+  // 検査用: ?auto=1 で自動でふり続ける（本番の機能ではない）
+  if (/[?&]auto=(\d+)/.test(location.search)) {
+    const lim = +/[?&]auto=(\d+)/.exec(location.search)[1];
+    let n = 0;
+    const iv = setInterval(() => { if (finished || n >= lim) { clearInterval(iv); document.title += " auto:" + pos + "/" + LAST() + ":turns" + turns + ":fin" + finished; return; } if (!busy) { n++; roll(); } }, 50);
+  }
+})();
+</script>
+</body>
+</html>
