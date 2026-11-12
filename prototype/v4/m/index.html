@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案M ゆるキャラ図鑑 — github-ranking v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #e3f4ea; --cream: #fff8e6; --paper: #fffdf5; --ink: #2d3a2a; --sub: #566650; --line: #b9d9c3;
+  --mint: #8fd3ab; --mint-d: #3d8c63;
+  --up: #17753f; --down: #b8322a; --new: #f08a24; --new-ink: #3a2200;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "Kiwi Maru", "Hiragino Maru Gothic ProN", "Yu Gothic", serif; font-size: 15px; line-height: 1.6; line-break: strict; word-break: auto-phrase; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.app { max-width: 1080px; margin: 0 auto; padding: 18px 16px 56px; }
+.num { font-variant-numeric: tabular-nums; }
+
+header { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+header h1 { font-size: 26px; font-weight: 500; margin: 0; line-height: 1.2; }
+header h1 small { display: block; font-size: 14px; color: var(--sub); font-weight: 400; }
+header .upd { margin-left: auto; font-size: 14px; color: var(--sub); }
+.days { display: flex; gap: 8px; margin: 14px 0 12px; }
+.days button { flex: 1; max-width: 140px; background: var(--paper); border: 2px solid var(--line); border-radius: 12px; padding: 6px 0; font-size: 15px; color: var(--sub); }
+.days button[aria-current="true"] { background: var(--mint); border-color: var(--ink); color: var(--ink); }
+.days small { display: block; font-size: 12px; }
+.stale { background: #ffe9b8; border: 2px solid #c68a12; border-radius: 12px; padding: 8px 14px; margin: 0 0 12px; }
+
+.brief { background: var(--cream); border: 2px solid var(--ink); border-radius: 18px; padding: 12px 16px; display: grid; gap: 4px; }
+.brief p { margin: 0; }
+.brief .hof { color: var(--sub); font-size: 14px; }
+.brief .hof b { background: var(--new); color: var(--new-ink); border-radius: 6px; padding: 0 8px; margin-right: 6px; font-weight: 500; }
+
+h2 { font-size: 19px; font-weight: 500; margin: 30px 0 10px; display: flex; align-items: center; gap: 10px; }
+h2::after { content: ""; flex: 1; height: 0; border-top: 3px dotted var(--mint-d); opacity: .5; }
+
+/* 共通部品 */
+.card { position: relative; background: var(--paper); border: 2px solid var(--ink); border-radius: 18px; cursor: pointer; text-align: left; }
+.card:hover { background: #fff; }
+.no { font-size: 14px; color: var(--sub); letter-spacing: .04em; }
+.no b { font-weight: 500; font-size: 22px; color: var(--ink); margin-left: 2px; }
+.type { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; border: 2px solid var(--ink); border-radius: 999px; padding: 0 10px; background: var(--cream); line-height: 1.5; }
+.type i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ink); }
+.gauge { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; font-size: 13px; }
+.gauge .tr { height: 12px; border-radius: 99px; background: #dcebe0; border: 2px solid var(--ink); overflow: hidden; }
+.gauge .tr i { display: block; height: 100%; background: var(--mint); border-right: 2px solid var(--ink); }
+.gauge .v { font-size: 15px; color: var(--ink); }
+.chg { font-size: 14px; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.same { color: var(--sub); }
+.chg.new { display: none; }
+.fuda { display: inline-block; background: var(--new); color: var(--new-ink); border: 2px solid var(--ink); border-radius: 8px; padding: 0 8px; font-size: 13px; line-height: 1.5; transform: rotate(-4deg); }
+.friend { font-size: 13px; color: var(--sub); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.friend .dots { display: inline-flex; gap: 3px; }
+.friend .dots i { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink); background: transparent; }
+.friend .dots i.on { background: #f27c9a; }
+.favb { position: absolute; top: 8px; right: 8px; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--ink); background: var(--cream); font-size: 18px; color: var(--sub); line-height: 1; }
+.favb.on { background: #ffd24a; color: var(--ink); }
+.face { display: block; overflow: visible; }
+
+/* 署名の動き: 顔がぴょこっと弾んで現れる */
+.boing { animation: boing .62s cubic-bezier(.3,1.6,.5,1) both; animation-delay: var(--d, 0s); transform-origin: 50% 90%; }
+@keyframes boing { 0% { transform: scale(.2) translateY(30%); opacity: 0; } 55% { transform: scale(1.12, .92) translateY(-14%); opacity: 1; } 100% { transform: none; opacity: 1; } }
+
+/* 上位3: 大きな図鑑ページ */
+.top3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.big { padding: 14px 16px 16px; display: grid; gap: 10px; background: var(--cream); }
+.big .head { display: flex; align-items: baseline; gap: 8px; padding-right: 48px; }
+.big .stage { display: grid; place-items: center; background: #d4eedd; border: 2px solid var(--ink); border-radius: 14px; padding: 12px 0 8px; }
+.big .nm { font-size: 18px; line-height: 1.35; word-break: break-all; }
+.big .nm span { color: var(--sub); font-size: 14px; display: block; }
+.bubble { position: relative; background: #fff; border: 2px solid var(--ink); border-radius: 14px; padding: 8px 12px; margin: 4px 0 0; }
+.bubble::before { content: ""; position: absolute; top: -10px; left: 28px; width: 14px; height: 14px; background: #fff; border-left: 2px solid var(--ink); border-top: 2px solid var(--ink); transform: rotate(45deg); }
+.big .row2 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* 4位以下: 一覧グリッド */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.mini { padding: 10px 12px 12px; display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 4px 12px; align-content: start; }
+.mini .fc { grid-row: span 3; align-self: start; }
+.mini .nm { font-size: 15px; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 36px; }
+.mini .sum { grid-column: 1 / -1; margin: 2px 0 0; font-size: 14px; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mini .meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mini .gauge, .mini .friend { grid-column: 1 / -1; }
+.mini .favb { width: 34px; height: 34px; font-size: 16px; top: 6px; right: 6px; }
+
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: none; }
+.tabs button { flex: none; background: var(--paper); border: 2px solid var(--line); border-radius: 999px; padding: 4px 16px; color: var(--sub); }
+.tabs button[aria-selected="true"] { background: var(--mint); border-color: var(--ink); color: var(--ink); }
+
+/* 詳細 */
+.veil { position: fixed; inset: 0; background: rgba(45,58,42,.45); display: grid; place-items: center; padding: 16px; z-index: 10; }
+.sheet { background: var(--cream); border: 2px solid var(--ink); border-radius: 20px; max-width: 520px; width: 100%; max-height: 92vh; overflow: auto; padding: 16px; display: grid; gap: 10px; }
+.sheet .top { display: flex; gap: 14px; align-items: center; }
+.sheet h3 { margin: 0; font-size: 19px; font-weight: 500; line-height: 1.35; word-break: break-all; }
+.sheet .en { margin: 0; color: var(--sub); font-size: 14px; word-break: break-word; }
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 80px; border-bottom: 2px solid var(--ink); }
+.bars i { flex: 1; background: var(--mint); border: 2px solid var(--ink); border-bottom: 0; border-radius: 6px 6px 0 0; }
+.bars i.miss { background: transparent; border: 2px dashed var(--line); border-bottom: 0; height: 100% !important; }
+.bars i.last { background: #ffd24a; }
+.cap { display: flex; justify-content: space-between; font-size: 13px; color: var(--sub); gap: 8px; }
+.sheet .acts { display: flex; gap: 8px; }
+.sheet .acts button { border: 2px solid var(--ink); background: var(--paper); border-radius: 999px; padding: 4px 16px; }
+.sheet .acts button.on { background: #ffd24a; }
+
+footer { color: var(--sub); font-size: 13px; margin-top: 34px; line-height: 1.7; border-top: 3px dotted var(--mint-d); padding-top: 12px; }
+
+@media (max-width: 860px) { .top3 { grid-template-columns: 1fr; } .big { grid-template-columns: 130px minmax(0,1fr); } .big .stage { grid-row: span 3; align-self: start; padding: 8px 0; } .big .head, .big .bubble, .big .row2, .big .gauge, .big .friend { grid-column: 2; } .big .bubble { grid-column: 1 / -1; } .big .gauge, .big .friend { grid-column: 1 / -1; } .big .stage svg { width: 100px; height: 100px; } }
+@media (max-width: 560px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .mini { grid-template-columns: 1fr; padding: 10px; justify-items: start; }
+  .mini .fc { grid-row: auto; }
+  .mini .fc svg { width: 60px; height: 60px; }
+  .mini .nm { padding-right: 0; width: 100%; }
+  .mini .sum { -webkit-line-clamp: 3; }
+  .mini .favb { top: 4px; right: 4px; }
+  header h1 { font-size: 22px; }
+  .days button { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) { .boing { animation: none; } }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, sv = P.svg, V = V3;
+  let tab = P.data.days[P.date].topics[0].id;
+  let opener = null;
+
+  /* 丸っこいマスコット顔: 言語の色の体 + 目・耳・口は repo 名のハッシュで決まる */
+  function face(repo, lang, size) {
+    const h = V.hash(repo), col = V.langColor(lang), ink = "#2d3a2a";
+    const eye = h % 4, ear = (h >>> 3) % 4, mouth = (h >>> 6) % 3, rx = 35 + ((h >>> 9) % 6);
+    const s = sv("svg", { class: "face", width: size, height: size, viewBox: "0 0 100 100", "aria-hidden": "true" });
+    const st = { stroke: ink, "stroke-width": 3, "stroke-linecap": "round", "stroke-linejoin": "round" };
+    const g = (tag, a) => sv(tag, Object.assign({}, st, a));
+    // 耳
+    if (ear === 1) { s.append(g("circle", { cx: 24, cy: 26, r: 11, fill: col }), g("circle", { cx: 76, cy: 26, r: 11, fill: col })); }
+    if (ear === 2) { s.append(g("path", { d: "M17 40 L22 10 L42 26 Z", fill: col }), g("path", { d: "M83 40 L78 10 L58 26 Z", fill: col })); }
+    if (ear === 3) { s.append(g("path", { d: "M50 22 Q48 10 58 6", fill: "none" }), g("circle", { cx: 58, cy: 6, r: 5, fill: "#f27c9a" })); }
+    // 体
+    s.append(g("ellipse", { cx: 50, cy: 57, rx, ry: 34, fill: col }));
+    s.append(sv("ellipse", { cx: 50, cy: 71, rx: 21, ry: 13, fill: "#fff8e6", opacity: .92 }));
+    s.append(sv("circle", { cx: 26, cy: 62, r: 6, fill: "#f27c9a", opacity: .55 }), sv("circle", { cx: 74, cy: 62, r: 6, fill: "#f27c9a", opacity: .55 }));
+    // 目
+    for (const x of [36, 64]) {
+      if (eye === 0) s.append(sv("circle", { cx: x, cy: 50, r: 7.5, fill: "#fff" }), sv("circle", { cx: x, cy: 51, r: 4, fill: ink }));
+      if (eye === 1) s.append(sv("circle", { cx: x, cy: 50, r: 9.5, fill: "#fff", stroke: ink, "stroke-width": 2 }), sv("circle", { cx: x, cy: 51, r: 6, fill: ink }), sv("circle", { cx: x + 2, cy: 48.5, r: 2.2, fill: "#fff" }));
+      if (eye === 2) s.append(g("path", { d: `M${x - 7} 53 Q${x} 43 ${x + 7} 53`, fill: "none", stroke: "#fff", "stroke-width": 4.5 }), g("path", { d: `M${x - 7} 53 Q${x} 43 ${x + 7} 53`, fill: "none" }));
+      if (eye === 3) s.append(sv("circle", { cx: x, cy: 50, r: 7.5, fill: "#fff" }), sv("circle", { cx: x, cy: 53, r: 4, fill: ink }), g("path", { d: `M${x - 8} 48 L${x + 8} 48`, "stroke-width": 3.5 }));
+    }
+    // 口
+    if (mouth === 0) s.append(g("path", { d: "M42 69 Q50 77 58 69", fill: "none" }));
+    if (mouth === 1) s.append(g("ellipse", { cx: 50, cy: 72, rx: 5, ry: 6, fill: "#c0392b" }));
+    if (mouth === 2) s.append(g("path", { d: "M40 68 Q45 76 50 69 Q55 76 60 68", fill: "none" }));
+    return s;
+  }
+
+  function streak(repo) { return 1 + (V.hash(repo + "!") % 9); }
+  function friendEl(repo) {
+    const n = streak(repo), kind = V.hash(repo + "?") % 5 === 0 && n > 1 ? "再登場" : n === 1 ? "初登場" : "連続" + n + "日";
+    return el("div", { class: "friend", title: "仮データ" },
+      el("span", {}, "なかよし度"),
+      el("span", { class: "dots", "aria-hidden": "true" }, Array.from({ length: 7 }, (_, i) => el("i", { class: i < Math.min(n, 7) ? "on" : "" }))),
+      el("span", {}, kind + "（仮）"));
+  }
+  const tag = (lang) => el("span", { class: "type" }, el("i", { style: "background:" + V.langColor(lang) }), lang || "不明");
+  function powerEl(v, max, isNew) {
+    if (v == null) return el("div", { class: "gauge" }, el("span", {}, "パワー"), el("span", { class: "tr" }), el("span", { class: "v" }, "—"));
+    const fill = el("i", { style: `width:${Math.max(4, Math.round((v / Math.max(1, max)) * 100))}%` });
+    return el("div", { class: "gauge" }, el("span", {}, "パワー"), el("span", { class: "tr" }, fill), el("span", { class: "v num" }, "+" + P.fmt(v) + "★"));
+  }
+  function favBtn(repo) {
+    const b = el("button", { class: "favb" + (P.fav.has(repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(repo)), "aria-label": repo + " をお気に入り" }, "★");
+    b.addEventListener("click", (e) => { e.stopPropagation(); const on = P.fav.toggle(repo); b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+    return b;
+  }
+  function makeCard(cls, it, node) {
+    node.className = "card " + cls;
+    node.setAttribute("tabindex", "0"); node.setAttribute("role", "button");
+    node.setAttribute("aria-label", it.repo + " の図鑑をひらく");
+    const go = () => openSheet(it, node);
+    node.addEventListener("click", go);
+    node.addEventListener("keydown", (e) => { if (e.target === node && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); go(); } });
+    return node;
+  }
+  function chgOrNew(it, isTrending) {
+    if (isTrending) { const c = V.change(it.repo); return c.kind === "new" ? el("span", { class: "fuda" }, "はっけん！") : V.changeEl(it.repo); }
+    return it.delta == null ? el("span", { class: "fuda" }, "はっけん！") : null;
+  }
+  const noEl = (n) => el("div", { class: "no" }, "No.", el("b", { class: "num" }, String(n).padStart(2, "0")));
+
+  function bigCard(it, i, max, d) {
+    const n = makeCard("big", it, el("div"));
+    return (n.append(
+      el("div", { class: "head" }, noEl(i + 1), chgOrNew(it, true)),
+      el("div", { class: "stage" }, (() => { const f = face(it.repo, it.lang, 120); f.classList.add("boing"); f.style.setProperty("--d", d + "s"); return f; })()),
+      el("div", { class: "nm" }, el("span", {}, V.owner(it.repo) + " /"), V.name(it.repo)),
+      el("p", { class: "bubble" }, it.summary),
+      el("div", { class: "row2" }, tag(it.lang), el("span", { class: "num", style: "font-size:14px;color:var(--sub)" }, "総★ " + P.fmt(it.stars))),
+      powerEl(it.today, max), friendEl(it.repo), favBtn(it.repo)), n);
+  }
+  function miniCard(it, no, val, max, d, isTrending) {
+    const n = makeCard("mini", it, el("div"));
+    const f = face(it.repo, it.lang, 72); f.classList.add("boing"); f.style.setProperty("--d", d + "s");
+    n.append(el("div", { class: "fc" }, f),
+      el("div", { class: "nm" }, V.name(it.repo)),
+      el("div", { class: "meta" }, noEl(no), chgOrNew(it, isTrending)),
+      el("div", { class: "meta" }, tag(it.lang)),
+      el("p", { class: "sum" }, it.summary),
+      powerEl(val, max), friendEl(it.repo), favBtn(it.repo));
+    return n;
+  }
+
+  /* 詳細（図鑑をひらく） */
+  function closeSheet() { const v = document.getElementById("veil"); if (v) v.remove(); document.removeEventListener("keydown", escKey); if (opener) opener.focus(); opener = null; }
+  function escKey(e) { if (e.key === "Escape") closeSheet(); }
+  function openSheet(it, from) {
+    closeSheet(); opener = from;
+    const hist = P.history(it.repo, it.stars), vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const bars = el("div", { class: "bars", role: "img", "aria-label": "★の推移" }, hist.map((h, i) => el("i", { class: h.stars == null ? "miss" : i === hist.length - 1 ? "last" : "", title: h.date + " ★" + P.fmt(h.stars), style: h.stars == null ? "" : `height:${12 + ((h.stars - lo) / Math.max(1, hi - lo)) * 88}%` })));
+    const fb = el("button", { type: "button", class: P.fav.has(it.repo) ? "on" : "", "aria-pressed": String(P.fav.has(it.repo)) }, "★ お気に入り");
+    fb.addEventListener("click", () => { const on = P.fav.toggle(it.repo); fb.classList.toggle("on", on); fb.setAttribute("aria-pressed", String(on)); render(false); });
+    const cb = el("button", { type: "button" }, "とじる");
+    cb.addEventListener("click", closeSheet);
+    const veil = el("div", { class: "veil", id: "veil" }, el("div", { class: "sheet", role: "dialog", "aria-modal": "true", "aria-label": it.repo },
+      el("div", { class: "top" }, face(it.repo, it.lang, 96), el("div", {}, el("h3", {}, it.repo), tag(it.lang))),
+      el("p", { class: "en" }, it.desc),
+      el("p", { style: "margin:0" }, it.summary),
+      friendEl(it.repo), bars,
+      el("div", { class: "cap" }, el("span", {}, hist[0].date.slice(5).replace("-", "/") + " から（点線は記録の無い日）"), el("span", { class: "num" }, "総★ " + P.fmt(it.stars))),
+      el("div", { class: "acts" }, fb, cb)));
+    veil.addEventListener("click", (e) => { if (e.target === veil) closeSheet(); });
+    document.body.append(veil); document.addEventListener("keydown", escKey); cb.focus();
+  }
+
+  function briefEl(day) {
+    const items = day.trending.items, cnt = {};
+    items.forEach((x) => { cnt[x.lang] = (cnt[x.lang] || 0) + 1; });
+    const langs = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 2).map((e) => e[0]);
+    const nNew = items.filter((x) => V.change(x.repo).kind === "new").length;
+    const top = items.reduce((a, b) => (b.today > a.today ? b : a), items[0]);
+    const hof = items.map((x) => ({ x, n: streak(x.repo) })).sort((a, b) => b.n - a.n)[0];
+    return el("div", { class: "brief" },
+      el("p", {}, `今日は ${langs.join(" と ")} の子が多い。はっけん！は ${nNew} 件。いちばん伸びたのは ${V.name(top.repo)}（+${P.fmt(top.today)}★）。`),
+      el("p", { class: "hof" }, hof.n >= 7 ? el("span", {}, el("b", {}, "殿堂入り（仮）"), `${V.name(hof.x.repo)} は連続 ${hof.n} 日の常連。`) : "殿堂入り（連続7日以上・仮）は、今日はまだいません。"));
+  }
+
+  function render(animate) {
+    const day = P.day, items = day.trending.items, app = document.getElementById("app");
+    const maxT = Math.max(...items.map((x) => x.today));
+    const days = el("div", { class: "days", role: "group", "aria-label": "日付" }, P.data.DATES.map((d) => {
+      const b = el("button", { type: "button", "aria-current": String(d === P.date) }, `${+d.slice(5, 7)}/${+d.slice(8)}`, el("small", {}, P.weekday(d) + "曜"));
+      b.addEventListener("click", () => P.setDate(d));
+      return b;
+    }));
+    const top3 = el("div", { class: "top3" }, items.slice(0, 3).map((it, i) => bigCard(it, i, maxT, animate ? i * 0.12 : 0)));
+    const grid = el("div", { class: "grid" }, items.slice(3).map((it, i) => miniCard(it, i + 4, it.today, maxT, animate ? Math.min(0.4 + i * 0.03, 1) : 0, true)));
+    const topic = day.topics.find((t) => t.id === tab) || day.topics[0];
+    const maxD = Math.max(1, ...topic.items.map((x) => x.delta || 0));
+    const tabs = el("div", { class: "tabs", role: "tablist" }, day.topics.map((t) => {
+      const b = el("button", { type: "button", role: "tab", "aria-selected": String(t.id === topic.id) }, t.label);
+      b.addEventListener("click", () => { tab = t.id; render(true); });
+      return b;
+    }));
+    const tgrid = el("div", { class: "grid" }, topic.items.map((it, i) => miniCard(it, i + 1, it.delta, maxD, animate ? i * 0.04 : 0, false)));
+    app.replaceChildren(
+      el("header", {}, el("h1", {}, "きょうの星のずかん", el("small", {}, "GitHub で見つけた子たち・第" + day.issueNo + "号")), el("span", { class: "upd num" }, day.updatedAt.slice(11, 16) + " JST 更新")),
+      days,
+      P.state === "stale" ? el("div", { class: "stale", role: "status" }, "⚠ 更新が2日止まっています。表示は 11/10 の記録です。") : "",
+      briefEl(day),
+      el("h2", {}, "きょうのトップ3"), top3,
+      el("h2", {}, "ずかん一覧 4〜25位"), grid,
+      el("h2", {}, "関心領域のなかま"), tabs, tgrid,
+      el("footer", {}, "案M「ゆるキャラ図鑑」— 怪物図鑑の文法（図鑑No.・タイプのタグ・パワーのゲージ・なかよし度・はっけん！の札）をゆるくしたもの。顔は言語の色の体に、目・耳・口を名前から決めて1件ずつ違う形にしている。連続日数・殿堂入りは仮データ。データは架空。"));
+  }
+  P.onDate(() => render(true));
+  render(true);
+})();
+</script>
+</body>
+</html>

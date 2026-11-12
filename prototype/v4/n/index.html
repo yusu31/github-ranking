@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案N キャラセレ — github-ranking v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0c; --panel: #17171c; --tile: #202027; --line: #34343e;
+  --text: #f6f6f2; --sub: #b4b4bf; --red: #e1121d; --yellow: #ffd400;
+  --up: #4be08a; --down: #ff5d9e; --new: #ffd400;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font-family: "Noto Sans JP", sans-serif; font-size: 15px; line-height: 1.6; line-break: strict; word-break: auto-phrase;
+  background-image: repeating-linear-gradient(115deg, transparent 0 46px, rgba(225,18,29,.07) 46px 50px); }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+.dela { font-family: "Dela Gothic One", "Noto Sans JP", sans-serif; font-weight: 400; }
+.app { max-width: 1240px; margin: 0 auto; padding: 14px 16px 48px; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* 上の帯 */
+.top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.top h1 { margin: 0; font-size: 30px; line-height: 1.1; transform: skewX(-8deg); letter-spacing: .01em; }
+.top h1 b { color: var(--yellow); font-weight: 400; }
+.top h1 small { display: block; font-family: "Noto Sans JP", sans-serif; font-size: 13px; color: var(--sub); letter-spacing: .08em; font-weight: 500; }
+.top .upd { margin-left: auto; color: var(--sub); font-size: 14px; }
+.bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0 8px; }
+.sk { clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+.pill { background: var(--tile); border: 0; padding: 7px 20px; font-weight: 700; font-size: 14px; color: var(--sub); }
+.pill[aria-current="true"], .pill[aria-selected="true"] { background: var(--yellow); color: #111; }
+.pill:hover { color: var(--text); } .pill[aria-current="true"]:hover, .pill[aria-selected="true"]:hover { color: #111; }
+.lab { font-size: 12px; color: var(--sub); letter-spacing: .12em; font-weight: 700; margin-right: 2px; }
+.sep { width: 2px; height: 22px; background: var(--line); margin: 0 6px; transform: skewX(-18deg); }
+.stale { background: var(--yellow); color: #111; padding: 8px 16px; font-weight: 700; margin: 8px 0; }
+.brief { margin: 10px 0 14px; padding: 8px 14px; border-left: 6px solid var(--red); background: var(--panel); }
+.brief p { margin: 0; }
+.brief .hof { color: var(--sub); font-size: 14px; }
+.brief .hof b { color: #111; background: var(--yellow); padding: 0 8px; margin-right: 6px; }
+
+/* メイン: 左タイル / 右大表示 */
+.main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: stretch; }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: 1fr 1fr; gap: 8px; padding-right: 8px; }
+.tile { position: relative; padding: 12px 14px 0; background: var(--tile); border: 0; text-align: left; clip-path: polygon(14% 0, 100% 0, 86% 100%, 0 100%); filter: brightness(.72); transition: filter .12s, background-color .12s; display: grid; align-content: start; gap: 10px; overflow: hidden; }
+.tile:hover { filter: brightness(1); }
+.tile:focus-visible { outline: 4px solid var(--yellow); outline-offset: -8px; }
+.tile .ident { width: 100%; height: auto; display: block; }
+.tile .rk { position: absolute; left: 12%; bottom: 6px; font-size: 76px; line-height: 1; color: transparent; -webkit-text-stroke: 2px var(--red); background: none; padding: 0; clip-path: none; }
+.tile .tn { font-size: 15px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px 0 0; }
+.tile .ow { font-size: 13px; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
+.tile[aria-pressed="true"] .ow { color: #333; }
+.tile .fv { position: absolute; top: 4px; right: 18%; color: var(--yellow); font-size: 16px; }
+.tile[aria-pressed="true"] { background: var(--yellow); color: #111; filter: none; }
+.tile[aria-pressed="true"] .rk { -webkit-text-stroke-color: #111; }
+.tile.empty { background: transparent; border: 0; pointer-events: none; opacity: .25; background-image: repeating-linear-gradient(115deg, var(--line) 0 3px, transparent 3px 12px); filter: none; }
+
+/* 大表示 */
+.view { position: relative; background: var(--panel); min-height: 560px; overflow: hidden; clip-path: polygon(0 0, 100% 0, 100% 100%, 5% 100%); }
+.view::before { content: ""; position: absolute; right: -8%; top: 0; width: 55%; height: 100%; background: var(--red); transform: skewX(-12deg); opacity: .9; }
+.inner { position: relative; padding: 22px 26px 22px 30px; display: grid; gap: 12px; animation: slidein .3s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes slidein { from { transform: translateX(calc(var(--dir, 1) * 90px)) skewX(calc(var(--dir, 1) * -8deg)); opacity: 0; } to { transform: none; opacity: 1; } }
+.v-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.v-rank { font-size: 92px; line-height: .95; color: transparent; -webkit-text-stroke: 3px var(--yellow); transform: skewX(-8deg); }
+.v-rank small { font-size: 26px; -webkit-text-stroke: 0; color: var(--yellow); margin-right: 4px; }
+.v-ident { flex: none; background: #f0f0f0; padding: 6px; transform: skewX(-6deg); box-shadow: 8px 8px 0 #111; }
+.v-ident .ident { display: block; width: 190px; height: 190px; }
+.v-name { margin: 6px 0 0; font-size: clamp(34px, 4.4vw, 60px); line-height: 1.05; transform: skewX(-8deg); overflow-wrap: anywhere; text-shadow: 4px 4px 0 #111; }
+.v-owner { color: var(--yellow); font-size: 16px; font-weight: 900; letter-spacing: .06em; transform: skewX(-8deg); text-shadow: 2px 2px 0 #111; }
+.v-sum { margin: 0; font-size: 18px; line-height: 1.65; font-weight: 700; background: rgba(10,10,12,.78); padding: 8px 14px; border-left: 6px solid var(--yellow); max-width: 34em; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chip { background: #111; color: var(--text); padding: 2px 14px; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+.chip i { width: 10px; height: 10px; border-radius: 50%; }
+.chg { font-weight: 900; font-size: 14px; padding: 2px 12px; background: #111; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.same { color: var(--sub); }
+.chg.new { background: var(--new); color: #111; }
+.v-stats { display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap; background: rgba(10,10,12,.78); padding: 8px 14px; }
+.v-stats .big { font-size: 46px; line-height: 1; color: var(--yellow); }
+.v-stats .big small { font-size: 14px; color: var(--sub); font-family: "Noto Sans JP"; margin-left: 4px; }
+.v-stats .sm { font-size: 14px; color: var(--text); }
+.v-stats .sm span { display: block; color: var(--sub); font-size: 12px; letter-spacing: .1em; }
+.v-en { margin: 0; font-size: 14px; color: #e6e6ea; background: rgba(10,10,12,.78); padding: 4px 14px; word-break: break-word; }
+.bars { display: flex; align-items: flex-end; gap: 5px; height: 64px; background: rgba(10,10,12,.78); padding: 6px 10px 0; }
+.bars i { flex: 1; background: var(--yellow); }
+.bars i.miss { background: transparent; border: 2px dashed #8a8a96; height: 100% !important; }
+.bars i.last { background: #fff; }
+.cap { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; background: rgba(10,10,12,.78); padding: 2px 10px 4px; color: #d4d4dc; }
+.fvb { justify-self: start; border: 3px solid #111; background: var(--yellow); color: #111; font-family: "Noto Sans JP", sans-serif; font-weight: 900; padding: 6px 22px; font-size: 15px; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+.fvb[aria-pressed="false"] { background: #111; color: var(--text); border-color: #111; }
+.hint { font-size: 12px; color: var(--sub); }
+
+/* 9位以降の帯 */
+.strip-h { display: flex; align-items: baseline; gap: 10px; margin: 22px 0 8px; }
+.strip-h h2 { margin: 0; font-size: 20px; transform: skewX(-8deg); }
+.strip { display: flex; gap: 8px; overflow-x: auto; padding: 4px 4px 12px; scroll-snap-type: x proximity; scrollbar-color: var(--red) var(--panel); }
+.chipx { flex: none; scroll-snap-align: start; width: 210px; background: var(--tile); border: 0; padding: 8px 22px 8px 16px; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 2px 10px; align-items: center; text-align: left; clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%); filter: brightness(.78); }
+.chipx:hover { filter: none; }
+.chipx:focus-visible { outline: 3px solid var(--yellow); outline-offset: -6px; }
+.chipx .ident { width: 44px; height: 44px; grid-row: span 2; }
+.chipx b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.chipx .s { font-size: 13px; color: var(--yellow); font-weight: 700; }
+.chipx .s em { font-style: normal; color: var(--sub); margin-right: 6px; }
+.chipx[aria-pressed="true"] { background: var(--yellow); color: #111; filter: none; }
+.chipx[aria-pressed="true"] .s, .chipx[aria-pressed="true"] .s em { color: #111; }
+
+footer { color: var(--sub); font-size: 13px; margin-top: 28px; line-height: 1.7; border-top: 3px solid var(--red); padding-top: 10px; }
+
+@media (max-width: 860px) {
+  .main { grid-template-columns: 1fr; gap: 14px; }
+  .view { order: -1; min-height: 0; clip-path: none; }
+  .view::before { width: 70%; right: -20%; }
+  .tiles { padding-right: 0; gap: 4px; grid-template-rows: none; }
+  .tile { aspect-ratio: 1 / 1.1; }
+  .tile { padding: 8px 10px 0; }
+  .tile .tn, .tile .ow { display: none; }
+  .tile .rk { font-size: 15px; left: 14%; bottom: 0; color: #fff; -webkit-text-stroke: 0; background: var(--red); padding: 1px 10px 1px 8px; clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+  .tile[aria-pressed="true"] .rk { background: #111; color: var(--yellow); }
+  .inner { padding: 14px 16px 16px; }
+  .v-rank { font-size: 56px; -webkit-text-stroke-width: 2px; }
+  .v-rank small { font-size: 18px; }
+  .v-ident .ident { width: 100px; height: 100px; }
+  .v-ident { box-shadow: 5px 5px 0 #111; }
+  .v-sum { font-size: 16px; }
+  .v-stats .big { font-size: 36px; }
+  .top h1 { font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) { .inner { animation: none; } .tile { transition: none; } }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, V = V3;
+  let stage = "trending", sel = 0, dir = 1;
+  const SHOW = 8;
+
+  function streak(repo) { return 1 + (V.hash(repo + "!") % 9); }
+  function list() {
+    const day = P.day;
+    if (stage === "trending") return day.trending.items.map((it, i) => ({ ...it, no: i + 1, val: it.today, isNew: V.change(it.repo).kind === "new", trending: true }));
+    const t = day.topics.find((x) => x.id === stage) || day.topics[0];
+    return t.items.map((it, i) => ({ ...it, no: i + 1, val: it.delta, isNew: it.delta == null, trending: false }));
+  }
+  let cur = [];
+  const refs = { tiles: [], chips: [], view: null, strip: null };
+
+  function chgEl(it) {
+    if (it.isNew) return el("span", { class: "chg new" }, "NEW");
+    if (it.trending) return V.changeEl(it.repo);
+    return null;
+  }
+  function viewInner(it) {
+    const hist = P.history(it.repo, it.stars), vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const bars = el("div", { class: "bars", role: "img", "aria-label": "★の推移" }, hist.map((h, i) => el("i", { class: h.stars == null ? "miss" : i === hist.length - 1 ? "last" : "", title: h.date + " ★" + P.fmt(h.stars), style: h.stars == null ? "" : `height:${12 + ((h.stars - lo) / Math.max(1, hi - lo)) * 88}%` })));
+    const fb = el("button", { class: "fvb", type: "button", "aria-pressed": String(P.fav.has(it.repo)) }, P.fav.has(it.repo) ? "★ お気に入り中" : "☆ お気に入りに入れる");
+    fb.addEventListener("click", () => { const on = P.fav.toggle(it.repo); fb.setAttribute("aria-pressed", String(on)); fb.textContent = on ? "★ お気に入り中" : "☆ お気に入りに入れる"; updateMarks(); });
+    const n = streak(it.repo), kind = n === 1 ? "初登場" : V.hash(it.repo + "?") % 5 === 0 ? "再登場" : "連続" + n + "日";
+    return el("div", { class: "inner", style: "--dir:" + dir },
+      el("div", { class: "v-head" },
+        el("div", { class: "v-rank dela num" }, el("small", {}, "NO."), String(it.no).padStart(2, "0")),
+        el("div", { class: "v-ident" }, V.identicon(V.owner(it.repo), 190, 4))),
+      el("div", {}, el("div", { class: "v-owner" }, V.owner(it.repo) + " /"), el("h2", { class: "v-name dela" }, V.name(it.repo))),
+      el("div", { class: "chips" }, el("span", { class: "chip sk" }, el("i", { style: "background:" + V.langColor(it.lang) }), it.lang || "不明"), chgEl(it), el("span", { class: "chip sk", title: "仮データ" }, kind + "（仮）")),
+      el("p", { class: "v-sum" }, it.summary),
+      el("div", { class: "v-stats" },
+        el("div", { class: "big dela num" }, it.val == null ? "NEW" : "+" + P.fmt(it.val), el("small", {}, "★ 今日の増え")),
+        el("div", { class: "sm num" }, el("span", {}, "総★"), P.fmt(it.stars))),
+      el("p", { class: "v-en" }, it.desc), bars,
+      el("div", { class: "cap" }, el("span", {}, hist[0].date.slice(5).replace("-", "/") + " から（点線は記録の無い日）"), el("span", { class: "num" }, "総★ " + P.fmt(it.stars))),
+      fb, el("div", { class: "hint" }, "← ↑ ↓ → キーでも選べます"));
+  }
+  function renderView(animate) {
+    const it = cur[sel];
+    const inner = viewInner(it);
+    if (!animate) inner.style.animation = "none";
+    refs.view.replaceChildren(inner);
+  }
+  function updateMarks() {
+    refs.tiles.forEach((t, i) => { if (!cur[i]) return; const f = t.querySelector(".fv"); const on = P.fav.has(cur[i].repo); if (on && !f) t.append(el("span", { class: "fv", "aria-hidden": "true" }, "★")); if (!on && f) f.remove(); });
+  }
+  function mark() {
+    refs.tiles.forEach((t, i) => { if (cur[i]) t.setAttribute("aria-pressed", String(i === sel)); });
+    refs.chips.forEach((c, j) => c.setAttribute("aria-pressed", String(j + SHOW === sel)));
+  }
+  function select(i, focus) {
+    if (i < 0 || i >= cur.length || i === sel) { if (focus) focusItem(sel); return; }
+    dir = i > sel ? 1 : -1; sel = i; mark(); renderView(!P.reduced());
+    if (focus) focusItem(i);
+    if (i >= SHOW && refs.strip) { const c = refs.chips[i - SHOW]; refs.strip.scrollLeft = c.offsetLeft - refs.strip.clientWidth / 2 + c.offsetWidth / 2; }
+  }
+  function focusItem(i) { const n = i < SHOW ? refs.tiles[i] : refs.chips[i - SHOW]; if (n) n.focus({ preventScroll: i >= SHOW }); }
+
+  function briefEl(day) {
+    const items = day.trending.items, cnt = {};
+    items.forEach((x) => { cnt[x.lang] = (cnt[x.lang] || 0) + 1; });
+    const langs = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 2).map((e) => e[0]);
+    const nNew = items.filter((x) => V.change(x.repo).kind === "new").length;
+    const top = items.reduce((a, b) => (b.today > a.today ? b : a), items[0]);
+    const hof = items.map((x) => ({ x, n: streak(x.repo) })).sort((a, b) => b.n - a.n)[0];
+    return el("div", { class: "brief" },
+      el("p", {}, `今日は ${langs.join(" と ")} が強い。新顔は ${nNew} 件。いちばん伸びたのは ${V.name(top.repo)}（+${P.fmt(top.today)}★）。`),
+      el("p", { class: "hof" }, hof.n >= 7 ? el("span", {}, el("b", {}, "殿堂入り（仮）"), `${V.name(hof.x.repo)} は連続 ${hof.n} 日。`) : "殿堂入り（連続7日以上・仮）は今日はまだいません。"));
+  }
+
+  function render(animate) {
+    const day = P.day, app = document.getElementById("app");
+    if (stage !== "trending" && !day.topics.some((t) => t.id === stage)) stage = "trending";
+    cur = list(); if (sel >= cur.length) sel = 0;
+    const days = el("div", { class: "bar", role: "group", "aria-label": "日付" }, el("span", { class: "lab" }, "DAY"), P.data.DATES.map((d) => {
+      const b = el("button", { type: "button", class: "pill sk", "aria-current": String(d === P.date) }, `${+d.slice(5, 7)}/${+d.slice(8)}（${P.weekday(d)}）`);
+      b.addEventListener("click", () => { sel = 0; dir = 1; P.setDate(d); });
+      return b;
+    }));
+    const stages = el("div", { class: "bar", role: "tablist", "aria-label": "ステージ（関心領域）" }, el("span", { class: "lab" }, "STAGE"),
+      [{ id: "trending", label: "Trending 25" }].concat(day.topics).map((t) => {
+        const b = el("button", { type: "button", role: "tab", class: "pill sk", "aria-selected": String(t.id === stage) }, t.label);
+        b.addEventListener("click", () => { stage = t.id; sel = 0; dir = 1; render(true); });
+        return b;
+      }));
+    refs.tiles = Array.from({ length: SHOW }, (_, i) => {
+      const it = cur[i];
+      if (!it) return el("div", { class: "tile empty", "aria-hidden": "true" });
+      const b = el("button", { type: "button", class: "tile", "aria-pressed": String(i === sel), "aria-label": `${it.no}位 ${it.repo}` },
+        V.identicon(V.owner(it.repo), 120, 2), el("span", { class: "tn" }, el("span", { class: "ow", style: "display:block" }, V.owner(it.repo)), V.name(it.repo)), el("span", { class: "rk dela num" }, it.no));
+      b.addEventListener("click", () => select(i, false));
+      return b;
+    });
+    refs.chips = cur.slice(SHOW).map((it, j) => {
+      const b = el("button", { type: "button", class: "chipx", "aria-pressed": String(j + SHOW === sel), "aria-label": `${it.no}位 ${it.repo}` },
+        V.identicon(V.owner(it.repo), 44, 2), el("b", {}, V.name(it.repo)), el("span", { class: "s num" }, el("em", {}, it.no + "位"), it.val == null ? "NEW" : "+" + P.fmt(it.val)));
+      b.addEventListener("click", () => select(j + SHOW, false));
+      return b;
+    });
+    refs.view = el("section", { class: "view", "aria-live": "polite", "aria-label": "選択中の詳細" });
+    refs.strip = el("div", { class: "strip", role: "group", "aria-label": "9位以降" }, refs.chips);
+    app.replaceChildren(
+      el("div", { class: "top" }, el("h1", { class: "dela" }, el("small", {}, "GITHUB DAILY RISING"), "STAGE ", el("b", {}, "SELECT")),
+        el("span", { class: "upd num" }, day.updatedAt.slice(11, 16) + " JST 更新 ／ 第" + day.issueNo + "号")),
+      days, stages,
+      P.state === "stale" ? el("div", { class: "stale", role: "status" }, "⚠ 更新が2日止まっています。表示は 11/10 の記録です。") : "",
+      briefEl(day),
+      el("div", { class: "main" }, el("div", { class: "tiles" }, refs.tiles), refs.view),
+      cur.length > SHOW ? el("div", { class: "strip-h" }, el("h2", { class: "dela" }, "ROSTER " + (SHOW + 1) + "–" + cur.length), el("span", { class: "hint" }, "横にスクロール")) : "",
+      cur.length > SHOW ? refs.strip : "",
+      el("footer", {}, "案N「キャラセレ」— 格闘ゲームのキャラクターセレクトの文法（斜めのタイル・大表示・ステージ選択）。アイコンは GitHub の初期アバターと同じ作り方の模様で、本番は持ち主の本物のアバター。連続日数・殿堂入りは仮データ。データは架空。"));
+    renderView(animate && !P.reduced());
+    updateMarks();
+  }
+  document.addEventListener("keydown", (e) => {
+    const k = e.key; if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(k) || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.target.closest && e.target.closest("[role=tablist]")) return;
+    let n = sel;
+    if (k === "ArrowRight") n = sel + 1;
+    if (k === "ArrowLeft") n = sel - 1;
+    if (k === "ArrowDown") n = sel < SHOW - 4 ? sel + 4 : sel < SHOW ? Math.min(SHOW, cur.length - 1) : sel;
+    if (k === "ArrowUp") n = sel >= SHOW ? SHOW - 1 : sel >= 4 ? sel - 4 : sel;
+    e.preventDefault(); select(Math.max(0, Math.min(cur.length - 1, n)), true);
+  });
+  P.onDate(() => render(true));
+  render(true);
+})();
+</script>
+</body>
+</html>

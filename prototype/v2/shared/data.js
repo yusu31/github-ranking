@@ -33,6 +33,11 @@
     ["evilcorp-demo/xss-sample", "Totally normal repo <img src=x onerror=alert('xss')> <script>alert(1)</script>", "説明に HTML の断片を含む見本（文字として表示されれば正しい）", "HTML"],
     ["pebble-ai/eval-harness", "Benchmark your agents on real-world tasks.", "エージェントを実際の作業で採点する仕組み", "Python"],
     ["lantern/rss-reader", "A fast, keyboard-first RSS reader.", "キーボード中心の速い RSS リーダー", "Rust"],
+    // v4 で追加: 一覧が25件ちょうどだと毎日同じ顔ぶれになり「新顔」が出ないため、多めに持って毎日25件を選ぶ
+    ["tidewater/kana-ime", "A tiny, hackable Japanese input method engine.", "小さくて改造しやすい日本語入力の仕組み", "Rust"],
+    ["moss-studio/pixel-forge", "Generate pixel art sprites from text prompts, locally.", "文章からドット絵の素材を手元で作る", "Python"],
+    ["brightpath/edge-cache", "Drop-in edge cache for static sites.", "静的サイトにそのまま足せる端の置き場（キャッシュ）", "Go"],
+    ["sora-lab/diff-viewer", "Side-by-side diff viewer that understands syntax.", "文法を理解して左右に並べる差分の表示", "TypeScript"],
   ];
 
   const TOPICS = [
@@ -89,7 +94,10 @@
 
   const days = {};
   DATES.forEach((date, di) => {
-    const trend = shuffled(TRENDING_POOL).map(toItem).map((it, i) => ({
+    // 毎日25件を選ぶ。HTML 混入の見本（AC-37）は毎日必ず入れる
+    const pool = shuffled(TRENDING_POOL), todays = pool.slice(0, 25);
+    if (!todays.some((x) => x[0].startsWith("evilcorp-demo/"))) todays[24] = pool.find((x) => x[0].startsWith("evilcorp-demo/"));
+    const trend = todays.map(toItem).map((it, i) => ({
       ...it,
       rank: i + 1,
       stars: 800 + pick(42000),

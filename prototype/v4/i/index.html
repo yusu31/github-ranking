@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案I リーグ表・改 — github-ranking v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08151d; --panel: #11242e; --panel2: #16303c; --line: #234250; --text: #f2f7f6; --sub: #a6bec5;
+  --accent: #ffb21e; --accent-ink: #2b1900;
+  --up: #8fe03a; --down: #ff8f80; --new: #4cc9f0;
+  --gold: #ffc83d; --silver: #c9d4da; --bronze: #e39a64;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg) repeating-linear-gradient(115deg, transparent 0 46px, rgba(255,255,255,.018) 46px 92px);
+  color: var(--text); font-family: "M PLUS Rounded 1c", sans-serif; font-weight: 500;
+  line-height: 1.55; line-break: strict; word-break: auto-phrase;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--new); outline-offset: 2px; }
+.app { max-width: 760px; margin: 0 auto; padding: 18px 16px 64px; }
+.num { font-variant-numeric: tabular-nums; }
+
+header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+header h1 { font-size: 24px; font-weight: 900; margin: 0; letter-spacing: .02em; }
+header .upd { margin-left: auto; color: var(--sub); font-size: 14px; }
+.brief { margin: 12px 0 0; padding: 10px 14px; border-left: 6px solid var(--accent); background: var(--panel); border-radius: 0 12px 12px 0; font-size: 15px; font-weight: 700; }
+.brief b { color: var(--accent); }
+.days { display: flex; gap: 8px; margin: 14px 0 6px; }
+.days button { flex: 1; background: var(--panel); border: 2px solid var(--line); border-radius: 14px; padding: 8px 0; font-weight: 800; font-size: 15px; color: var(--sub); transition: border-color .15s, transform .1s; }
+.days button:hover { border-color: var(--sub); }
+.days button:active { transform: scale(.97); }
+.days button[aria-current="true"] { border-color: var(--accent); color: var(--text); background: var(--panel2); }
+.days small { display: block; font-size: 12px; font-weight: 500; }
+.stale { background: #4a3510; color: #ffe0a0; border-radius: 12px; padding: 10px 14px; font-size: 14px; margin: 10px 0; font-weight: 700; }
+
+/* 表彰台 */
+.podium { display: grid; grid-template-columns: 1fr 1.25fr 1fr; align-items: end; gap: 10px; margin: 26px 0 12px; text-align: center; }
+.pod { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: 0; padding: 0; min-width: 0; }
+.pod .face { position: relative; }
+.pod .face .ident { display: block; border-radius: 22px; box-shadow: 0 0 0 5px var(--ring); }
+.pod .crown { position: absolute; left: 50%; top: -34px; width: 54px; height: 32px; margin-left: -27px; animation: shine 3.6s ease-in-out infinite alternate; }
+@keyframes shine { from { filter: brightness(.95); } to { filter: brightness(1.4); } }
+.pod .nm { font-weight: 800; font-size: 15px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 8px; }
+.pod .st { color: var(--up); font-weight: 900; font-size: 22px; line-height: 1.2; }
+.p1 .st { font-size: 28px; }
+.pod .st small { font-size: 12px; color: var(--sub); font-weight: 500; }
+.step { width: 100%; border-radius: 12px 12px 0 0; background: linear-gradient(var(--panel2), var(--panel)); border-top: 5px solid var(--ring); display: grid; place-items: center; }
+.step b { font-size: 44px; font-weight: 900; font-style: italic; color: var(--ring); line-height: 1; padding: 4px 0; }
+.p1 .step { height: 92px; } .p2 .step { height: 62px; } .p3 .step { height: 46px; }
+.p1 .step b { font-size: 64px; }
+.p1 { --ring: var(--gold); } .p2 { --ring: var(--silver); } .p3 { --ring: var(--bronze); }
+
+/* 一覧 */
+.zonebox { border: 3px solid var(--accent); border-radius: 18px; overflow: hidden; background: rgba(255,178,30,.07); }
+.zonehead { display: flex; align-items: center; gap: 10px; background: var(--accent); color: var(--accent-ink); font-weight: 900; font-size: 14px; letter-spacing: .06em; padding: 6px 14px; }
+.zonehead span { margin-left: auto; font-weight: 700; letter-spacing: 0; }
+.list { background: var(--panel); border-radius: 18px; padding: 2px 0; margin-top: 14px; }
+.zonebox .row { border-top: 1px solid rgba(255,178,30,.25); }
+.zonebox .zonehead + .row { border-top: 0; }
+.row { display: grid; grid-template-columns: 40px 48px minmax(0, 1fr) auto 40px; align-items: center; gap: 12px; padding: 10px 12px; border-top: 1px solid var(--line); cursor: pointer; }
+.list .row:first-child { border-top: 0; }
+.row:hover { background: rgba(255,255,255,.04); }
+.row.open { background: var(--panel2); }
+.rk { text-align: center; font-weight: 900; font-size: 22px; font-style: italic; color: var(--sub); }
+.zonebox .rk { color: var(--accent); font-size: 26px; }
+.zonebox .rk.m1 { color: var(--gold); } .zonebox .rk.m2 { color: var(--silver); } .zonebox .rk.m3 { color: var(--bronze); }
+.row .ident { display: block; }
+.row.fall .ident { opacity: .55; }
+.who b { display: block; font-weight: 800; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.who b span { color: var(--sub); font-weight: 500; }
+.who p { margin: 2px 0 0; font-size: 14px; line-height: 1.55; color: #d9e6e8; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tags { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; margin-top: 3px; font-size: 13px; color: var(--sub); }
+.streak { display: inline-flex; align-items: center; gap: 2px; font-weight: 700; color: var(--text); }
+.streak svg { display: block; }
+.lang i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+.score { text-align: right; }
+.score .st { display: block; font-weight: 900; font-size: 20px; color: var(--up); line-height: 1.2; }
+.chg { font-size: 13px; font-weight: 800; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.same { color: var(--sub); }
+.chg.new { color: #062029; background: var(--new); border-radius: 6px; padding: 1px 6px; }
+.fav { width: 40px; height: 40px; border-radius: 12px; border: 2px solid var(--line); background: transparent; font-size: 18px; color: var(--sub); transition: transform .12s, background-color .15s; }
+.fav:hover { border-color: var(--sub); }
+.fav.on { background: var(--gold); border-color: var(--gold); color: #1a1a1a; }
+.fav.pop { animation: pop .28s ease-out; }
+@keyframes pop { 50% { transform: scale(1.25); } }
+
+.hall { margin-top: 14px; padding: 10px 14px; border: 2px dashed var(--line); border-radius: 14px; font-size: 14px; color: var(--sub); }
+.hall b { color: var(--accent); font-weight: 900; }
+.dropped { margin-top: 14px; background: transparent; border: 2px solid var(--line); border-radius: 16px; padding: 10px 14px; }
+.dropped h3 { margin: 0 0 6px; font-size: 14px; color: var(--sub); font-weight: 800; }
+.dropped ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.dropped li { display: flex; gap: 10px; align-items: baseline; font-size: 14px; color: var(--sub); }
+.dropped li b { color: #c5d6da; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dropped li em { font-style: normal; color: var(--down); font-weight: 800; margin-left: auto; white-space: nowrap; }
+
+/* 開いた行 */
+.more { grid-column: 1 / -1; padding: 4px 0 6px 52px; display: grid; gap: 8px; }
+.more .en { color: var(--sub); font-size: 14px; word-break: break-word; margin: 0; }
+.more .fav { display: none; width: auto; padding: 0 16px; font-size: 14px; justify-self: start; }
+.bars { display: flex; align-items: flex-end; gap: 4px; height: 70px; }
+.bars i { flex: 1; background: var(--up); border-radius: 4px 4px 0 0; opacity: .85; }
+.bars i.miss { background: transparent; border: 2px dashed var(--line); height: 100% !important; }
+.bars i.last { background: var(--accent); opacity: 1; }
+.cap { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--sub); }
+
+h2 { font-size: 19px; font-weight: 900; margin: 36px 0 10px; }
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+.tabs button { flex: none; background: var(--panel); border: 2px solid var(--line); border-radius: 999px; padding: 7px 14px; font-weight: 800; font-size: 14px; color: var(--sub); }
+.tabs button[aria-selected="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+footer { color: var(--sub); font-size: 13px; margin-top: 36px; line-height: 1.7; }
+
+@media (max-width: 480px) {
+  header h1 { font-size: 21px; }
+  .row { grid-template-columns: 32px 40px minmax(0, 1fr) auto; gap: 10px; padding: 10px 10px; }
+  .row > .fav { display: none; }
+  .more .fav { display: block; }
+  .more { padding-left: 0; }
+  .podium .ident { width: 64px; height: 64px; }
+  .p1 .face .ident { width: 78px; height: 78px; }
+  .pod .crown { top: -28px; width: 46px; height: 27px; margin-left: -23px; }
+  .who b { white-space: normal; overflow-wrap: anywhere; }
+  .rk { font-size: 19px; } .zonebox .rk { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) { .pod .crown, .fav.pop { animation: none; } }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, s = P.svg, V = V3;
+  let open = null, tab = P.data.days[P.date].topics[0].id, focusRepo = null, scrollRepo = null;
+
+  const streakOf = (repo) => 1 + (V.hash(repo) % 10);               // 仮データ
+  const reappear = (repo) => streakOf(repo) > 1 && V.hash(repo + "r") % 6 === 0; // 仮データ
+
+  function crown() {
+    const c = s("svg", { class: "crown", viewBox: "0 0 54 32", "aria-hidden": "true" });
+    c.append(s("path", { d: "M3 27 L7 8 L19 18 L27 3 L35 18 L47 8 L51 27 Z", fill: "#ffc83d", stroke: "#a96b00", "stroke-width": 2, "stroke-linejoin": "round" }),
+      s("rect", { x: 3, y: 26, width: 48, height: 5, rx: 2, fill: "#e9a300" }),
+      s("circle", { cx: 27, cy: 3, r: 3, fill: "#fff3c4" }), s("circle", { cx: 7, cy: 8, r: 2.5, fill: "#fff3c4" }), s("circle", { cx: 47, cy: 8, r: 2.5, fill: "#fff3c4" }));
+    return c;
+  }
+  function flame(n) {
+    const f = s("svg", { width: 24, height: 28, viewBox: "0 0 28 32", "aria-hidden": "true" });
+    f.append(s("path", { d: "M14 1 C16 9 25 12 25 21 A11 11 0 0 1 3 21 C3 16 7 14 8 8 C11 10 12 12 12 14 C13 10 13 6 14 1 Z", fill: "#ffb21e" }),
+      s("text", { x: 14, y: 25, "text-anchor": "middle", "font-size": 13, "font-weight": 900, fill: "#2b1900", "font-family": "M PLUS Rounded 1c, sans-serif" }, n));
+    return f;
+  }
+
+  function favBtn(repo) {
+    const b = el("button", { class: "fav" + (P.fav.has(repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(repo)), "aria-label": repo + " をお気に入り" }, "★");
+    b.addEventListener("click", (e) => { e.stopPropagation(); const on = P.fav.toggle(repo); b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); });
+    b.addEventListener("keydown", (e) => e.stopPropagation());
+    return b;
+  }
+  function more(it) {
+    const hist = P.history(it.repo, it.stars);
+    const vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const bars = el("div", { class: "bars", role: "img", "aria-label": "★の推移" }, hist.map((h, i) => el("i", { class: h.stars == null ? "miss" : i === hist.length - 1 ? "last" : "", title: h.date + " ★" + P.fmt(h.stars), style: h.stars == null ? "" : `height:${12 + ((h.stars - lo) / Math.max(1, hi - lo)) * 88}%` })));
+    return el("div", { class: "more" },
+      el("p", { class: "en" }, it.desc),
+      bars,
+      el("div", { class: "cap" }, el("span", {}, hist[0].date.slice(5).replace("-", "/") + " から（点線は記録の無い日）"), el("span", { class: "num" }, "総★ " + P.fmt(it.stars))),
+      favBtn(it.repo));
+  }
+  function row(it, rankLabel, right, opts) {
+    opts = opts || {};
+    const tags = el("div", { class: "tags" }, el("span", { class: "lang" }, el("i", { style: `background:${V.langColor(it.lang)}` }), it.lang));
+    if (opts.streak) {
+      const n = streakOf(it.repo);
+      tags.append(n > 1 ? el("span", { class: "streak", title: "連続登場日数（仮データ）" }, flame(n), "連続" + n + "日") : el("span", {}, "初登場"));
+      if (reappear(it.repo)) tags.append(el("span", {}, "再登場"));
+    }
+    const fall = opts.streak && V.change(it.repo).kind === "down";
+    const r = el("div", { class: "row" + (open === it.repo ? " open" : "") + (fall ? " fall" : ""), tabindex: "0", role: "button", "data-repo": it.repo, "aria-expanded": String(open === it.repo) },
+      rankLabel,
+      V.identicon(V.owner(it.repo), 48, 12),
+      el("div", { class: "who" }, el("b", {}, el("span", {}, V.owner(it.repo) + "/"), V.name(it.repo)), el("p", {}, it.summary), tags),
+      right,
+      favBtn(it.repo));
+    if (open === it.repo) r.append(more(it));
+    const toggle = () => { open = open === it.repo ? null : it.repo; focusRepo = it.repo; render(false); };
+    r.addEventListener("click", toggle);
+    r.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+    return r;
+  }
+
+  function briefing(day, items) {
+    const cnt = {};
+    items.forEach((it) => { cnt[it.lang] = (cnt[it.lang] || 0) + 1; });
+    const top = Object.entries(cnt).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, 2);
+    const first = P.data.DATES.indexOf(P.date) === 0;
+    const nw = items.filter((it) => V.change(it.repo).kind === "new").length;
+    const up = items.filter((it) => V.change(it.repo).kind === "up").length;
+    const lead = `今日は ${top.map((t) => t[0]).join(" と ")} が強い（${top.map((t) => t[1] + "件").join("・")}）。`;
+    return first ? [lead, "初日なので前日との比較はありません。"] : [lead, `新顔 ${nw} 件、順位を上げたのは ${up} 件。`];
+  }
+
+  function render(animate) {
+    const day = P.day, items = day.trending.items, app = document.getElementById("app");
+    const idx = P.data.DATES.indexOf(P.date);
+    const days = el("div", { class: "days", role: "group", "aria-label": "日付" }, P.data.DATES.map((d) => {
+      const b = el("button", { type: "button", "aria-current": String(d === P.date) }, `${+d.slice(5, 7)}/${+d.slice(8)}`, el("small", {}, P.weekday(d) + "曜"));
+      b.addEventListener("click", () => { open = null; P.setDate(d); });
+      return b;
+    }));
+    const pods = [1, 0, 2].map((i) => {
+      const it = items[i], st = el("span", { class: "num" }, "+0");
+      const b = el("button", { class: "pod p" + (i + 1), type: "button", "aria-label": `${i + 1}位 ${it.repo}。押すと詳しく` },
+        el("div", { class: "face" }, i === 0 ? crown() : "", V.identicon(V.owner(it.repo), i === 0 ? 96 : 72, 20)),
+        el("div", { class: "nm" }, V.name(it.repo)),
+        el("div", { class: "st" }, st, el("small", {}, " ★")),
+        el("div", { class: "step" }, el("b", {}, i + 1)));
+      b.addEventListener("click", () => { open = it.repo; scrollRepo = it.repo; render(false); });
+      if (animate) V.countUp(st, it.today, "+", 1000); else st.textContent = "+" + P.fmt(it.today);
+      return b;
+    });
+    const mkRow = (it, i) => {
+      const st = el("span", { class: "st num" });
+      if (animate && i < 10) V.countUp(st, it.today, "+", 700 + i * 40); else st.textContent = "+" + P.fmt(it.today);
+      return row(it, el("span", { class: "rk num m" + (i < 3 ? i + 1 : "") }, i + 1), el("div", { class: "score" }, st, V.changeEl(it.repo)), { streak: true });
+    };
+    const zone = el("div", { class: "zonebox" },
+      el("div", { class: "zonehead" }, "▲ 注目ゾーン TOP5", el("span", {}, "毎日ここだけ見れば OK")),
+      items.slice(0, 5).map(mkRow));
+    const list = el("div", { class: "list" }, items.slice(5).map((it, i) => mkRow(it, i + 5)));
+
+    const hallItems = items.filter((it) => streakOf(it.repo) >= 7);
+    const hall = hallItems.length ? el("div", { class: "hall" }, el("b", {}, "殿堂入り（仮）"), " 7日以上連続で載り続けている: " + hallItems.slice(0, 4).map((it) => V.name(it.repo)).join("、") + (hallItems.length > 4 ? ` ほか${hallItems.length - 4}件` : "")) : "";
+
+    let dropped = "";
+    if (idx > 0) {
+      const prev = P.data.days[P.data.DATES[idx - 1]].trending.items;
+      const out = prev.filter((p) => !items.some((c) => c.repo === p.repo)).slice(0, 5);
+      if (out.length) dropped = el("div", { class: "dropped" }, el("h3", {}, "昨日いて、今日は圏外に落ちた"),
+        el("ul", {}, out.map((p) => el("li", {}, el("span", { class: "num" }, p.rank + "位"), el("b", {}, p.repo), el("em", {}, "圏外 ▼")))));
+    }
+
+    const topic = day.topics.find((t) => t.id === tab) || day.topics[0];
+    const tabs = el("div", { class: "tabs", role: "tablist", "aria-label": "関心領域" }, day.topics.map((t) => {
+      const b = el("button", { type: "button", role: "tab", "aria-selected": String(t.id === topic.id) }, t.label);
+      b.addEventListener("click", () => { tab = t.id; open = null; render(false); });
+      return b;
+    }));
+    const tlist = el("div", { class: "list" }, topic.items.map((it, i) => row(it, el("span", { class: "rk num" }, i + 1),
+      el("div", { class: "score" }, it.delta == null ? el("span", { class: "chg new" }, "NEW") : el("span", { class: "st num" }, "+" + P.fmt(it.delta)), el("span", { class: "chg same" }, it.delta == null ? "新顔" : "前日比")))));
+
+    const [b1, b2] = briefing(day, items);
+    const stale = P.state === "stale" ? el("div", { class: "stale", role: "status" }, `⚠ 更新が2日止まっています。表示は ${+P.data.DATES[0].slice(5, 7)}/${+P.data.DATES[0].slice(8)} の記録です。`) : "";
+
+    app.replaceChildren(
+      el("header", {}, el("h1", {}, "今日の急上昇リーグ"), el("span", { class: "upd num" }, day.updatedAt.slice(11, 16) + " JST 更新")),
+      el("p", { class: "brief" }, el("b", {}, "今日の概況　"), b1, b2),
+      days, stale,
+      el("div", { class: "podium" }, pods),
+      zone, list, hall, dropped,
+      el("h2", {}, "関心領域"), tabs, tlist,
+      el("footer", {}, "案I「リーグ表・改」— ゲームのランキングの文法（表彰台と王冠・昇格ゾーンの帯・落ちたものは薄く・連続日数の炎）。連続登場日数と再登場、殿堂入りは仮データから決めた仮の表示。アイコンは本番では持ち主のアバター。データは架空。")
+    );
+    if (scrollRepo || focusRepo) {
+      const target = document.querySelector('.row[data-repo="' + (scrollRepo || focusRepo).replace(/"/g, '\\"') + '"]');
+      if (target) { target.focus({ preventScroll: true }); if (scrollRepo) target.scrollIntoView({ block: "center", behavior: P.reduced() ? "auto" : "smooth" }); }
+      scrollRepo = focusRepo = null;
+    }
+  }
+  P.onDate(() => render(true));
+  render(true);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案P カードコレクション — github-ranking v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho+B1:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #1d0c0b; --bg2: #2a1210; --wine: #5b1a17; --paper: #f2e9d4; --paper2: #e6d9bb; --ink: #2a120f;
+  --gold: #d9ad54; --gold-d: #9c7424; --silver: #c9ced3; --copper: #b4703f; --n: #6b4a3f;
+  --ivory: #f6eedb; --sub: #c9b79b; --up: #1b6a3f; --down: #a3201c; --new: #7a4b00;
+  --mincho: "Shippori Mincho B1", "Yu Mincho", serif;
+  --sans: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: radial-gradient(ellipse at 50% -10%, #3d1814 0, var(--bg) 60%) fixed, var(--bg); color: var(--ivory); font-family: var(--sans); font-size: 15px; line-height: 1.6; line-break: strict; word-break: auto-phrase; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.app { max-width: 1240px; margin: 0 auto; padding: 18px 14px 56px; }
+.num { font-variant-numeric: tabular-nums; }
+
+header.top { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; border-bottom: 1px solid var(--gold-d); padding-bottom: 10px; }
+header.top h1 { margin: 0; font-family: var(--mincho); font-weight: 800; font-size: 30px; letter-spacing: .08em; color: var(--gold); }
+header.top .iss { color: var(--sub); font-size: 14px; }
+header.top .upd { margin-left: auto; color: var(--sub); font-size: 14px; }
+.days { display: flex; gap: 8px; margin: 14px 0 4px; }
+.days button { background: transparent; border: 1px solid var(--gold-d); color: var(--sub); padding: 5px 16px; font-family: var(--mincho); font-weight: 800; font-size: 16px; border-radius: 2px; }
+.days button small { font-family: var(--sans); font-weight: 400; font-size: 12px; margin-left: 4px; }
+.days button[aria-current="true"] { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+.stale { background: #3b1c0f; border: 1px solid #b4703f; color: #ffd9b0; padding: 10px 14px; font-size: 14px; margin: 10px 0; }
+
+/* 今日の引き */
+.pull { margin: 18px 0 8px; display: grid; grid-template-columns: 1fr auto; gap: 12px 24px; align-items: end; }
+.pull h2 { margin: 0; font-family: var(--mincho); font-weight: 800; font-size: 22px; color: var(--ivory); letter-spacing: .06em; }
+.pull p { margin: 4px 0 0; color: var(--sub); font-size: 14px; }
+.tally { display: flex; gap: 10px; }
+.tally div { min-width: 74px; text-align: center; border: 1px solid var(--gold-d); padding: 4px 10px 6px; background: rgba(0,0,0,.18); }
+.tally .k { display: block; font-family: var(--mincho); font-weight: 800; font-size: 15px; letter-spacing: .08em; }
+.tally .v { display: block; font-family: var(--mincho); font-weight: 800; font-size: 32px; line-height: 1.1; }
+.tally .UR { color: var(--gold); border-color: var(--gold); } .tally .SR { color: var(--silver); border-color: #8a9096; } .tally .R { color: #e0a073; border-color: var(--copper); } .tally .N { color: var(--sub); }
+
+/* 棚の選択 */
+.shelves { display: flex; gap: 0; margin: 14px 0 14px; flex-wrap: wrap; }
+.shelves button { background: transparent; border: 1px solid var(--gold-d); margin-left: -1px; padding: 7px 18px; font-weight: 700; font-size: 14px; color: var(--sub); }
+.shelves button:first-child { margin-left: 0; }
+.shelves button[aria-selected="true"] { background: var(--ivory); color: var(--ink); border-color: var(--ivory); position: relative; z-index: 1; }
+
+/* カード棚 */
+.shelf { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 10px; list-style: none; margin: 0; padding: 0; }
+@media (min-width: 640px) { .shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 14px; } }
+@media (min-width: 900px) { .shelf { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.cardwrap { position: relative; }
+.card { position: relative; overflow: hidden; background: var(--paper); color: var(--ink); border: 4px solid var(--c, var(--n)); border-radius: 8px; padding: 6px; display: flex; flex-direction: column; gap: 5px; cursor: pointer; height: 100%; box-shadow: 0 6px 14px rgba(0,0,0,.45); transition: transform .15s; }
+.card:hover { transform: translateY(-3px); }
+.card.UR { --c: var(--gold); box-shadow: 0 6px 14px rgba(0,0,0,.45), 0 0 0 1px #fff3c4 inset; }
+.card.SR { --c: var(--silver); }
+.card.R { --c: var(--copper); }
+.card.N { --c: var(--n); }
+.card .hd { display: flex; align-items: center; gap: 6px; background: var(--wine); color: var(--ivory); padding: 3px 7px; border-radius: 3px; min-width: 0; }
+.card .hd b { font-family: var(--mincho); font-weight: 800; font-size: 15px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+.rar { flex: none; font-family: var(--mincho); font-weight: 800; font-size: 13px; letter-spacing: .06em; padding: 0 5px; border-radius: 2px; background: var(--c); color: #1a0a08; }
+.card .art { position: relative; background: var(--wine); border: 2px solid var(--c); padding: 8px; display: grid; place-items: center; }
+.card .art svg { display: block; width: 100%; max-width: 132px; height: auto; border-radius: 4px; }
+.card .rk { position: absolute; top: 3px; left: 4px; font-family: var(--mincho); font-weight: 800; font-size: 14px; color: var(--ivory); background: rgba(0,0,0,.5); padding: 0 6px; border-radius: 2px; }
+.card .ty { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.card .ty i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,.4); }
+.card .ty span { margin-left: auto; font-weight: 500; color: #5a3a30; }
+.card .tx { margin: 0; font-size: 14px; line-height: 1.55; background: var(--paper2); padding: 5px 7px; border-radius: 3px; flex: 1; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.card .st { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; border-top: 1px solid #b9a77f; padding-top: 3px; gap: 4px; }
+.card .st b { font-family: var(--mincho); font-weight: 800; font-size: 17px; color: var(--down); }
+.card .st .hp b { color: var(--ink); font-size: 14px; }
+.chg { font-weight: 700; font-size: 12px; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.same { color: #5a3a30; }
+.chg.new { background: var(--new); color: #fff6dd; padding: 0 5px; border-radius: 2px; }
+.cmb { font-size: 12px; color: #5a3a30; display: flex; justify-content: space-between; gap: 4px; }
+.cmb .hof { background: var(--wine); color: var(--gold); font-weight: 700; padding: 0 5px; border-radius: 2px; }
+.card.static { cursor: default; box-shadow: none; }
+.card.static:hover { transform: none; }
+/* UR の箔の光: 一度だけ斜めに走る */
+.card.UR:not(.static)::after { content: ""; position: absolute; inset: -20% -40%; background: linear-gradient(112deg, transparent 38%, rgba(255,247,205,.8) 50%, transparent 62%); transform: translateX(-100%); animation: sweep 1.5s ease-out var(--d, .4s) 1 both; pointer-events: none; }
+@keyframes sweep { to { transform: translateX(100%); } }
+
+.favb { position: absolute; right: 8px; top: 40px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; background: rgba(42,18,15,.82); border: 1px solid var(--gold); color: var(--gold); font-size: 17px; }
+.favb.on { background: var(--gold); color: var(--ink); }
+.favb.pop { animation: pop .25s ease-out; }
+@keyframes pop { 50% { transform: scale(1.2); } }
+
+/* 拡大して裏返す */
+.veil { position: fixed; inset: 0; background: rgba(12,4,3,.82); z-index: 20; display: grid; place-items: center; padding: 12px; }
+.stage { perspective: 1200px; width: min(88vw, 340px); height: min(560px, calc(100dvh - 90px)); }
+.flip { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .6s cubic-bezier(.3,.7,.2,1); }
+.flip.back { transform: rotateY(180deg); }
+.flip > .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flip > .face.bk { transform: rotateY(180deg); }
+.big .card { height: 100%; font-size: 16px; }
+.big .card .art svg { max-width: 190px; }
+.bk .card { cursor: default; }
+.bk .card:hover { transform: none; }
+.bk .hd { justify-content: space-between; }
+.bk .en { font-size: 14px; background: var(--paper2); padding: 7px 9px; border-radius: 3px; word-break: break-word; overflow: auto; max-height: 34%; }
+.bk .lbl { font-size: 13px; font-weight: 700; color: var(--wine); }
+.bars { display: flex; align-items: flex-end; gap: 4px; height: 90px; flex: 1; min-height: 90px; padding: 4px 4px 0; background: var(--paper2); border-radius: 3px; }
+.bars i { flex: 1; background: var(--wine); opacity: .75; }
+.bars i.miss { background: transparent; border: 2px dashed #8a7550; opacity: 1; height: 100% !important; }
+.bars i.last { background: var(--gold-d); opacity: 1; }
+.cap { display: flex; justify-content: space-between; font-size: 13px; color: #5a3a30; }
+.bk .acts { display: flex; gap: 8px; margin-top: auto; }
+.btn { flex: 1; white-space: nowrap; border: 2px solid var(--wine); background: transparent; color: var(--wine); font-weight: 700; padding: 7px 8px; border-radius: 4px; font-size: 14px; }
+.btn.on { background: var(--wine); color: var(--gold); }
+.btn.close { background: var(--wine); color: var(--ivory); }
+.bk .favb { position: static; width: auto; border-radius: 4px; flex: 1; height: auto; padding: 7px 8px; background: transparent; border: 2px solid var(--wine); color: var(--wine); font-size: 14px; font-weight: 700; white-space: nowrap; flex: 1.6; }
+.bk .favb.on { background: var(--wine); color: var(--gold); }
+
+footer { color: var(--sub); font-size: 13px; margin-top: 36px; line-height: 1.7; border-top: 1px solid var(--gold-d); padding-top: 10px; }
+@media (max-width: 480px) {
+  header.top h1 { font-size: 24px; }
+  .pull { grid-template-columns: 1fr; }
+  .tally { width: 100%; } .tally div { flex: 1; min-width: 0; padding: 4px 4px 6px; }
+  .card .hd b { font-size: 14px; }
+  .card .ty span { display: none; }
+  .card .st span { white-space: nowrap; font-size: 12px; }
+  .card .st b { font-size: 15px; } .card .st .hp b { font-size: 13px; }
+  .card .st { gap: 2px; }
+  .bk .btn, .bk .favb { padding: 7px 4px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card.UR::after { animation: none; display: none; }
+  .flip { transition: none; }
+  .card { transition: none; } .favb.pop { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, V = V3;
+  let shelf = "trend"; // "trend" か topic の id
+  let lastFocus = null;
+
+  // レア度: 今日の★増から（トレンドとジャンルで目盛りが違う）
+  function rarity(n, topic) {
+    if (n == null) return "R"; // 新顔は R 扱い
+    const t = topic ? [300, 180, 80] : [900, 400, 180];
+    return n >= t[0] ? "UR" : n >= t[1] ? "SR" : n >= t[2] ? "R" : "N";
+  }
+  const streakOf = (repo) => 1 + (V.hash(repo) % 9);
+  const reentry = (repo) => V.hash(repo + "r") % 5 === 0;
+  const feed = () => (P.day.trending.status === "ok" ? P.day.trending.items : P.day.fallback);
+  function hofRepo(items) {
+    let b = null;
+    items.forEach((it) => { if (!b || streakOf(it.repo) > streakOf(b.repo)) b = it; });
+    return b && streakOf(b.repo) >= 7 ? b.repo : null;
+  }
+
+  function favBtn(repo, label) {
+    const b = el("button", { class: "favb" + (P.fav.has(repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(repo)), "aria-label": repo + " をお気に入り" }, label || "★");
+    b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const on = P.fav.toggle(repo);
+      document.querySelectorAll(".favb").forEach((x) => { if (x.getAttribute("aria-label") === repo + " をお気に入り") { x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); } });
+      b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
+    });
+    return b;
+  }
+
+  // カードの表面。o: { topic, hof, i, static }
+  function front(it, o) {
+    const score = o.topic ? it.delta : it.today;
+    const r = rarity(score, o.topic);
+    const st = streakOf(it.repo);
+    const chg = o.topic ? (it.delta == null ? el("span", { class: "chg new" }, "NEW") : el("span", { class: "chg same" }, "前日比")) : V.changeEl(it.repo);
+    const c = el("div", { class: "card " + r + (o.static ? " static" : ""), style: `--d:${(0.3 + (o.i || 0) * 0.12).toFixed(2)}s` },
+      el("div", { class: "hd" }, el("b", {}, V.name(it.repo)), el("span", { class: "rar" }, r)),
+      el("div", { class: "art" }, V.identicon(V.owner(it.repo), 132, 6), el("span", { class: "rk num" }, (o.i + 1) + "位")),
+      el("div", { class: "ty" }, el("i", { style: "background:" + V.langColor(it.lang) }), it.lang + "型", el("span", {}, V.owner(it.repo))),
+      el("p", { class: "tx" }, it.summary),
+      el("div", { class: "st" },
+        el("span", { class: "atk" }, "攻撃 ", el("b", { class: "num" }, score == null ? "NEW" : "+" + P.fmt(score))),
+        el("span", { class: "hp" }, "体力 ", el("b", { class: "num" }, P.fmt(it.stars)))),
+      el("div", { class: "cmb" }, chg,
+        o.hof === it.repo ? el("span", { class: "hof" }, "殿堂入り(仮)") : el("span", {}, st + "日連続" + (reentry(it.repo) ? "・再登場" : st === 1 ? "・初登場" : "") + "(仮)")));
+    return c;
+  }
+
+  function back(it, o, close, flipBack) {
+    const hist = P.history(it.repo, it.stars);
+    const vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const r = rarity(o.topic ? it.delta : it.today, o.topic);
+    const bars = el("div", { class: "bars", role: "img", "aria-label": "★の推移" }, hist.map((h, i) => el("i", { class: h.stars == null ? "miss" : i === hist.length - 1 ? "last" : "", title: h.date + " ★" + P.fmt(h.stars), style: h.stars == null ? "" : `height:${12 + ((h.stars - lo) / Math.max(1, hi - lo)) * 88}%` })));
+    return el("div", { class: "card " + r + " static" },
+      el("div", { class: "hd" }, el("b", {}, it.repo), el("span", { class: "rar" }, r)),
+      el("div", { class: "lbl" }, "英語の説明"),
+      el("div", { class: "en" }, it.desc),
+      el("div", { class: "lbl" }, "★の推移"),
+      bars,
+      el("div", { class: "cap" }, el("span", {}, hist[0].date.slice(5).replace("-", "/") + " から（点線は記録の無い日）"), el("span", { class: "num" }, "総★ " + P.fmt(it.stars))),
+      el("div", { class: "acts" }, favBtn(it.repo, "★ お気に入り"), (() => { const b = el("button", { class: "btn", type: "button" }, "表に戻す"); b.addEventListener("click", flipBack); return b; })(), (() => { const b = el("button", { class: "btn close", type: "button" }, "閉じる"); b.addEventListener("click", close); return b; })()));
+  }
+
+  function openCard(it, o, from) {
+    lastFocus = from;
+    const flip = el("div", { class: "flip" });
+    const veil = el("div", { class: "veil", role: "dialog", "aria-modal": "true", "aria-label": it.repo + " の詳細" });
+    const close = () => { veil.remove(); document.removeEventListener("keydown", onKey); if (lastFocus && lastFocus.focus) lastFocus.focus(); };
+    const flipBack = () => flip.classList.remove("back");
+    const frontFace = el("div", { class: "face big" }, front(it, { ...o, static: true }));
+    const backFace = el("div", { class: "face bk big" }, back(it, o, close, flipBack));
+    frontFace.addEventListener("click", () => flip.classList.add("back"));
+    flip.append(frontFace, backFace);
+    veil.append(el("div", { class: "stage" }, flip));
+    veil.addEventListener("click", (e) => { if (e.target === veil) close(); });
+    function onKey(e) {
+      if (e.key === "Escape") close();
+      if (e.key === "Tab") {
+        const f = [...veil.querySelectorAll("button")].filter((x) => x.offsetParent !== null || true);
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    document.body.append(veil);
+    // 少し待ってから裏返す（動きを減らす設定では待たず、すぐ裏面）
+    if (P.reduced()) flip.classList.add("back"); else requestAnimationFrame(() => requestAnimationFrame(() => flip.classList.add("back")));
+    const closeBtn = backFace.querySelector(".btn.close");
+    closeBtn.focus();
+  }
+
+  function cardItem(it, o) {
+    const c = front(it, o);
+    c.tabIndex = 0; c.setAttribute("role", "button");
+    c.setAttribute("aria-label", `${o.i + 1}位 ${it.repo} の詳細を開く`);
+    const go = () => openCard(it, o, c);
+    c.addEventListener("click", go);
+    c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    return el("li", { class: "cardwrap" }, c, favBtn(it.repo));
+  }
+
+  function digest(items) {
+    const by = {};
+    items.slice(0, 10).forEach((it) => { by[it.lang] = (by[it.lang] || 0) + it.today; });
+    const langs = Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 2).map((x) => x[0]);
+    const news = items.filter((it) => V.change(it.repo).kind === "new").length;
+    return `今日は ${langs.join(" と ")} が強い。新顔が${news}件。`;
+  }
+
+  function render() {
+    const day = P.day, items = feed(), app = document.getElementById("app");
+    if (shelf !== "trend" && !day.topics.some((t) => t.id === shelf)) shelf = "trend";
+    const isTopic = shelf !== "trend";
+    const list = isTopic ? day.topics.find((t) => t.id === shelf).items : items;
+    const hof = isTopic ? null : hofRepo(items);
+    const cnt = { UR: 0, SR: 0, R: 0, N: 0 };
+    list.forEach((it) => { cnt[rarity(isTopic ? it.delta : it.today, isTopic)]++; });
+
+    const days = el("div", { class: "days", role: "group", "aria-label": "日付" }, P.data.DATES.map((d) => {
+      const b = el("button", { type: "button", "aria-current": String(d === P.date) }, `${+d.slice(5, 7)}/${+d.slice(8)}`, el("small", {}, P.weekday(d)));
+      b.addEventListener("click", () => P.setDate(d));
+      return b;
+    }));
+    const stale = P.state === "stale" ? (() => {
+      const dt = new Date(P.date + "T00:00:00+09:00"); dt.setDate(dt.getDate() - 2);
+      const s = dt.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+      return el("div", { class: "stale", role: "status" }, `更新が2日止まっています。表示は ${+s.slice(5, 7)}/${+s.slice(8)} の記録です。`);
+    })() : null;
+    const fb = day.trending.status === "ok" ? null : el("div", { class: "stale", role: "status" }, "Trending を読めなかったので、最近できて★が急に増えたリポジトリで代用しています。");
+
+    const shelves = el("div", { class: "shelves", role: "tablist", "aria-label": "棚" },
+      [["trend", "トレンド " + items.length]].concat(day.topics.map((t) => [t.id, t.label])).map(([k, label]) => {
+        const b = el("button", { type: "button", role: "tab", "aria-selected": String(shelf === k) }, label);
+        b.addEventListener("click", () => { shelf = k; render(); });
+        return b;
+      }));
+
+    app.replaceChildren(...[
+      el("header", { class: "top" }, el("h1", {}, "今日の星札"), el("span", { class: "iss" }, "第" + day.issueNo + "号"), el("span", { class: "upd num" }, day.updatedAt.slice(11, 16) + " JST 更新")),
+      days, stale, fb,
+      el("section", { class: "pull", "aria-label": "今日の引き" },
+        el("div", {}, el("h2", {}, "今日の引き"), el("p", {}, digest(items) + (isTopic ? "（この棚は ジャンル別。レア度の目盛りも別）" : ""))),
+        el("div", { class: "tally" }, ["UR", "SR", "R", "N"].map((k) => el("div", { class: k }, el("span", { class: "k" }, k), el("span", { class: "v num" }, cnt[k]))))),
+      shelves,
+      el("ul", { class: "shelf" }, list.map((it, i) => cardItem(it, { topic: isTopic, hof, i }))),
+      el("footer", {}, "案P「カードコレクション」— カードゲームとガチャのレア度の文法（1件=1枚・攻撃力と体力・UR は金縁と箔の光・押すと拡大して裏返る）。レア度は今日の★増で決定（トレンド UR +900以上／SR +400以上／R +180以上）。連続日数・殿堂入りは仮の値。アイコンは GitHub の初期アバターと同じ作りの模様で、データは架空。")
+    ].filter(Boolean));
+  }
+  P.onDate(() => render());
+  render();
+})();
+</script>
+</body>
+</html>

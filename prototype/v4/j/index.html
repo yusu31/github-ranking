@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案J ランキング誌・改 — github-ranking v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root { --page: #ebebe8; --card: #ffffff; --ink: #141414; --sub: #5f5f5f; --up: #0a7d46; --down: #c9302f; --hot: #d92b12; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font-family: "Noto Sans JP", sans-serif; line-height: 1.55; line-break: strict; word-break: auto-phrase; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--hot); outline-offset: 2px; }
+.dela { font-family: "Dela Gothic One", sans-serif; font-weight: 400; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 22px 16px 120px; }
+.num { font-variant-numeric: tabular-nums; }
+
+.top { display: flex; align-items: stretch; gap: 16px; flex-wrap: wrap; }
+.datebox { background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 6px; display: grid; place-items: center; text-align: center; }
+.datebox b { font-size: 34px; line-height: 1; }
+.datebox span { font-size: 13px; margin-top: 4px; }
+.title { display: flex; flex-direction: column; justify-content: center; }
+.title h1 { margin: 0; font-size: 28px; line-height: 1.2; }
+.title p { margin: 4px 0 0; color: var(--sub); font-size: 14px; }
+.days { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.days button { border: 2px solid var(--ink); background: #fff; border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 14px; transition: transform .1s; }
+.days button:hover { background: #ddd; }
+.days button:active { transform: scale(.96); }
+.days button[aria-current="true"] { background: var(--ink); color: #fff; }
+.stale { margin-top: 14px; background: #fff3cd; border: 2px solid #c58f00; padding: 10px 14px; border-radius: 8px; font-weight: 700; font-size: 14px; }
+.brief { display: flex; gap: 12px; align-items: center; margin-top: 16px; font-size: 15px; font-weight: 700; }
+.fuda { display: inline-block; background: var(--hot); color: #fff; font-weight: 700; font-size: 13px; padding: 3px 10px; border-radius: 3px; white-space: nowrap; transform: rotate(-2deg); }
+
+/* 表紙 */
+.cover { position: relative; overflow: hidden; border-radius: 10px; aspect-ratio: 4 / 5; color: #fff; isolation: isolate; }
+.cover .pat { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.cover .owner { position: absolute; left: 10px; top: 10px; max-width: 55%; font-size: 12px; font-weight: 700; background: rgba(0,0,0,.45); color: #fff; padding: 2px 7px; border-radius: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cover .ttl { position: absolute; right: 12px; top: 12px; bottom: 44px; writing-mode: vertical-rl; font-family: "Dela Gothic One", sans-serif; font-size: clamp(19px, 2vw, 24px); line-height: 1.15; overflow-wrap: anywhere; letter-spacing: .02em; text-shadow: 0 2px 0 rgba(0,0,0,.2); }
+.cover .tag { position: absolute; left: 10px; top: 38px; background: var(--hot); color: #fff; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 3px; transform: rotate(-3deg); transform-origin: left top; box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+.cover .heart { position: absolute; right: 8px; bottom: 8px; width: 38px; height: 38px; border-radius: 50%; border: 0; background: rgba(255,255,255,.94); color: #777; font-size: 18px; display: grid; place-items: center; transition: transform .12s; }
+.cover .heart:hover { transform: scale(1.1); }
+.cover .heart.on { color: var(--hot); }
+
+/* 今日のイチオシ */
+.pick { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 26px; background: var(--card); border-radius: 14px; padding: 18px; margin: 22px 0 32px; align-items: center; box-shadow: 0 2px 0 rgba(0,0,0,.08); }
+.pick .cover { aspect-ratio: 16 / 10; cursor: pointer; transition: transform .2s ease-out, box-shadow .2s ease-out; }
+.pick .cover:hover { transform: translateY(-4px); box-shadow: 0 14px 28px rgba(0,0,0,.2); }
+.pick .cover .ttl { font-size: clamp(30px, 4.2vw, 50px); bottom: 50px; }
+.pick .cover .big { position: absolute; left: 14px; bottom: -14px; font-family: "Dela Gothic One", sans-serif; font-size: clamp(110px, 15vw, 190px); line-height: 1; color: rgba(255,255,255,.95); text-shadow: 0 4px 0 rgba(0,0,0,.22); }
+.pick .cover .tag { left: auto; right: auto; top: auto; bottom: 12px; left: 14px; font-size: 14px; padding: 4px 12px; display: none; }
+.pick .lab { display: inline-block; background: var(--hot); color: #fff; font-weight: 700; font-size: 13px; padding: 3px 10px; border-radius: 3px; transform: rotate(-2deg); }
+.pick h2 { margin: 12px 0 0; font-size: 24px; word-break: break-all; line-height: 1.3; }
+.pick p { font-size: 17px; line-height: 1.8; margin: 8px 0 14px; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; font-size: 14px; color: var(--sub); }
+.meta .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: -1px; }
+.meta .st { color: var(--ink); font-weight: 700; font-size: 16px; }
+.chg { font-weight: 700; font-size: 13px; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.same { color: var(--sub); }
+.chg.new { background: var(--up); color: #fff; padding: 1px 6px; border-radius: 3px; }
+.streak { font-size: 13px; color: var(--sub); margin-top: 2px; }
+.streak b { color: var(--hot); font-weight: 700; }
+
+.sec { display: flex; align-items: baseline; gap: 12px; margin: 0 0 14px; flex-wrap: wrap; }
+.sec h3 { margin: 0; font-size: 21px; }
+.sec span { color: var(--sub); font-size: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(188px, 1fr)); gap: 28px 18px; }
+.card { cursor: pointer; transition: transform .2s ease-out; min-width: 0; }
+.card .cover { transition: box-shadow .2s ease-out; }
+.card:hover, .card:focus-visible { transform: translateY(-6px); }
+.card:hover .cover, .card:focus-visible .cover { box-shadow: 0 14px 26px rgba(0,0,0,.22); }
+.card .rank { font-family: "Dela Gothic One", sans-serif; font-size: 58px; line-height: .8; margin: -32px 0 0 6px; position: relative; color: var(--ink); -webkit-text-stroke: 7px var(--page); paint-order: stroke fill; pointer-events: none; }
+.card h4 { margin: 6px 0 2px; font-size: 15px; line-height: 1.35; word-break: break-all; }
+.card p { margin: 0 0 6px; font-size: 14px; line-height: 1.6; color: #2b2b2b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.hall { margin: 36px 0 0; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--ink); color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 14px; }
+.hall .fuda { transform: none; }
+
+.shelf { margin-top: 44px; }
+.tabs { display: flex; gap: 22px; margin: 0 0 16px; overflow-x: auto; scrollbar-width: none; border-bottom: 2px solid var(--ink); }
+.tabs button { flex: none; background: none; border: 0; padding: 4px 0 8px; font-family: "Dela Gothic One", sans-serif; font-size: 18px; color: var(--sub); border-bottom: 5px solid transparent; margin-bottom: -2px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--hot); }
+.shelfrow { display: grid; grid-auto-flow: column; grid-auto-columns: 160px; gap: 16px; overflow-x: auto; padding: 8px 2px 14px; scrollbar-width: thin; }
+.shelfrow .cover { aspect-ratio: 1 / 1; }
+.shelfrow .cover .ttl { font-size: 18px; }
+.shelfrow .card:hover, .shelfrow .card:focus-visible { transform: translateY(-5px); }
+
+.sheet { position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 110%); visibility: hidden; width: min(660px, 100%); max-height: 86vh; overflow-y: auto; background: #fff; border-radius: 18px 18px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,.25); padding: 20px 18px 28px; transition: transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s .3s; z-index: 10; }
+.sheet.on { transform: translate(-50%, 0); visibility: visible; transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+.sheet h3 { margin: 0 0 4px; font-size: 19px; word-break: break-all; padding-right: 44px; }
+.sheet p { margin: 6px 0; font-size: 15px; line-height: 1.7; }
+.sheet .en { color: var(--sub); font-size: 14px; word-break: break-word; }
+.sheet .x { position: absolute; right: 12px; top: 12px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: #e8e8e8; font-size: 20px; }
+.sheet svg.line { width: 100%; height: 100px; display: block; margin-top: 8px; overflow: visible; }
+footer { margin-top: 48px; color: var(--sub); font-size: 13px; line-height: 1.7; }
+@media (max-width: 760px) {
+  .pick { grid-template-columns: minmax(0, 1fr); padding: 12px; gap: 14px; }
+  .pick .cover .big { font-size: 110px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; }
+  .days { margin-left: 0; width: 100%; }
+  .days button { flex: 1; padding: 6px 4px; }
+  .card .rank { font-size: 46px; margin-top: -26px; }
+  .brief { align-items: flex-start; flex-direction: column; gap: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { .card, .sheet, .card .cover, .pick .cover { transition: none; } .card:hover, .card:focus-visible, .pick .cover:hover { transform: none; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="sheet" id="sheet" role="dialog" aria-label="詳しい表示"></div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, s = P.svg, V = V3;
+  const streakOf = (repo) => 1 + (V.hash(repo) % 10);                 // 仮データ
+  const reappear = (repo) => streakOf(repo) > 1 && V.hash(repo + "r") % 6 === 0; // 仮データ
+  const KIND = { Python: "grid", TypeScript: "diag", JavaScript: "wave", Rust: "dots", Go: "chev", Zig: "zig", Shell: "lines", Markdown: "grid", HTML: "chev" };
+  const LIGHT = ["#f1e05a", "#89e051", "#dea584", "#00ADD8", "#ec915c"];
+  let lastFocus = null, tab = null;
+
+  // 言語ごとの模様（表紙の地に敷く SVG）。viewBox 100x125 を埋める
+  function pattern(it, ink, soft) {
+    const kind = KIND[it.lang] || ["grid", "diag", "wave", "dots", "chev", "zig", "lines"][V.hash(it.repo) % 7];
+    const g = s("svg", { class: "pat", viewBox: "0 0 100 125", preserveAspectRatio: "xMidYMid slice", "aria-hidden": "true" });
+    const st = (w) => ({ fill: "none", stroke: ink, "stroke-width": w, "stroke-linecap": "round" });
+    g.append(s("circle", { cx: 12, cy: 112, r: 42, fill: soft }));
+    if (kind === "grid") { for (let i = 0; i <= 8; i++) { g.append(s("line", { x1: i * 12.5, y1: 0, x2: i * 12.5, y2: 125, ...st(1.4) }), s("line", { x1: 0, y1: i * 15.6, x2: 100, y2: i * 15.6, ...st(1.4) })); } }
+    else if (kind === "diag") { for (let i = 0; i < 16; i++) g.append(s("line", { x1: i * 14, y1: 0, x2: i * 14 - 70, y2: 125, ...st(5) })); }
+    else if (kind === "wave") { for (let j = 0; j < 8; j++) { const y = j * 18 + 8; g.append(s("path", { d: `M-10 ${y} Q 5 ${y - 9} 20 ${y} T 50 ${y} T 80 ${y} T 110 ${y}`, ...st(3) })); } }
+    else if (kind === "dots") { for (let r = 0; r < 9; r++) for (let c = 0; c < 8; c++) g.append(s("circle", { cx: c * 14 + (r % 2) * 7, cy: r * 15 + 6, r: 3.2, fill: ink })); }
+    else if (kind === "chev") { for (let j = 0; j < 10; j++) { const y = j * 14; g.append(s("path", { d: `M-2 ${y} L50 ${y + 14} L102 ${y}`, ...st(4) })); } }
+    else if (kind === "zig") { for (let j = 0; j < 8; j++) { const y = j * 17 + 10; let d = `M-5 ${y}`; for (let x = 0; x < 11; x++) d += ` l10 ${x % 2 ? 7 : -7}`; g.append(s("path", { d, ...st(3.4) })); } }
+    else { for (let j = 0; j < 14; j++) g.append(s("line", { x1: 0, y1: j * 9 + 4, x2: 100, y2: j * 9 + 4, ...st(2.2) })); }
+    return g;
+  }
+  function cover(it, opts) {
+    opts = opts || {};
+    const base = V.langColor(it.lang), dark = LIGHT.includes(base);
+    const c = el("div", { class: "cover", style: `background:${base}; color:${dark ? "#141414" : "#fff"}` });
+    c.append(pattern(it, dark ? "rgba(0,0,0,.13)" : "rgba(255,255,255,.2)", dark ? "rgba(0,0,0,.08)" : "rgba(0,0,0,.14)"));
+    if (opts.big) c.append(el("span", { class: "big", "aria-hidden": "true" }, opts.big));
+    c.append(el("span", { class: "ttl" }, opts.full ? V.name(it.repo) : V.name(it.repo)), el("span", { class: "owner" }, V.owner(it.repo)));
+    if (opts.tag) c.append(el("span", { class: "tag" }, opts.tag));
+    if (!opts.noHeart) {
+      const heart = el("button", { class: "heart" + (P.fav.has(it.repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(it.repo)), "aria-label": it.repo + " をお気に入り" }, "♥");
+      heart.addEventListener("click", (e) => { e.stopPropagation(); const on = P.fav.toggle(it.repo); heart.classList.toggle("on", on); heart.setAttribute("aria-pressed", String(on)); });
+      heart.addEventListener("keydown", (e) => e.stopPropagation());
+      c.append(heart);
+    }
+    return c;
+  }
+  function meta(it, val, trending) {
+    return el("div", { class: "meta" },
+      el("span", {}, el("i", { class: "dot", style: `background:${V.langColor(it.lang)}` }), it.lang),
+      val ? el("span", { class: "st num" }, val) : "",
+      trending ? V.changeEl(it.repo) : it.delta == null ? el("span", { class: "chg new" }, "NEW") : "");
+  }
+  function streakLine(it) {
+    const n = streakOf(it.repo);
+    return el("div", { class: "streak", title: "連続登場日数（仮データ）" }, n > 1 ? ["連続 ", el("b", {}, n + "日"), reappear(it.repo) ? "・再登場" : ""] : "初登場");
+  }
+
+  function closeSheet() {
+    const sh = document.getElementById("sheet");
+    sh.classList.remove("on");
+    if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+    lastFocus = null;
+  }
+  function openSheet(it, from) {
+    const sh = document.getElementById("sheet");
+    lastFocus = from || document.activeElement;
+    const hist = P.history(it.repo, it.stars);
+    const vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals), W = 600, H = 80;
+    let d = "", pen = false;
+    const dots = [];
+    hist.forEach((p, i) => {
+      if (p.stars == null) { pen = false; return; }
+      const x = ((i / (hist.length - 1)) * W).toFixed(1), y = (H - ((p.stars - lo) / Math.max(1, hi - lo)) * H).toFixed(1);
+      d += (pen ? "L" : "M") + x + " " + y; pen = true;
+      if (i === hist.length - 1) dots.push(s("circle", { cx: x, cy: y, r: 6, fill: "#d92b12" }));
+    });
+    const x = el("button", { class: "x", type: "button", "aria-label": "閉じる" }, "×");
+    x.addEventListener("click", closeSheet);
+    sh.replaceChildren(x, el("h3", {}, it.repo), el("p", {}, it.summary), el("p", { class: "en" }, it.desc),
+      s("svg", { class: "line", viewBox: `0 -8 ${W} ${H + 16}`, preserveAspectRatio: "none", role: "img", "aria-label": "★の推移" }, s("path", { d, fill: "none", stroke: "#141414", "stroke-width": 3, "vector-effect": "non-scaling-stroke" }), ...dots),
+      el("p", { class: "en" }, `★の推移（${hist[0].date.slice(5).replace("-", "/")} から。線が途切れている所は記録の無い日）／総★ ${P.fmt(it.stars)}`));
+    sh.classList.add("on");
+    x.focus({ preventScroll: true });
+  }
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSheet(); });
+
+  function cardActivate(c, it) {
+    c.addEventListener("click", () => openSheet(it, c));
+    c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSheet(it, c); } });
+  }
+
+  function briefing(items) {
+    const cnt = {};
+    items.forEach((it) => { cnt[it.lang] = (cnt[it.lang] || 0) + 1; });
+    const top = Object.entries(cnt).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, 2);
+    const first = P.data.DATES.indexOf(P.date) === 0;
+    const nw = items.filter((it) => V.change(it.repo).kind === "new").length;
+    return `今日は ${top.map((t) => t[0]).join(" と ")} が強い（${top.map((t) => t[1] + "件").join("・")}）。` + (first ? "初日なので前日との比較はなし。" : `初登場の新顔が ${nw} 件。`);
+  }
+
+  function render() {
+    const day = P.day, items = day.trending.items, one = items[0];
+    if (!tab || !day.topics.some((t) => t.id === tab)) tab = day.topics[0].id;
+    closeSheetQuiet();
+    const days = el("div", { class: "days", role: "group", "aria-label": "日付" }, P.data.DATES.map((d) => {
+      const b = el("button", { type: "button", "aria-current": String(d === P.date) }, `${+d.slice(5, 7)}/${+d.slice(8)}(${P.weekday(d)})`);
+      b.addEventListener("click", () => P.setDate(d));
+      return b;
+    }));
+    const pickCover = cover(one, { big: "1", noHeart: false });
+    pickCover.setAttribute("tabindex", "0"); pickCover.setAttribute("role", "button"); pickCover.setAttribute("aria-label", "1位 " + one.repo + " の詳しい表示");
+    cardActivate(pickCover, one);
+    const st1 = el("span", { class: "st num" }, "★+" + P.fmt(one.today));
+    const grid = el("div", { class: "grid" }, items.slice(1).map((it) => {
+      const isNew = V.change(it.repo).kind === "new" && P.data.DATES.indexOf(P.date) > 0;
+      const c = el("article", { class: "card", tabindex: "0", "aria-label": `${it.rank}位 ${it.repo}` },
+        cover(it, isNew ? { tag: "初登場" } : null),
+        el("div", { class: "rank", "aria-hidden": "true" }, it.rank),
+        el("h4", {}, it.repo), el("p", {}, it.summary), meta(it, "★+" + P.fmt(it.today), true), streakLine(it));
+      cardActivate(c, it);
+      return c;
+    }));
+    const topic = day.topics.find((t) => t.id === tab);
+    const tabs = el("div", { class: "tabs", role: "tablist", "aria-label": "関心領域" }, day.topics.map((t) => {
+      const b = el("button", { type: "button", role: "tab", "aria-selected": String(t.id === topic.id) }, t.label);
+      b.addEventListener("click", () => { tab = t.id; render(); });
+      return b;
+    }));
+    const shelf = el("section", { class: "shelf" },
+      el("div", { class: "sec" }, el("h3", { class: "dela" }, "関心領域の棚"), el("span", {}, "前日比の★が多い順・横にスクロール")),
+      tabs,
+      el("div", { class: "shelfrow", tabindex: "0", role: "region", "aria-label": topic.label + " の一覧" }, topic.items.map((it) => {
+        const c = el("article", { class: "card", tabindex: "0" }, cover(it, it.delta == null ? { tag: "NEW" } : null), el("h4", {}, V.name(it.repo)), el("p", {}, it.summary), meta(it, it.delta == null ? "" : "★+" + P.fmt(it.delta), false));
+        cardActivate(c, it);
+        return c;
+      })));
+    const hallItems = items.filter((it) => streakOf(it.repo) >= 7);
+    const hall = hallItems.length ? el("div", { class: "hall" }, el("span", { class: "fuda" }, "殿堂入り（仮）"), "7日以上連続で載っている: " + hallItems.slice(0, 4).map((it) => V.name(it.repo)).join("、") + (hallItems.length > 4 ? ` ほか${hallItems.length - 4}件` : "")) : "";
+    const d0 = P.data.DATES[0];
+
+    document.getElementById("app").replaceChildren(
+      el("div", { class: "top" },
+        el("div", { class: "datebox" }, el("b", { class: "dela" }, `${+day.date.slice(5, 7)}.${+day.date.slice(8)}`), el("span", {}, P.weekday(day.date) + "曜のランキング")),
+        el("div", { class: "title" }, el("h1", { class: "dela" }, "GitHub 急上昇"), el("p", { class: "num" }, `Trending 25件と関心領域。${day.updatedAt.slice(11, 16)} JST 更新`)),
+        days),
+      P.state === "stale" ? el("div", { class: "stale", role: "status" }, `更新が2日止まっています（表示は ${+d0.slice(5, 7)}/${+d0.slice(8)} の記録）`) : "",
+      el("div", { class: "brief" }, el("span", { class: "fuda" }, "今日の概況"), el("span", {}, briefing(items))),
+      el("section", { class: "pick" }, pickCover,
+        el("div", {}, el("span", { class: "lab" }, "今日のイチオシ"), el("h2", {}, one.repo), el("p", {}, one.summary), meta(one, "★+" + P.fmt(one.today), true), streakLine(one))),
+      el("div", { class: "sec" }, el("h3", { class: "dela" }, "2位から25位"), el("span", {}, "押すと下から詳しく・♥でお気に入り")),
+      grid, hall, shelf,
+      el("footer", {}, "案J「ランキング誌・改」— マンガアプリのランキングの文法（表紙・表紙に重なる大きな順位・今日のイチオシ・初登場の札）。表紙の模様は言語ごとの仮の絵で、本番は持ち主のアバターや SNS 用の画像。連続日数・殿堂入りは仮データ。データは架空。"));
+  }
+  function closeSheetQuiet() { document.getElementById("sheet").classList.remove("on"); }
+  P.onDate(render);
+  render();
+})();
+</script>
+</body>
+</html>

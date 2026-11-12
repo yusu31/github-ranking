@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案R チャート番組 — github-ranking v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff; --ink: #0a0a0a; --sub: #4d4d4d; --line: #0a0a0a; --soft: #f2f2f2;
+  --lime: #c6ff00;
+  --up: #0a7a2e; --down: #c4162a; --new: #0a0a0a;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "Noto Sans JP", sans-serif; font-weight: 700; line-height: 1.55; font-size: 14px; line-break: strict; word-break: auto-phrase; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 4px solid var(--ink); outline-offset: 2px; }
+.num, .big { font-variant-numeric: tabular-nums; }
+.big { font-family: "Dela Gothic One", "Noto Sans JP", sans-serif; font-weight: 400; }
+.app { max-width: 1040px; margin: 0 auto; padding: 0 0 40px; overflow-x: clip; }
+
+/* 局のロゴと見出し */
+.top { display: flex; align-items: center; gap: 14px; background: var(--ink); color: #fff; padding: 12px 16px; }
+.top svg { flex: none; }
+.top .stn { font-size: 12px; letter-spacing: .12em; color: var(--lime); }
+.top h1 { margin: 0; font-family: "Dela Gothic One", sans-serif; font-weight: 400; font-size: 34px; line-height: 1.1; }
+.top .upd { margin-left: auto; text-align: right; font-size: 13px; color: #fff; }
+.telop { background: var(--lime); color: var(--ink); font-weight: 900; font-size: 16px; padding: 8px 16px; border-bottom: 4px solid var(--ink); position: relative; overflow: hidden; }
+.telop b { background: var(--ink); color: var(--lime); padding: 0 8px; margin-right: 10px; }
+.telop .flash { position: absolute; inset: 0; background: var(--ink); color: var(--lime); display: flex; align-items: center; padding: 0 16px; transform: translateX(-101%); }
+.bar { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; padding: 12px 16px; border-bottom: 2px solid var(--ink); }
+.lab { font-size: 12px; color: var(--sub); margin-right: 6px; }
+.days, .genres { display: flex; gap: 6px; flex-wrap: wrap; }
+.days button, .genres button { background: #fff; border: 3px solid var(--ink); padding: 3px 14px; font-weight: 900; font-size: 14px; }
+.days button[aria-current="true"], .genres button[aria-selected="true"] { background: var(--ink); color: var(--lime); }
+.stale { background: #fff; border: 4px solid var(--down); color: var(--down); margin: 12px 16px 0; padding: 8px 12px; font-weight: 900; }
+.hall { margin: 12px 16px 0; display: inline-block; background: var(--ink); color: #fff; padding: 4px 12px; font-size: 13.5px; }
+.hall b { background: var(--lime); color: var(--ink); padding: 0 8px; margin-right: 8px; }
+
+/* 1位 */
+.hero { display: grid; grid-template-columns: 220px 1fr; gap: 24px; padding: 20px 16px; border-bottom: 4px solid var(--ink); align-items: center; cursor: pointer; }
+.hero .jk { position: relative; width: 220px; height: 220px; border: 4px solid var(--ink); box-shadow: 10px 10px 0 var(--lime), 10px 10px 0 3px var(--ink); }
+.hero .jk .ident { display: block; width: 100%; height: 100%; }
+.hero .no1 { font-size: 96px; line-height: .9; background: var(--lime); display: inline-block; padding: 0 8px; border: 4px solid var(--ink); }
+.hero h2 { margin: 10px 0 4px; font-size: 32px; font-weight: 900; line-height: 1.2; word-break: break-all; }
+.hero h2 span { color: var(--sub); font-weight: 700; font-size: 18px; }
+.hero .intro { font-size: 18px; font-weight: 700; line-height: 1.6; margin: 0 0 8px; max-width: 34em; }
+.hero .intro::before { content: "紹介 "; background: var(--ink); color: var(--lime); padding: 0 8px; margin-right: 6px; font-size: 13px; }
+.hero .facts { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; }
+
+/* チャート表 */
+.head, .row { display: grid; grid-template-columns: 76px 56px 56px 84px 52px minmax(0,1fr) 110px 46px; gap: 10px; align-items: center; padding: 8px 16px; grid-template-areas: "rk pv dy st jk tt sr fv"; }
+.head { background: var(--ink); color: #fff; font-size: 12px; text-align: center; padding-top: 4px; padding-bottom: 4px; }
+.head span:nth-child(6) { text-align: left; }
+.chart { border-bottom: 4px solid var(--ink); }
+.item { border-bottom: 2px solid var(--ink); }
+.item:nth-child(even) { background: var(--soft); }
+.item.openx { background: #f9ffd9; }
+.row { cursor: pointer; }
+.row:hover { background: #f4ffc2; }
+.rk { grid-area: rk; font-size: 44px; line-height: 1; text-align: center; }
+.item.pod .rk { background: var(--lime); border: 3px solid var(--ink); padding: 2px 0; }
+.pv { grid-area: pv; text-align: center; font-size: 18px; font-weight: 900; }
+.dy { grid-area: dy; text-align: center; font-size: 18px; font-weight: 900; }
+.dy small, .pv small { font-family: "Noto Sans JP", sans-serif; display: block; font-size: 11px; font-weight: 500; color: var(--sub); line-height: 1; }
+.meta { display: contents; }
+.stt { grid-area: st; text-align: center; font-size: 13px; font-weight: 900; }
+.stt .badge { display: inline-block; padding: 0 8px; border: 2px solid var(--ink); }
+.stt .badge.new { background: var(--ink); color: var(--lime); }
+.stt .badge.re { background: var(--lime); }
+.chgl { display: block; font-size: 13px; margin-top: 2px; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.same { color: var(--sub); }
+.chg.new { background: var(--ink); color: var(--lime); padding: 0 6px; }
+.jk2 { grid-area: jk; } .jk2 .ident { display: block; border: 2px solid var(--ink); }
+.tt { grid-area: tt; min-width: 0; }
+.tt b { display: block; font-size: 17px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tt b span { color: var(--sub); font-weight: 500; }
+.tt p { margin: 0; font-size: 14px; font-weight: 500; line-height: 1.5; }
+.tt .lang { font-size: 12.5px; color: var(--sub); }
+.sr { grid-area: sr; text-align: right; font-size: 22px; }
+.sr small { display: block; font-family: "Noto Sans JP", sans-serif; font-size: 11px; color: var(--sub); }
+.fav { grid-area: fv; width: 44px; height: 44px; border: 3px solid var(--ink); background: #fff; font-size: 20px; }
+.fav.on { background: var(--lime); }
+.more { padding: 4px 16px 16px 150px; display: grid; gap: 8px; }
+.more .en { font-weight: 500; color: var(--sub); word-break: break-word; }
+.bars { display: flex; align-items: flex-end; gap: 4px; height: 70px; max-width: 520px; }
+.bars i { flex: 1; background: var(--ink); }
+.bars i.miss { background: transparent; border: 2px dashed var(--sub); height: 100% !important; }
+.bars i.last { background: var(--lime); border: 2px solid var(--ink); }
+.cap { display: flex; justify-content: space-between; max-width: 520px; font-size: 12.5px; color: var(--sub); font-weight: 500; }
+footer { padding: 16px; font-size: 12.5px; color: var(--sub); font-weight: 500; line-height: 1.7; }
+
+@media (max-width: 640px) {
+  .top h1 { font-size: 26px; } .top .upd { display: none; }
+  .hero { grid-template-columns: 1fr; gap: 16px; }
+  .hero .jk { width: 150px; height: 150px; } .hero .jk .ident { width: 150px; height: 150px; } .hero .no1 { font-size: 72px; } .hero h2 { font-size: 26px; }
+  .head { display: none; }
+  .row { grid-template-columns: 56px 48px minmax(0,1fr) 44px; grid-template-areas: "rk jk tt fv" ". meta meta meta"; row-gap: 4px; }
+  .meta { display: flex; grid-area: meta; flex-wrap: wrap; gap: 4px 14px; align-items: center; font-size: 13px; }
+  .meta > * { text-align: left; font-size: 13px; }
+  .meta .pv small, .meta .dy small { display: inline; margin-right: 4px; }
+  .pv, .dy, .stt, .sr { grid-area: auto; }
+  .sr { font-size: 17px; order: -1; } .sr small { display: inline; margin-right: 4px; }
+  .pv, .dy { font-size: 15px; }
+  .rk { font-size: 34px; }
+  .more { padding-left: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .telop .flash { display: none; } }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, V = V3;
+  let open = null, tab = "all";
+  const days = (repo) => 1 + V.hash(repo) % 10; // 仮データ
+  const dateIdx = () => P.data.DATES.indexOf(P.date);
+
+  // 先週（=前日）の順位。最初の日は比べる前日が無い
+  function prevRank(repo, rank) {
+    const c = V.change(repo);
+    if (dateIdx() <= 0 || c.kind === "new") return null;
+    return c.kind === "up" ? rank + c.n : c.kind === "down" ? rank - c.n : rank;
+  }
+  function status(repo) {
+    const c = V.change(repo);
+    if (dateIdx() <= 0) return V.hash(repo) % 4 === 0 ? "new" : "cont";
+    if (c.kind === "new") return "new";
+    return V.hash(repo + "r") % 5 === 0 ? "re" : "cont";
+  }
+  function summaryText(items) {
+    const cnt = {}; items.forEach((i) => { cnt[i.lang] = (cnt[i.lang] || 0) + 1; });
+    const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 2).map((e) => e[0]);
+    const news = items.filter((i) => V.change(i.repo).kind === "new").length;
+    return `今日は ${top.join(" と ")} が強い。新顔が${news}件`;
+  }
+  function logo() {
+    // 自作の局ロゴ: 3本のバーが並ぶチャートを丸で囲んだ形
+    return P.svg("svg", { width: 46, height: 46, viewBox: "0 0 46 46", "aria-hidden": "true" },
+      P.svg("circle", { cx: 23, cy: 23, r: 21, fill: "#c6ff00" }),
+      P.svg("rect", { x: 11, y: 24, width: 6, height: 11, fill: "#0a0a0a" }),
+      P.svg("rect", { x: 20, y: 14, width: 6, height: 21, fill: "#0a0a0a" }),
+      P.svg("rect", { x: 29, y: 19, width: 6, height: 16, fill: "#0a0a0a" }),
+      P.svg("path", { d: "M8 38 H38", stroke: "#0a0a0a", "stroke-width": 3 }));
+  }
+
+  function favBtn(repo) {
+    const b = el("button", { class: "fav" + (P.fav.has(repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(repo)), "aria-label": repo + " をお気に入り" }, "★");
+    b.addEventListener("click", (e) => { e.stopPropagation(); const on = P.fav.toggle(repo); b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+    return b;
+  }
+  function more(it) {
+    const hist = P.history(it.repo, it.stars);
+    const vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    return el("div", { class: "more" },
+      el("div", { class: "en" }, it.desc),
+      el("div", { class: "bars", role: "img", "aria-label": "★の推移" }, hist.map((h, i) => el("i", { class: h.stars == null ? "miss" : i === hist.length - 1 ? "last" : "", title: h.date + " ★" + P.fmt(h.stars), style: h.stars == null ? "" : `height:${12 + ((h.stars - lo) / Math.max(1, hi - lo)) * 88}%` }))),
+      el("div", { class: "cap" }, el("span", {}, hist[0].date.slice(5).replace("-", "/") + " から（点線は記録の無い日）"), el("span", { class: "num" }, "総★ " + P.fmt(it.stars))));
+  }
+  function item(it, n, genre) {
+    const isOpen = open === it.repo;
+    const pr = genre ? null : prevRank(it.repo, n);
+    const st = genre ? (it.delta == null ? "new" : "cont") : status(it.repo);
+    const d = st === "new" ? 1 : days(it.repo);
+    const score = genre ? (it.delta == null ? "NEW" : "+" + P.fmt(it.delta)) : "+" + P.fmt(it.today);
+    const r = el("div", { class: "row", tabindex: "0", role: "button", "aria-expanded": String(isOpen) },
+      el("div", { class: "rk big" }, n),
+      el("div", { class: "meta" },
+        el("div", { class: "pv big" }, el("small", {}, "先週"), pr == null ? "—" : pr),
+        el("div", { class: "dy big" }, el("small", {}, "登場"), d + "日"),
+        el("div", { class: "stt" }, el("span", { class: "badge " + st }, st === "new" ? "初登場" : st === "re" ? "再登場" : "継続"), genre ? "" : V.changeEl(it.repo, "chg chgl")),
+        el("div", { class: "sr big" }, el("small", {}, "今日の★増"), score)),
+      el("div", { class: "jk2" }, V.identicon(V.owner(it.repo), 52, 0)),
+      el("div", { class: "tt" }, el("b", {}, el("span", {}, V.owner(it.repo) + "/"), V.name(it.repo)), el("p", {}, it.summary), el("span", { class: "lang" }, it.lang + " ・ 登場日数は仮データ")),
+      favBtn(it.repo));
+    const wrap = el("div", { class: "item" + (n <= 3 ? " pod" : "") + (isOpen ? " openx" : ""), "data-repo": it.repo }, r);
+    if (isOpen) wrap.append(more(it));
+    const toggle = () => { open = isOpen ? null : it.repo; render(false); };
+    r.addEventListener("click", toggle);
+    r.addEventListener("keydown", (e) => { if (e.target !== r) return; if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+    return wrap;
+  }
+
+  // 日付切り替え: 前の画面と同じ作品は新しい位置へ滑り、新顔は右から入る。上に速報の帯が流れる
+  function snapshot() { const m = {}; document.querySelectorAll(".item[data-repo]").forEach((n) => { m[n.dataset.repo] = n.getBoundingClientRect().top; }); return m; }
+
+  function render(animate, before, flashText) {
+    const day = P.day, items = day.trending.items, app = document.getElementById("app");
+    const dayBtns = el("div", { class: "days", role: "group", "aria-label": "日付" }, P.data.DATES.map((d) => {
+      const b = el("button", { type: "button", "aria-current": String(d === P.date) }, `${+d.slice(5, 7)}/${+d.slice(8)}（${P.weekday(d)}）`);
+      b.addEventListener("click", () => { if (d === P.date) return; open = null; const snap = snapshot(); const from = P.date; P.setDate(d); render(true, snap, `${+from.slice(5, 7)}/${+from.slice(8)} → ${+d.slice(5, 7)}/${+d.slice(8)} 順位が入れ替わりました`); });
+      return b;
+    }));
+    const genreDefs = [{ id: "all", label: "総合" }].concat(day.topics);
+    const genres = el("div", { class: "genres", role: "tablist", "aria-label": "ジャンル別チャート" }, genreDefs.map((t) => {
+      const b = el("button", { type: "button", role: "tab", "aria-selected": String(t.id === tab) }, t.label);
+      b.addEventListener("click", () => { tab = t.id; open = null; render(false); });
+      return b;
+    }));
+    const genre = tab !== "all";
+    const topic = genre ? (day.topics.find((t) => t.id === tab) || day.topics[0]) : null;
+    const list = genre ? topic.items : items;
+    const one = list[0];
+    const best = items.reduce((a, b) => (days(b.repo) > days(a.repo) ? b : a));
+
+    const chart = el("div", { class: "chart", role: "list" }, list.slice(1).map((it, i) => item(it, i + 2, genre)));
+    const hero = el("div", { class: "hero", tabindex: "0", role: "button", "aria-label": "1位 " + one.repo + " の詳細" },
+      el("div", { class: "jk" }, V.identicon(V.owner(one.repo), 212, 0)),
+      el("div", {},
+        el("div", { class: "no1 big" }, "No.1"),
+        el("h2", {}, el("span", {}, V.owner(one.repo) + "/"), V.name(one.repo)),
+        el("p", { class: "intro" }, one.summary),
+        el("div", { class: "facts num" }, el("span", {}, "今日の★増 " + (genre ? (one.delta == null ? "NEW" : "+" + P.fmt(one.delta)) : "+" + P.fmt(one.today))), el("span", {}, "総★ " + P.fmt(one.stars)), el("span", {}, one.lang), genre ? "" : V.changeEl(one.repo, "chg"), el("span", {}, (genre || status(one.repo) === "new" ? 1 : days(one.repo)) + "日登場（仮）"), favBtn(one.repo))));
+    hero.addEventListener("click", () => { open = open === one.repo ? null : one.repo; render(false); });
+    hero.addEventListener("keydown", (e) => { if (e.target !== hero) return; if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open = open === one.repo ? null : one.repo; render(false); } });
+
+    const flash = el("div", { class: "flash", "aria-hidden": "true" }, "速報 ｜ " + (flashText || ""));
+    app.replaceChildren(
+      el("div", { class: "top" }, logo(),
+        el("div", {}, el("div", { class: "stn" }, "GITHUB CHART TV"), el("h1", {}, genre ? topic.label + " TOP" + list.length : "今日の TOP" + list.length)),
+        el("div", { class: "upd num" }, day.updatedAt.slice(11, 16) + " JST 更新", el("br"), "第" + day.issueNo + "回")),
+      el("div", { class: "telop" }, el("b", {}, "概況"), summaryText(items), flash),
+      el("div", { class: "bar" }, el("div", { class: "days-wrap" }, el("span", { class: "lab" }, "放送日"), dayBtns), el("div", { class: "days-wrap" }, el("span", { class: "lab" }, "ジャンル別チャート"), genres)),
+      days(best.repo) >= 7 ? el("div", { class: "hall" }, el("b", {}, "殿堂入り（仮）"), V.name(best.repo) + " は " + days(best.repo) + "日連続で登場中") : "",
+      P.state === "stale" ? el("div", { class: "stale", role: "status" }, "⚠ 更新が2日止まっています。表示は 11/10 の記録です。") : "",
+      hero,
+      open === one.repo ? el("div", { class: "item openx" }, more(one)) : "",
+      el("div", { class: "head", "aria-hidden": "true" }, el("span", {}, "今週"), el("span", {}, "先週"), el("span", {}, "登場"), el("span", {}, "状態"), el("span", {}, ""), el("span", {}, "曲紹介（要約）"), el("span", {}, "★増"), el("span", {}, "")),
+      chart,
+      el("footer", {}, "案R「チャート番組」— 音楽ランキング番組の文法（左に大きな順位・先週の順位・登場日数・初登場／再登場の表、1位は大きなジャケット、日付の切り替えは速報のスライド）。ジャケットは初期アバター風の模様。登場日数・再登場は仮データ。"));
+
+    if (animate && before && !P.reduced()) {
+      document.querySelectorAll(".item[data-repo]").forEach((n, i) => {
+        const y0 = before[n.dataset.repo], y1 = n.getBoundingClientRect().top;
+        if (y0 == null) n.animate([{ transform: "translateX(110%)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 520, delay: i * 15, easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" });
+        else if (Math.abs(y0 - y1) > 1) n.animate([{ transform: `translateY(${y0 - y1}px)` }, { transform: "none" }], { duration: 650, easing: "cubic-bezier(.2,.8,.2,1)" });
+      });
+      const f = document.querySelector(".telop .flash");
+      if (f) f.animate([{ transform: "translateX(-101%)" }, { transform: "none", offset: .15 }, { transform: "none", offset: .8 }, { transform: "translateX(101%)" }], { duration: 2200, easing: "ease-in-out" });
+    }
+  }
+  render(false);
+})();
+</script>
+</body>
+</html>
