@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案A 発車標 — github-ranking v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+:root {
+  --housing: #2b2c2e;
+  --frame: #3b3d40;
+  --panel: #060606;
+  --off: rgba(255,255,255,.045);
+  --orange: #ff9a2e;
+  --green: #72e070;
+  --red: #ff5b4b;
+  --yellow: #ffd64a;
+  --white: #eeede4;
+  --dim: #6f6b62;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--housing);
+  color: var(--white);
+  font-family: "DotGothic16", monospace;
+  -webkit-font-smoothing: none;
+  padding: 28px 16px 48px;
+}
+.led { text-shadow: 0 0 6px currentColor; text-shadow: 0 0 6px color-mix(in srgb, currentColor 38%, transparent); }
+
+/* 吊り下げの案内サイン（駅の白いサイン） */
+.sign {
+  max-width: 1180px; margin: 0 auto 14px;
+  display: flex; align-items: stretch; gap: 0;
+  background: #f4f4f1; color: #1d1d1d;
+  font-family: "DotGothic16", sans-serif;
+  border-radius: 2px;
+}
+.sign .no { background: #1d1d1d; color: #f4f4f1; padding: 10px 16px; font-size: 26px; display: grid; place-items: center; min-width: 64px; }
+.sign .name { padding: 8px 18px; display: flex; flex-direction: column; justify-content: center; }
+.sign .name b { font-size: 24px; font-weight: 400; letter-spacing: .08em; }
+.sign .name small { font-size: 12px; letter-spacing: .12em; color: #555; }
+.sign .when { margin-left: auto; padding: 8px 18px; text-align: right; display: flex; flex-direction: column; justify-content: center; font-size: 13px; color: #444; }
+.sign .when strong { font-size: 20px; font-weight: 400; color: #1d1d1d; }
+
+/* 掲示板の筐体 */
+.board {
+  max-width: 1180px; margin: 0 auto;
+  background: var(--frame);
+  padding: 10px;
+  border-radius: 3px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.panel {
+  background-color: var(--panel);
+  background-image: radial-gradient(circle, var(--off) 0.9px, transparent 1.3px);
+  background-size: 4px 4px;
+  padding: 6px 14px 10px;
+}
+.bar { display: flex; align-items: center; gap: 14px; padding: 6px 0 8px; border-bottom: 1px solid #1d1d1d; font-size: 14px; color: var(--dim); }
+.bar .title { color: var(--white); font-size: 16px; letter-spacing: .1em; }
+.bar .mode { color: var(--yellow); min-width: 7.5em; }
+.bar .spacer { flex: 1; }
+.btn {
+  font: inherit; color: var(--white); background: transparent;
+  border: 1px solid #3a3a3a; padding: 4px 10px; cursor: pointer; border-radius: 2px;
+}
+.btn:hover { border-color: var(--orange); color: var(--orange); }
+.btn:active { background: #1a1208; }
+.btn:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+.btn[disabled] { color: #3a3a3a; border-color: #222; cursor: default; }
+
+/* 行（列: 種別｜順位｜行先＝リポジトリ｜要約｜今日の★｜総★｜☆） */
+.head, .row {
+  display: grid;
+  grid-template-columns: 6.4rem 4.6rem minmax(13rem, 1.6fr) minmax(11rem, 1.5fr) 7.4rem 6.4rem 2.4rem;
+  min-width: 0;
+  align-items: center; column-gap: 14px;
+}
+.head { font-size: 12px; color: var(--dim); padding: 8px 4px 4px; letter-spacing: .1em; }
+.head span:nth-child(5), .head span:nth-child(6) { text-align: right; }
+.row {
+  padding: 6px 4px; font-size: 19px; cursor: pointer;
+  border-top: 1px solid #141414;
+}
+.row:hover { background: rgba(255,154,46,.05); }
+.row:focus-visible { outline: 1px solid var(--yellow); outline-offset: -1px; }
+.row.sel { background: rgba(255,214,74,.07); }
+.row.lead { font-size: 27px; padding: 10px 4px; }
+.row .kind {
+  font-size: .62em; text-align: center; padding: 3px 0; border: 1px solid currentColor; letter-spacing: .05em;
+}
+.row.lead .kind { font-size: .5em; }
+.row .kind.k1 { background: var(--white); color: #0b0b0b; border-color: var(--white); }
+.row .kind.k2 { color: var(--white); }
+.row .kind.k3 { color: var(--dim); }
+.row .en { display: none; }
+.alt-en .row .ja { display: none; }
+.alt-en .row .en { display: inline; }
+.row .rank { color: var(--white); font-size: .82em; }
+.row .rank em { font-style: normal; color: var(--orange); }
+.row .repo { color: var(--orange); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .repo .owner { color: #b8762a; }
+.row .say { color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .8em; }
+.row .say .en { color: #cfd8c4; }
+.say.refresh { animation: scan .42s steps(7, end); }
+@keyframes scan { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+.row .today { color: var(--green); text-align: right; }
+.row .total { color: var(--dim); text-align: right; font-size: .78em; }
+.star {
+  font: inherit; font-size: .9em; background: none; border: 0; color: #4b4740; cursor: pointer; padding: 0; width: 1.6em;
+}
+.star.on { color: var(--yellow); text-shadow: 0 0 6px rgba(255,214,74,.45); }
+.star:focus-visible { outline: 1px solid var(--yellow); }
+.star.pop { animation: pop .3s ease-out; }
+@keyframes pop { 50% { transform: scale(1.35); } }
+.lead-label { color: var(--yellow); font-size: 12px; letter-spacing: .2em; }
+.sep { color: var(--dim); font-size: 12px; padding: 10px 4px 2px; letter-spacing: .2em; border-top: 1px dashed #262626; margin-top: 4px; }
+
+/* 案内の帯（選んだ行の詳しい表示） */
+.info { border-top: 2px solid #1d1d1d; margin-top: 8px; padding: 12px 4px 4px; display: grid; grid-template-columns: 1fr 1.1fr; gap: 24px; min-height: 150px; }
+.info h3 { margin: 0 0 6px; font-weight: 400; font-size: 20px; color: var(--orange); word-break: break-all; }
+.info p { margin: 0 0 6px; font-size: 15px; line-height: 1.6; }
+.info p.en { color: #b9c2ae; font-size: 13px; word-break: break-word; }
+.info .hint { color: var(--dim); font-size: 13px; }
+.dots { display: flex; align-items: flex-end; gap: 3px; height: 96px; }
+.dots .col { display: flex; flex-direction: column-reverse; gap: 2px; align-items: center; }
+.dots .col i { width: 7px; height: 4px; background: var(--green); box-shadow: 0 0 4px rgba(114,224,112,.35); display: block; }
+.dots .col.miss b { color: var(--red); font-size: 12px; font-weight: 400; }
+.dots .col.last i { background: var(--yellow); }
+.axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--dim); margin-top: 4px; }
+
+/* のりば（関心領域） */
+.platforms { max-width: 1180px; margin: 18px auto 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; }
+.plat .panel { padding: 4px 12px 8px; }
+.plat .ptitle { display: flex; align-items: baseline; gap: 10px; padding: 8px 0 6px; border-bottom: 1px solid #1d1d1d; }
+.plat .ptitle .pn { background: var(--white); color: #111; padding: 0 6px; font-size: 13px; }
+.plat .ptitle b { font-weight: 400; font-size: 17px; letter-spacing: .06em; }
+.plat .ptitle small { margin-left: auto; color: var(--dim); font-size: 11px; }
+.prow { display: grid; grid-template-columns: 1fr 4.6em 1.8em; gap: 10px; align-items: center; padding: 5px 0; border-top: 1px solid #141414; font-size: 15px; cursor: pointer; }
+.prow:hover { background: rgba(255,154,46,.05); }
+.prow .repo { color: var(--orange); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prow .sub { display: block; color: #cfcbbf; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.prow .d { color: var(--green); text-align: right; }
+.prow .new { color: var(--red); text-align: right; font-size: 13px; }
+
+/* お知らせ（更新停止） */
+.notice { overflow: hidden; white-space: nowrap; color: var(--red); font-size: 16px; padding: 6px 0; border-bottom: 1px solid #1d1d1d; }
+.notice span { display: inline-block; padding-left: 100%; animation: marquee 16s linear infinite; }
+@keyframes marquee { to { transform: translateX(-100%); } }
+
+footer { max-width: 1180px; margin: 20px auto 0; color: #8b8a85; font-family: system-ui, sans-serif; font-size: 12px; }
+
+@media (max-width: 760px) {
+  body { padding: 16px 8px 40px; }
+  .sign .when { display: none; }
+  .head { display: none; }
+  .row, .row.lead {
+    grid-template-columns: 3.4em minmax(0, 1fr) auto 1.6em;
+    grid-template-areas: "rank repo repo star" "kind say today today";
+    row-gap: 4px; column-gap: 10px; font-size: 16px;
+  }
+  .row.lead { font-size: 18px; }
+  .row .today { font-size: .9em; }
+  .row .rank em { font-size: .8em; }
+  .row .rank { grid-area: rank; } .row .repo { grid-area: repo; } .row .today { grid-area: today; }
+  .row .star { grid-area: star; } .row .say { grid-area: say; font-size: 13px; } .row .total { display: none; }
+  .row .kind { grid-area: kind; font-size: 10px !important; padding: 1px 0; }
+  .info { grid-template-columns: 1fr; }
+  .bar { flex-wrap: wrap; gap: 8px; }
+  .platforms { grid-template-columns: minmax(0, 1fr); }
+  .prow { grid-template-columns: minmax(0, 1fr) 4.6em 1.8em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .say.refresh, .star.pop { animation: none; }
+  .notice span { animation: none; padding-left: 0; }
+}
+</style>
+</head>
+<body>
+<div class="sign" aria-hidden="false">
+  <div class="no">1</div>
+  <div class="name"><b>急上昇 のりば</b><small>GITHUB TRENDING ／ DAILY</small></div>
+  <div class="when"><span>更新</span><strong id="updated"></strong></div>
+</div>
+
+<main class="board">
+  <div class="panel" id="main">
+    <div id="notice"></div>
+    <div class="bar">
+      <span class="title led">本日の発車順</span>
+      <span class="mode led" id="mode">表示：日本語</span>
+      <span class="spacer"></span>
+      <button class="btn" id="pause" type="button">切替を止める</button>
+      <button class="btn" id="prev" type="button">◀ 前日</button>
+      <span id="date" class="led"></span>
+      <button class="btn" id="next" type="button">翌日 ▶</button>
+    </div>
+    <div class="head" aria-hidden="true"><span>種別</span><span>順位</span><span>行先（リポジトリ）</span><span>案内（1行要約）</span><span>今日の★</span><span>総★</span><span></span></div>
+    <div id="rows" role="list"></div>
+    <section class="info" id="info" aria-live="polite"></section>
+  </div>
+</main>
+
+<section class="platforms" id="platforms" aria-label="関心領域"></section>
+<footer>案A「発車標」— 駅の LED 発車標の文法を借りる。要約は実物の発車標のように日本語と英語を交互に出す（行に触れると止まる）。データは架空。</footer>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/common.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el;
+  // 種別は実物と同じく「段」を表す（色は意味で固定: 橙＝文字・緑＝★の増加・赤＝お知らせと新顔）
+  const kindOf = (i) => (i < 3 ? ["特急", "LTD.EXP", "k1"] : i < 10 ? ["急行", "EXPRESS", "k2"] : ["各停", "LOCAL", "k3"]);
+  const LEADS = [["先発", "Next"], ["次発", "Then"], ["次々発", "After"]];
+  let selected = null;
+  let en = false, paused = P.reduced(), hovering = false;
+
+  function repoName(repo) {
+    const [o, n] = repo.split("/");
+    return [el("span", { class: "owner" }, o + "/"), n];
+  }
+  function star(repo) {
+    const b = el("button", { class: "star" + (P.fav.has(repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(repo)), "aria-label": repo + " をお気に入り" }, P.fav.has(repo) ? "★" : "☆");
+    b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const on = P.fav.toggle(repo);
+      b.textContent = on ? "★" : "☆"; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on));
+      b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
+    });
+    return b;
+  }
+
+  function renderInfo(it) {
+    const box = document.getElementById("info");
+    box.replaceChildren();
+    if (!it) {
+      box.append(el("div", {}, el("p", { class: "hint" }, "行を選ぶと、ここに詳しい案内と★の推移が出ます。")), el("div"));
+      return;
+    }
+    const hist = P.history(it.repo, it.stars);
+    const max = Math.max(...hist.map((h) => h.stars || 0));
+    const min = Math.min(...hist.filter((h) => h.stars != null).map((h) => h.stars));
+    const dots = el("div", { class: "dots", role: "img", "aria-label": it.repo + " の★の推移" });
+    hist.forEach((h, i) => {
+      const col = el("div", { class: "col" + (h.stars == null ? " miss" : "") + (i === hist.length - 1 ? " last" : ""), title: h.date + " ★" + P.fmt(h.stars) });
+      if (h.stars == null) col.append(el("b", {}, "×"));
+      else {
+        const n = 2 + Math.round(((h.stars - min) / Math.max(1, max - min)) * 14);
+        for (let k = 0; k < n; k++) col.append(el("i"));
+      }
+      dots.append(col);
+    });
+    box.append(
+      el("div", {},
+        el("h3", { class: "led" }, it.repo),
+        el("p", {}, it.summary),
+        el("p", { class: "en" }, it.desc),
+        el("p", { class: "hint" }, `総★ ${P.fmt(it.stars)}　言語 ${it.lang}`)
+      ),
+      el("div", {},
+        el("p", { class: "hint" }, "★の推移（記録を取り始めた日から。× は記録の無い日）"),
+        dots,
+        el("div", { class: "axis" }, el("span", {}, hist[0].date.slice(5).replace("-", "/")), el("span", {}, hist[hist.length - 1].date.slice(5).replace("-", "/")))
+      )
+    );
+  }
+
+  function render() {
+    const day = P.day;
+    document.getElementById("updated").textContent = day.updatedAt.slice(11, 16) + " 着";
+    document.getElementById("date").textContent = `${+day.date.slice(5, 7)}月${+day.date.slice(8)}日(${P.weekday(day.date)})`;
+    document.getElementById("prev").disabled = !P.hasPrev();
+    document.getElementById("next").disabled = !P.hasNext();
+    const notice = document.getElementById("notice");
+    notice.replaceChildren();
+    if (P.state === "stale") notice.append(el("div", { class: "notice led", role: "status" }, el("span", {}, "お知らせ　データの更新が 2日 止まっています。　表示は 11月10日 の記録です。　復旧の手順は runbook にあります。")));
+
+    const rows = document.getElementById("rows");
+    rows.replaceChildren();
+    day.trending.items.forEach((it, i) => {
+      if (i === 3) rows.append(el("div", { class: "sep" }, "後続"));
+      const r = el("div", { class: "row" + (i < 3 ? " lead" : "") + (selected === it.repo ? " sel" : ""), role: "listitem", tabindex: "0" },
+        el("span", { class: "kind " + kindOf(i)[2] }, el("span", { class: "ja" }, kindOf(i)[0]), el("span", { class: "en" }, kindOf(i)[1])),
+        el("span", { class: "rank led" }, i < 3 ? el("em", {}, el("span", { class: "ja" }, LEADS[i][0]), el("span", { class: "en" }, LEADS[i][1])) : it.rank),
+        el("span", { class: "repo led" }, repoName(it.repo)),
+        el("span", { class: "say led" }, el("span", { class: "ja" }, it.summary), el("span", { class: "en" }, it.desc)),
+        el("span", { class: "today led" }, "+" + P.fmt(it.today)),
+        el("span", { class: "total" }, P.fmt(it.stars)),
+        star(it.repo)
+      );
+      const pick = () => { selected = it.repo; rows.querySelectorAll(".row.sel").forEach((x) => x.classList.remove("sel")); r.classList.add("sel"); renderInfo(it); };
+      r.addEventListener("click", pick);
+      r.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+      rows.append(r);
+    });
+    const sel = day.trending.items.find((x) => x.repo === selected);
+    renderInfo(sel || null);
+
+    const pf = document.getElementById("platforms");
+    pf.replaceChildren();
+    day.topics.forEach((t, ti) => {
+      const panel = el("div", { class: "panel" },
+        el("div", { class: "ptitle" }, el("span", { class: "pn" }, `${ti + 2}番線`), el("b", { class: "led" }, t.label), el("small", {}, "前日比の★"))
+      );
+      t.items.slice(0, 5).forEach((it) => {
+        const row = el("div", { class: "prow", tabindex: "0" },
+          el("span", {}, el("span", { class: "repo led" }, it.repo), el("span", { class: "sub" }, it.summary)),
+          it.delta == null ? el("span", { class: "new led" }, "新顔") : el("span", { class: "d led" }, "+" + P.fmt(it.delta)),
+          star(it.repo)
+        );
+        row.addEventListener("click", () => { selected = it.repo; renderInfo(it); document.getElementById("info").scrollIntoView({ behavior: P.reduced() ? "auto" : "smooth", block: "center" }); });
+        panel.append(row);
+      });
+      pf.append(el("div", { class: "board plat" }, panel));
+    });
+  }
+
+  // 実物の発車標と同じ「日本語 ⇄ 英語」の交互表示（署名の動き）
+  const main = document.getElementById("main");
+  function flip() {
+    if (paused || hovering) return;
+    en = !en;
+    main.classList.toggle("alt-en", en);
+    document.getElementById("mode").textContent = en ? "表示：English" : "表示：日本語";
+    main.querySelectorAll(".say").forEach((s) => { s.classList.remove("refresh"); void s.offsetWidth; s.classList.add("refresh"); });
+  }
+  setInterval(flip, 5200);
+  document.getElementById("rows").addEventListener("mouseenter", () => (hovering = true));
+  document.getElementById("rows").addEventListener("mouseleave", () => (hovering = false));
+  const pauseBtn = document.getElementById("pause");
+  const syncPause = () => (pauseBtn.textContent = paused ? "切替を再開" : "切替を止める");
+  syncPause();
+  pauseBtn.addEventListener("click", () => { paused = !paused; if (paused && en) { en = false; main.classList.remove("alt-en"); document.getElementById("mode").textContent = "表示：日本語"; } syncPause(); });
+
+  document.getElementById("prev").addEventListener("click", () => P.step(-1));
+  document.getElementById("next").addEventListener("click", () => P.step(1));
+  P.onDate(render);
+  render();
+})();
+</script>
+</body>
+</html>
