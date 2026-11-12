@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>8案の比較 — github-ranking v3</title>
+<style>
+:root { --bg: #ececea; --card: #fafaf9; --ink: #1f1f1f; --sub: #666; --line: #d6d6d2; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, "Yu Gothic UI", "Hiragino Sans", sans-serif; }
+header, section, footer { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+header { padding-top: 28px; }
+h1 { font-size: 20px; margin: 0 0 6px; }
+.ask { background: var(--ink); color: #fff; padding: 12px 16px; border-radius: 6px; font-size: 15px; line-height: 1.6; margin: 14px 0; }
+.ask b { color: #ffe08a; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--sub); margin: 8px 0 20px; }
+.tools a, .tools button { font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--line); padding: 6px 12px; border-radius: 4px; text-decoration: none; cursor: pointer; }
+.tools button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.tools a:hover, .tools button:hover { border-color: var(--ink); }
+.case { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 28px; }
+.case h2 { margin: 0; font-size: 22px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.case h2 .id { font-size: 30px; }
+.case h2 a { font-size: 13px; font-weight: 400; color: var(--ink); margin-left: auto; }
+.case dl { display: grid; grid-template-columns: 6.5em 1fr; gap: 4px 12px; margin: 10px 0 14px; font-size: 13.5px; line-height: 1.6; }
+.case dt { color: var(--sub); }
+.case dd { margin: 0; }
+.view { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 4px; background: #fff; margin: 0 auto; }
+.view iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; }
+footer { padding-bottom: 48px; font-size: 13px; color: var(--sub); line-height: 1.7; }
+</style>
+</head>
+<body>
+<header>
+  <h1>github-ranking プロトタイプ v3 — 見やすさ優先の4案（E〜H）＋前回の4案（A〜D）</h1>
+  <p style="font-size:14px;line-height:1.7;margin:0">今回は、ゲーム・マンガアプリ・天気サイトなど<b>本物の画面を撮って見てから</b>作りました。どの案も「1件ずつ顔（アイコン・表紙）がある」「数字と上下の印で一瞬で分かる」を土台にし、そのうえで見た目を変えています。アイコンは仮の模様で、本番は持ち主の本物のアバターになります。</p>
+  <div class="ask">返事は <b>「好きな番号・嫌いな番号」</b> だけで大丈夫です（例: 好き E・G／嫌い A）。「この案のここだけ好き」も歓迎です。</div>
+  <div class="tools">
+    <span>表示の幅:</span>
+    <button type="button" data-w="1280" aria-pressed="true">PC（1280px）</button>
+    <button type="button" data-w="390" aria-pressed="false">スマホ（390px）</button>
+    <span style="margin-left:12px">移動:</span>
+    <a href="#E">E</a><a href="#F">F</a><a href="#G">G</a><a href="#H">H</a><span style="margin:0 4px">｜前回:</span><a href="#A">A</a><a href="#B">B</a><a href="#C">C</a><a href="#D">D</a>
+  </div>
+</header>
+
+<section id="list"></section>
+
+<footer>
+  <p>どの案も同じ仮データ（すべて架空）。中の画面は触れます（日付の切り替え・お気に入り・行を押すと★の推移）。「更新が止まった日」の見え方は、各案を全画面で開いて URL の末尾に <code>?state=stale</code> を付けると見られます。</p>
+  <p>v3 の決め方・参考にした実物の画面は <code>prototype/v3/README.md</code>、前回（v2）は <code>prototype/v2/README.md</code>。</p>
+</footer>
+
+<script>
+const CASES = [
+  { id: "E", name: "リーグ表", path: "e/index.html", thing: "ゲームのランキング（週ごとのリーグ・レース結果の順位表）", aim: "スマホで片手で読める1列。表彰台で上位3件、緑の「注目ゾーン」の帯までが今日読むべき分。順位の上がり下がりが ▲▼ と NEW で一瞬で分かる", look: "深い紺緑の地・丸ゴシック（M PLUS Rounded）・金銀銅のメダル・上昇は黄緑", move: "開いたときと日付を変えたとき、★の数字が0から数え上がる", weight: "軽い" },
+  { id: "F", name: "ランキング誌", path: "f/index.html", thing: "マンガアプリのランキング（表紙・表紙に重なる大きな順位・今日のイチオシ）", aim: "1件ずつ「表紙」があり、見た目で覚えられる。1位は大きく「今日のイチオシ」。関心領域は横にずらす棚", look: "明るい灰の地・太い Dela Gothic の数字と題・言語の色の表紙・赤い札", move: "カードに触れると少し浮く。押すと下から詳しい表示が出る", weight: "軽い（本番は本物の画像を使う）" },
+  { id: "G", name: "コマ割り", path: "g/index.html", thing: "マンガのページ（大ゴマ・書き文字・吹き出し・第N話）", aim: "1位は集中線の大ゴマで、要約を吹き出しで言わせる。演出は上位3件だけで、4位以下はふつうに読めるコマと一覧", look: "白黒＋黄色1色・Dela Gothic の書き文字・トーン（網点）", move: "書き文字（+1,785★）が、どんっと出てくる", weight: "中くらい" },
+  { id: "H", name: "天気予報", path: "h/index.html", thing: "天気予報のサイト（週間・今日の概況・同じ形の表・地域の最高と最低）", aim: "★の伸びを「快晴・晴れ・くもり」にして、数字を読まなくても勢いが分かる。毎日同じ形なので比べやすい", look: "白と空色・UD ゴシック（見やすさ用の書体）・太陽と雲の図", move: "日付を変えると太陽の光がくるっと回る", weight: "軽い" },
+  { id: "A", name: "発車標（前回）", path: "../v2/a/index.html", thing: "駅の LED 発車標", aim: "前回の案。比べるために残しています", look: "黒い盤面・LED", move: "日本語⇄英語の切り替え", weight: "軽い" },
+  { id: "B", name: "スイス（前回）", path: "../v2/b/index.html", thing: "スイスの組版ポスター", aim: "前回の案", look: "白と黒だけ", move: "★の推移の線", weight: "軽い" },
+  { id: "C", name: "データ報道（前回）", path: "../v2/c/index.html", thing: "データ報道の記事", aim: "前回の案", look: "トマト色とミント", move: "点が動く", weight: "重め" },
+  { id: "D", name: "レシート（前回）", path: "../v2/d/index.html", thing: "感熱紙のレシート", aim: "前回の案", look: "灰の机と白い紙", move: "印字されて出てくる", weight: "軽い" },
+];
+const list = document.getElementById("list");
+let W = 1280;
+CASES.forEach((c) => {
+  const sec = document.createElement("article");
+  sec.className = "case"; sec.id = c.id;
+  const h2 = document.createElement("h2");
+  const id = document.createElement("span"); id.className = "id"; id.textContent = c.id;
+  const nm = document.createElement("span"); nm.textContent = c.name;
+  const a = document.createElement("a"); a.href = c.path; a.target = "_blank"; a.rel = "noopener"; a.textContent = "全画面で開く ↗";
+  h2.append(id, nm, a);
+  const dl = document.createElement("dl");
+  [["借りた実物", c.thing], ["狙い", c.aim], ["見た目", c.look], ["動き（1本）", c.move], ["本番の重さ", c.weight]].forEach(([k, v]) => {
+    const dt = document.createElement("dt"); dt.textContent = k;
+    const dd = document.createElement("dd"); dd.textContent = v;
+    dl.append(dt, dd);
+  });
+  const view = document.createElement("div"); view.className = "view";
+  const f = document.createElement("iframe"); f.src = c.path; f.loading = "lazy"; f.title = "案" + c.id + " " + c.name;
+  view.append(f);
+  sec.append(h2, dl, view);
+  list.append(sec);
+});
+const H = 860;
+function fit() {
+  document.querySelectorAll(".view").forEach((v) => {
+    const avail = v.parentElement.clientWidth - 34;
+    const vw = Math.min(W, W === 390 ? 390 : 99999);
+    const scale = Math.min(1, avail / vw);
+    const f = v.querySelector("iframe");
+    f.style.width = vw + "px"; f.style.height = (W === 390 ? 780 : H) + "px";
+    f.style.transform = `scale(${scale})`;
+    v.style.width = vw * scale + "px"; v.style.height = (W === 390 ? 780 : H) * scale + "px";
+  });
+}
+document.querySelectorAll("[data-w]").forEach((b) => b.addEventListener("click", () => {
+  W = +b.dataset.w;
+  document.querySelectorAll("[data-w]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  fit();
+}));
+addEventListener("resize", fit);
+fit();
+</script>
+</body>
+</html>

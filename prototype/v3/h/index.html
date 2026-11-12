@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案H 天気予報 — github-ranking v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root { --sky: #1f6fd1; --sky2: #e8f1fc; --line: #d5dde8; --ink: #1d2733; --sub: #5d6b7a; --sun: #f39200; --hot: #e5402f; --cloud: #8c9aab; --up: #d93a2b; --down: #2a72d8; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: #f4f7fb; color: var(--ink); font-family: "BIZ UDPGothic", sans-serif; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.bar { background: var(--sky); color: #fff; }
+.bar .in { max-width: 1040px; margin: 0 auto; padding: 14px 16px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.bar h1 { margin: 0; font-size: 22px; }
+.bar span { font-size: 13px; opacity: .9; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 16px 16px 64px; }
+.stale { background: #fff4e5; border: 1px solid #f3b35a; border-left: 6px solid var(--sun); padding: 10px 14px; margin-bottom: 14px; font-weight: 700; }
+
+/* 週間（日付の切り替え） */
+.week { display: grid; grid-template-columns: repeat(3, 1fr); background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.week button { border: 0; border-left: 1px solid var(--line); background: #fff; padding: 10px 6px 12px; display: grid; justify-items: center; gap: 4px; transition: background-color .15s; }
+.week button:first-child { border-left: 0; }
+.week button:hover { background: var(--sky2); }
+.week button[aria-current="true"] { background: var(--sky2); box-shadow: inset 0 -4px 0 var(--sky); }
+.week .d { font-weight: 700; font-size: 15px; }
+.week .d.sat { color: var(--down); } .week .d.sun { color: var(--hot); }
+.week small { font-size: 12px; color: var(--sub); }
+
+/* 今日の概況 */
+.today { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin: 14px 0; }
+.today h2 { margin: 0 0 4px; font-size: 20px; }
+.today p { margin: 0; color: var(--sub); line-height: 1.7; font-size: 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-size: 13px; }
+.legend span { display: inline-flex; align-items: center; gap: 4px; }
+
+/* 予報の表 */
+.tbl { background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.thead, .r { display: grid; grid-template-columns: 2.6em 64px minmax(0, 1fr) 7.6em 4.6em 44px; align-items: center; gap: 10px; padding: 8px 14px; }
+.thead { background: var(--sky2); font-size: 12px; color: var(--sub); font-weight: 700; padding: 6px 14px; }
+.r { border-top: 1px solid var(--line); cursor: pointer; }
+.r:hover { background: #f7fafe; }
+.r .rk { font-weight: 700; font-size: 18px; text-align: center; }
+.wx { display: grid; justify-items: center; font-size: 11px; color: var(--sub); }
+.r b { display: block; font-size: 15.5px; overflow-wrap: anywhere; }
+.r .s { font-size: 13.5px; line-height: 1.6; color: #2d3946; }
+.temp { text-align: right; font-weight: 700; font-size: 20px; }
+.temp.t3 { color: var(--hot); } .temp.t2 { color: var(--sun); } .temp.t1 { color: var(--ink); } .temp.t0 { color: var(--cloud); }
+.temp small { display: block; font-size: 11px; color: var(--sub); font-weight: 400; }
+.chg { font-size: 13px; font-weight: 700; text-align: center; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.same { color: var(--sub); }
+.chg.new { color: #fff; background: var(--sky); border-radius: 4px; padding: 1px 4px; font-size: 11px; }
+.fav { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--cloud); font-size: 18px; }
+.fav:hover { border-color: var(--sun); }
+.fav.on { color: var(--sun); border-color: var(--sun); background: #fff7ea; }
+.open-area { grid-column: 1 / -1; padding: 6px 0 4px 74px; }
+.open-area .en { color: var(--sub); font-size: 13px; word-break: break-word; margin: 0 0 6px; }
+.open-area svg { width: 100%; max-width: 560px; height: 120px; display: block; }
+
+/* 地域＝関心領域 */
+h3.sec { font-size: 18px; margin: 28px 0 10px; }
+.areas { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.area { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px; cursor: pointer; }
+.area:hover { border-color: var(--sky); }
+.area h4 { margin: 0 0 6px; font-size: 15px; }
+.area .main { display: flex; align-items: center; gap: 10px; }
+.area .hi { font-weight: 700; font-size: 22px; color: var(--hot); }
+.area .lo { font-size: 13px; color: var(--down); }
+.area p { margin: 8px 0 0; font-size: 12.5px; line-height: 1.55; color: var(--sub); }
+.area p b { color: var(--ink); word-break: break-all; }
+.area ul { margin: 8px 0 0; padding: 0; list-style: none; font-size: 12.5px; display: none; }
+.area.on ul { display: block; }
+.area li { padding: 5px 0; border-top: 1px dashed var(--line); word-break: break-all; }
+.area li span { float: right; font-weight: 700; }
+svg.ic .ray { transform-origin: 50% 50%; }
+svg.ic.spin .ray { animation: spin .9s cubic-bezier(.2,.7,.2,1); }
+@keyframes spin { from { transform: rotate(-60deg); opacity: .2; } to { transform: none; opacity: 1; } }
+footer { color: var(--sub); font-size: 12px; margin-top: 36px; line-height: 1.7; }
+@media (max-width: 640px) {
+  .thead { display: none; }
+  .r { grid-template-columns: 2em 48px minmax(0, 1fr) auto; grid-template-areas: "rk wx who temp" "rk wx who chg"; row-gap: 0; padding: 10px 12px; }
+  .r .rk { grid-area: rk; } .r .wx { grid-area: wx; } .r .who { grid-area: who; } .r .temp { grid-area: temp; font-size: 17px; } .r .chg { grid-area: chg; text-align: right; } .r > .fav { display: none; }
+  .open-area { padding-left: 0; }
+  .today { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { svg.ic.spin .ray { animation: none; } }
+</style>
+</head>
+<body>
+<div class="bar"><div class="in"><h1>GitHub の天気</h1><span id="sub"></span></div></div>
+<div class="wrap" id="app"></div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, s = P.svg, V = V3;
+  // ★の伸び → 天気（基準は仮。本番は分布を見て決める）
+  const TIERS = [[1000, "快晴", 3], [400, "晴れ", 2], [200, "晴時々曇", 1], [0, "くもり", 0]];
+  const tierOf = (n) => TIERS.find(([min]) => n >= min);
+  const TOPIC_TIERS = [[300, "快晴", 3], [120, "晴れ", 2], [40, "晴時々曇", 1], [0, "くもり", 0]];
+  let open = null, spin = false;
+
+  // 天気のアイコン（絵文字は使わず、図形で描く）
+  function icon(level, size) {
+    const g = s("svg", { class: "ic" + (spin ? " spin" : ""), width: size, height: size, viewBox: "0 0 48 48", "aria-hidden": "true" });
+    const sun = (cx, cy, r) => {
+      const rays = s("g", { class: "ray", style: `transform-origin:${cx}px ${cy}px` });
+      for (let i = 0; i < 8; i++) { const a = (i * Math.PI) / 4; rays.append(s("line", { x1: cx + Math.cos(a) * (r + 4), y1: cy + Math.sin(a) * (r + 4), x2: cx + Math.cos(a) * (r + 9), y2: cy + Math.sin(a) * (r + 9), stroke: "#f39200", "stroke-width": 3, "stroke-linecap": "round" })); }
+      return [rays, s("circle", { cx, cy, r, fill: level === 3 ? "#ff7a00" : "#f8a900" })];
+    };
+    const cloud = (x, y, k, fill) => s("path", { d: `M${x} ${y} h${22 * k} a${7 * k} ${7 * k} 0 0 0 0 -${14 * k} a${9 * k} ${9 * k} 0 0 0 -${17 * k} -${4 * k} a${7 * k} ${7 * k} 0 0 0 -${5 * k} ${18 * k} z`, fill, stroke: "#6f7f92", "stroke-width": 1.5 });
+    if (level === 3) g.append(...sun(24, 24, 10));
+    else if (level === 2) g.append(...sun(20, 20, 9), cloud(22, 40, 0.9, "#fff"));
+    else if (level === 1) g.append(...sun(16, 16, 7), cloud(12, 42, 1.2, "#e6ebf1"));
+    else g.append(cloud(9, 38, 1.25, "#d3dae3"));
+    return g;
+  }
+  const wx = (n, tiers, size) => { const t = (tiers || TIERS).find(([m]) => n >= m); return el("div", { class: "wx" }, icon(t[2], size || 40), el("span", {}, t[1])); };
+
+  function favBtn(repo) {
+    const b = el("button", { class: "fav" + (P.fav.has(repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(repo)), "aria-label": repo + " をお気に入り" }, "★");
+    b.addEventListener("click", (e) => { e.stopPropagation(); const on = P.fav.toggle(repo); b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+    return b;
+  }
+  function chart(it) {
+    const hist = P.history(it.repo, it.stars), W = 560, H = 100;
+    const vals = hist.filter((h) => h.stars != null).map((h) => h.stars), lo = Math.min(...vals), hi = Math.max(...vals);
+    const x = (i) => 20 + (i / (hist.length - 1)) * (W - 40), y = (v) => 14 + (H - 34) - ((v - lo) / Math.max(1, hi - lo)) * (H - 34);
+    const g = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "★の推移（気温のグラフの形）" });
+    let d = "", pen = false;
+    hist.forEach((p, i) => { if (p.stars == null) { pen = false; g.append(s("text", { x: x(i), y: H - 4, "text-anchor": "middle", "font-size": 10, fill: "#8c9aab" }, "欠測")); return; } d += (pen ? "L" : "M") + x(i).toFixed(1) + " " + y(p.stars).toFixed(1); pen = true; });
+    g.append(s("path", { d, fill: "none", stroke: "#e5402f", "stroke-width": 2.5 }));
+    hist.forEach((p, i) => { if (p.stars != null && (i === 0 || i === hist.length - 1)) g.append(s("circle", { cx: x(i), cy: y(p.stars), r: 3.5, fill: "#e5402f" }), s("text", { x: x(i), y: y(p.stars) - 8, "text-anchor": i === 0 ? "start" : "end", "font-size": 11, fill: "#1d2733" }, P.fmt(p.stars))); });
+    return g;
+  }
+
+  function render() {
+    const day = P.day, items = day.trending.items;
+    document.getElementById("sub").textContent = `${+day.date.slice(5, 7)}月${+day.date.slice(8)}日(${P.weekday(day.date)}) ${day.updatedAt.slice(11, 16)} 発表 ／ ★の伸びを天気で表します`;
+    const week = el("div", { class: "week", role: "group", "aria-label": "日付" }, P.data.DATES.map((d) => {
+      const it = P.data.days[d].trending.items, top = it[0].today;
+      const wd = P.weekday(d);
+      const b = el("button", { type: "button", "aria-current": String(d === P.date) },
+        el("span", { class: "d" + (wd === "土" ? " sat" : wd === "日" ? " sun" : "") }, `${+d.slice(8)}日(${wd})`), icon(tierOf(top)[2], 34), el("small", { class: "num" }, "最高 +" + P.fmt(top)));
+      b.addEventListener("click", () => { open = null; spin = true; P.setDate(d); spin = false; });
+      return b;
+    }));
+    const count = TIERS.map(([min, name, lv]) => [name, lv, items.filter((x) => tierOf(x.today)[2] === lv).length]);
+    const best = count.find((c) => c[2] > 0);
+    const today = el("section", { class: "today" }, wx(items[0].today, null, 64),
+      el("div", {}, el("h2", {}, `今日の GitHub は「${tierOf(items[0].today)[1]}」`),
+        el("p", {}, `いちばん伸びたのは ${items[0].repo}（今日の★ +${P.fmt(items[0].today)}）。${items[0].summary}。`),
+        el("div", { class: "legend" }, count.map(([name, lv, n]) => el("span", {}, icon(lv, 20), `${name} ${n}件`)))));
+
+    const tbl = el("div", { class: "tbl" }, el("div", { class: "thead" }, el("span", {}, "順位"), el("span", {}, "天気"), el("span", {}, "リポジトリ・1行要約"), el("span", { style: "text-align:right" }, "今日の★"), el("span", { style: "text-align:center" }, "前日比"), el("span")));
+    items.forEach((it) => {
+      const t = tierOf(it.today);
+      const r = el("div", { class: "r", tabindex: "0", role: "button", "aria-expanded": String(open === it.repo) },
+        el("span", { class: "rk num" }, it.rank), wx(it.today),
+        el("div", { class: "who" }, el("b", {}, it.repo.replace("/", "/​").replaceAll("-", "-​")), el("span", { class: "s" }, it.summary)),
+        el("div", { class: "temp num t" + t[2] }, "+" + P.fmt(it.today), el("small", {}, "総★ " + P.fmt(it.stars))),
+        V.changeEl(it.repo), favBtn(it.repo));
+      if (open === it.repo) r.append(el("div", { class: "open-area" }, el("p", { class: "en" }, it.desc), chart(it), el("p", { class: "en" }, "★の推移（記録を取り始めた日から。欠測＝記録の無い日）"), favBtn(it.repo)));
+      const toggle = () => { open = open === it.repo ? null : it.repo; render(); };
+      r.addEventListener("click", toggle);
+      r.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+      tbl.append(r);
+    });
+
+    const areas = el("div", { class: "areas" }, day.topics.map((t) => {
+      const ds = t.items.map((i) => i.delta || 0), hi = Math.max(...ds), lo = Math.min(...ds.filter((v) => v > 0));
+      const top = t.items[0];
+      const a = el("section", { class: "area", tabindex: "0" }, el("h4", {}, t.label),
+        el("div", { class: "main" }, wx(hi, TOPIC_TIERS, 44), el("div", {}, el("div", { class: "hi num" }, "+" + P.fmt(hi)), el("div", { class: "lo num" }, "最低 +" + P.fmt(lo)))),
+        el("p", {}, "いちばん伸びた: ", el("b", {}, top.repo), el("br"), top.summary),
+        el("ul", {}, t.items.map((it) => el("li", {}, el("span", { class: "num" }, it.delta == null ? "初観測" : "+" + P.fmt(it.delta)), it.repo))));
+      a.addEventListener("click", () => a.classList.toggle("on"));
+      return a;
+    }));
+
+    document.getElementById("app").replaceChildren(
+      P.state === "stale" ? el("div", { class: "stale", role: "status" }, "観測が2日止まっています（表示は 11/10 の発表）") : "",
+      week, today, tbl,
+      el("h3", { class: "sec" }, "地域ごとの予報（関心領域。押すと全部）"), areas,
+      el("footer", {}, `案H「天気予報」— 天気サイトの文法（週間の並び・今日の概況・同じ形の表・地域ごとの最高と最低）。★の伸び: 快晴 1,000以上／晴れ 400以上／晴時々曇 200以上／くもり それ未満（仮の基準）。データは架空。`));
+  }
+  P.onDate(render);
+  render();
+})();
+</script>
+</body>
+</html>

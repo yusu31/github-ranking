@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案G コマ割り — github-ranking v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+1p:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root { --ink: #111; --paper: #fff; --bg: #e9e9e6; --pop: #ffd400; --sub: #555; --up: #0a8f4f; --down: #d6332f; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "M PLUS 1p", sans-serif; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid #1d6ff2; outline-offset: 2px; }
+.dela { font-family: "Dela Gothic One", sans-serif; font-weight: 400; }
+.num { font-variant-numeric: tabular-nums; }
+.page { max-width: 1080px; margin: 18px auto 64px; background: var(--paper); padding: 18px; box-shadow: 0 2px 0 rgba(0,0,0,.08); }
+.tone { background-image: radial-gradient(rgba(0,0,0,.16) 1.1px, transparent 1.3px); background-size: 6px 6px; }
+
+/* 扉: 第N話 */
+.door { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: end; border: 3px solid var(--ink); padding: 12px 16px; margin-bottom: 10px; }
+.door .ep { background: var(--ink); color: #fff; padding: 6px 10px; font-size: 14px; }
+.door h1 { margin: 0; font-size: clamp(22px, 3.4vw, 34px); line-height: 1.15; }
+.door h1 small { display: block; font-family: "M PLUS 1p", sans-serif; font-weight: 700; font-size: 13px; color: var(--sub); margin-top: 4px; }
+.door nav { display: flex; gap: 6px; }
+.door nav button { border: 2px solid var(--ink); background: #fff; padding: 6px 10px; font-weight: 800; font-size: 13px; }
+.door nav button:hover { background: var(--pop); }
+.door nav button[disabled] { opacity: .3; cursor: default; background: #fff; }
+.stale { border: 3px solid var(--ink); background: var(--pop); padding: 8px 14px; font-weight: 800; margin-bottom: 10px; }
+
+/* コマ */
+.panels { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.k { border: 3px solid var(--ink); position: relative; overflow: hidden; background: #fff; cursor: pointer; }
+.k:hover { background-color: #fffbe0; }
+.k.big { grid-column: span 4; grid-row: span 2; min-height: 430px; }
+.k.mid { grid-column: span 2; min-height: 210px; }
+.k.sm { grid-column: span 2; min-height: 150px; padding: 12px 12px 10px; }
+/* 集中線（大ゴマだけ） */
+.speed { position: absolute; inset: -40%; background: repeating-conic-gradient(from 0deg at 62% 46%, rgba(0,0,0,.85) 0deg 0.7deg, transparent 0.7deg 6deg); -webkit-mask: radial-gradient(circle at 62% 46%, transparent 0 26%, #000 46%); mask: radial-gradient(circle at 62% 46%, transparent 0 26%, #000 46%); opacity: .35; pointer-events: none; }
+.caption { position: absolute; left: 12px; top: 12px; background: #fff; border: 2px solid var(--ink); padding: 6px 10px; font-weight: 800; font-size: 13px; max-width: 70%; z-index: 2; }
+.caption b { font-size: 18px; display: block; word-break: break-all; line-height: 1.2; }
+.onoma { position: absolute; z-index: 2; color: var(--pop); -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; line-height: .9; letter-spacing: -.02em; transform: rotate(-7deg); white-space: nowrap; }
+.big .onoma { right: 6%; top: 34%; font-size: clamp(54px, 8vw, 104px); -webkit-text-stroke-width: 5px; }
+.mid .onoma { left: 14px; top: 92px; font-size: clamp(28px, 3.2vw, 38px); }
+.mid .onoma small { text-align: left; }
+.onoma small { display: block; font-size: .32em; text-align: right; -webkit-text-stroke-width: 2px; }
+.onoma.hit { animation: hit .5s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes hit { from { transform: rotate(-7deg) scale(1.6); opacity: 0; } to { transform: rotate(-7deg) scale(1); opacity: 1; } }
+/* 吹き出し（大ゴマに1つだけ）: 要約を言わせる */
+.bubble { position: absolute; left: 6%; bottom: 8%; z-index: 2; background: #fff; border: 3px solid var(--ink); border-radius: 50% / 46%; padding: 22px 30px; max-width: 54%; font-weight: 700; font-size: 17px; line-height: 1.6; text-align: center; }
+.bubble::after { content: ""; position: absolute; right: 18%; top: -22px; width: 26px; height: 26px; background: #fff; border-left: 3px solid var(--ink); border-top: 3px solid var(--ink); transform: skewX(-28deg) rotate(12deg); }
+.face { position: absolute; z-index: 1; right: 12%; bottom: 10%; border: 3px solid var(--ink); }
+.mid .face { right: 12px; top: 44px; bottom: auto; border-width: 2px; width: 60px; height: 60px; }
+.mid .sum { position: absolute; left: 12px; bottom: 12px; right: 12px; z-index: 2; background: #fff; border: 2px solid var(--ink); padding: 6px 8px; font-size: 13px; line-height: 1.55; font-weight: 700; }
+.k .favb { position: absolute; z-index: 3; right: 8px; top: 8px; border: 2px solid var(--ink); background: #fff; font-size: 12px; font-weight: 800; padding: 3px 8px; }
+.k .favb.on { background: var(--ink); color: var(--pop); }
+.sm .favb { position: static; float: right; margin: -2px -2px 0 6px; }
+.sm .rk { font-size: 30px; line-height: 1; }
+.sm .nm { font-weight: 800; font-size: 15px; word-break: break-all; margin: 6px 0 4px; }
+.sm .sum { font-size: 13px; line-height: 1.6; }
+.sm .st { margin-top: 6px; font-weight: 800; font-size: 15px; display: flex; gap: 8px; align-items: baseline; }
+.chg { font-size: 12px; font-weight: 800; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.same { color: var(--sub); }
+.chg.new { background: var(--pop); border: 2px solid var(--ink); padding: 0 5px; color: var(--ink); }
+
+/* 11位以下・関心領域: 読みやすい一覧のコマ */
+.listk { grid-column: 1 / -1; padding: 12px 16px; cursor: default; }
+.listk h2 { margin: 0 0 8px; font-size: 18px; }
+.lrow { display: grid; grid-template-columns: 2.4em minmax(0, 1fr) auto auto; gap: 10px; align-items: baseline; padding: 7px 0; border-top: 1.5px dashed #bbb; cursor: pointer; }
+.lrow:hover { background: #fffbe0; }
+.lrow b { font-weight: 800; word-break: break-all; }
+.lrow span.s { display: block; font-size: 13px; color: #333; }
+.topics { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin-top: 10px; }
+.topics .k { padding: 12px 14px; cursor: default; }
+.topics h3 { margin: 0 0 6px; font-size: 20px; display: inline-block; background: var(--ink); color: #fff; padding: 2px 10px; }
+
+/* 詳しい表示 */
+.detail { position: fixed; inset: auto 0 0 0; margin: 0 auto; max-width: 620px; background: #fff; border: 3px solid var(--ink); border-bottom: 0; padding: 14px 16px 20px; transform: translateY(110%); transition: transform .25s ease-out; z-index: 9; }
+.detail.on { transform: none; }
+.detail h3 { margin: 0 0 4px; word-break: break-all; padding-right: 40px; }
+.detail p { margin: 4px 0; font-size: 14px; line-height: 1.7; }
+.detail .en { color: var(--sub); font-size: 12.5px; word-break: break-word; }
+.detail .x { position: absolute; right: 10px; top: 10px; border: 2px solid var(--ink); background: #fff; width: 32px; height: 32px; font-weight: 800; }
+.detail svg { width: 100%; height: 80px; display: block; }
+footer { max-width: 1080px; margin: -40px auto 48px; padding: 0 16px; color: var(--sub); font-size: 12px; line-height: 1.7; }
+@media (max-width: 760px) {
+  .page { padding: 10px; margin-top: 0; }
+  .panels { grid-template-columns: 1fr; }
+  .k.big, .k.mid, .k.sm { grid-column: 1 / -1; grid-row: auto; }
+  .k.big { min-height: 420px; }
+  .bubble { max-width: 78%; font-size: 15px; padding: 16px 20px; left: 4%; }
+  .big .face { width: 72px; height: 72px; right: 12px; bottom: auto; top: 50px; }
+  .big .onoma { top: 44%; right: auto; left: 12px; }
+  .big .caption { max-width: calc(100% - 110px); }
+  .door { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .onoma.hit { animation: none; } .detail { transition: none; } }
+</style>
+</head>
+<body>
+<main class="page" id="app"></main>
+<div class="detail" id="detail" role="dialog" aria-label="詳しい表示"></div>
+<footer>案G「コマ割り」— マンガの文法（大ゴマ・書き文字・吹き出し・ナレーションの枠・トーン）。使うのは上位3件だけで、4位以下はふつうに読めるコマ。アイコンは仮の模様で、本番は持ち主のアバター。データは架空。</footer>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, s = P.svg, V = V3;
+  // 第N話 = 記録を取り始めた日から数えた日数
+  const ep = (d) => Math.round((new Date(d) - new Date(P.data.START)) / 86400000) + 1;
+
+  function favB(repo) {
+    const b = el("button", { class: "favb" + (P.fav.has(repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(repo)) }, P.fav.has(repo) ? "しおり済" : "しおり");
+    b.addEventListener("click", (e) => { e.stopPropagation(); const on = P.fav.toggle(repo); b.classList.toggle("on", on); b.textContent = on ? "しおり済" : "しおり"; b.setAttribute("aria-pressed", String(on)); });
+    return b;
+  }
+  function detail(it) {
+    const box = document.getElementById("detail"), hist = P.history(it.repo, it.stars);
+    const vals = hist.filter((h) => h.stars != null).map((h) => h.stars), lo = Math.min(...vals), hi = Math.max(...vals), W = 600, H = 70;
+    let d = "", pen = false;
+    hist.forEach((p, i) => { if (p.stars == null) { pen = false; return; } d += (pen ? "L" : "M") + ((i / (hist.length - 1)) * W).toFixed(1) + " " + (H - ((p.stars - lo) / Math.max(1, hi - lo)) * H).toFixed(1); pen = true; });
+    const x = el("button", { class: "x", type: "button", "aria-label": "閉じる" }, "×");
+    x.addEventListener("click", () => box.classList.remove("on"));
+    box.replaceChildren(x, el("h3", {}, it.repo), el("p", {}, it.summary), el("p", { class: "en" }, it.desc),
+      s("svg", { viewBox: `0 -4 ${W} ${H + 8}`, preserveAspectRatio: "none", role: "img", "aria-label": "★の推移" }, s("path", { d, fill: "none", stroke: "#111", "stroke-width": 3, "vector-effect": "non-scaling-stroke" })),
+      el("p", { class: "en" }, `★の推移（${hist[0].date.slice(5).replace("-", "/")} から）／総★ ${P.fmt(it.stars)}`));
+    box.classList.add("on");
+  }
+  const clickable = (node, it) => { node.tabIndex = 0; node.addEventListener("click", () => detail(it)); node.addEventListener("keydown", (e) => { if (e.key === "Enter") detail(it); }); return node; };
+
+  function render(animate) {
+    const day = P.day, items = day.trending.items, [a, b, c] = items;
+    const prev = el("button", { type: "button", disabled: !P.hasPrev() }, "◀ 前の話");
+    const next = el("button", { type: "button", disabled: !P.hasNext() }, "次の話 ▶");
+    prev.addEventListener("click", () => P.step(-1)); next.addEventListener("click", () => P.step(1));
+    const onoma = (it, cls) => el("div", { class: "onoma dela" + (animate ? " hit" : ""), "aria-label": `今日の★ +${P.fmt(it.today)}` }, "+" + P.fmt(it.today) + "★", el("small", {}, "今日の★"));
+
+    const big = clickable(el("section", { class: "k big", "aria-label": "1位" }, el("div", { class: "speed" }),
+      el("div", { class: "caption" }, "1位", el("b", {}, a.repo), V.changeEl(a.repo)),
+      onoma(a), V.identicon(V.owner(a.repo), 150, 0), el("div", { class: "bubble" }, a.summary), favB(a.repo)), a);
+    big.querySelector(".ident").classList.add("face");
+    const mids = [b, c].map((it, k) => {
+      const m = clickable(el("section", { class: "k mid tone", "aria-label": `${k + 2}位` },
+        el("div", { class: "caption" }, `${k + 2}位`, el("b", {}, V.name(it.repo)), V.changeEl(it.repo)),
+        onoma(it), V.identicon(V.owner(it.repo), 72, 0), el("div", { class: "sum" }, it.summary), favB(it.repo)), it);
+      m.querySelector(".ident").classList.add("face");
+      return m;
+    });
+    const smalls = items.slice(3, 9).map((it) => clickable(el("section", { class: "k sm" }, favB(it.repo),
+      el("div", { class: "rk dela" }, it.rank), el("div", { class: "nm" }, it.repo), el("div", { class: "sum" }, it.summary),
+      el("div", { class: "st num" }, "★+" + P.fmt(it.today), V.changeEl(it.repo))), it));
+    const rest = el("section", { class: "k listk" }, el("h2", {}, "10位から25位"),
+      items.slice(9).map((it) => clickable(el("div", { class: "lrow" }, el("span", { class: "dela" }, it.rank), el("span", {}, el("b", {}, it.repo), el("span", { class: "s" }, it.summary)), el("span", { class: "num" }, "★+" + P.fmt(it.today)), V.changeEl(it.repo)), it)));
+    // 4〜9位は小ゴマ6つ（6列の格子が2段ちょうど埋まる）、10位以下は一覧のコマ
+    const topics = el("div", { class: "topics" }, day.topics.map((t) => el("section", { class: "k" }, el("h3", { class: "dela" }, t.label),
+      t.items.slice(0, 5).map((it, i) => clickable(el("div", { class: "lrow" }, el("span", { class: "dela" }, i + 1), el("span", {}, el("b", {}, it.repo), el("span", { class: "s" }, it.summary)), it.delta == null ? el("span", { class: "chg new" }, "NEW") : el("span", { class: "num" }, "+" + P.fmt(it.delta)), el("span")), it)))));
+
+    document.getElementById("app").replaceChildren(
+      el("div", { class: "door" }, el("span", { class: "ep dela" }, `第${ep(day.date)}話`),
+        el("h1", { class: "dela" }, `${+day.date.slice(5, 7)}月${+day.date.slice(8)}日の急上昇`, el("small", {}, `${P.weekday(day.date)}曜日・${day.updatedAt.slice(11, 16)} 更新・Trending 25件と関心領域`)),
+        el("nav", {}, prev, next)),
+      P.state === "stale" ? el("div", { class: "stale", role: "status" }, "お知らせ：休載中（更新が2日止まっています。表示は 11/10 の記録）") : "",
+      el("div", { class: "panels" }, big, ...mids, ...smalls, rest),
+      topics);
+  }
+  P.onDate(() => render(true));
+  render(true);
+})();
+</script>
+</body>
+</html>
