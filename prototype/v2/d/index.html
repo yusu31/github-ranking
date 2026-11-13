@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案D レシート — github-ranking v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root { --desk: #8e908b; --desk2: #858782; --paper: #f3f6f7; --ink: #27304a; --faint: #69718a; --stamp: #c8312b; --slot: #1e1f21; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: radial-gradient(120% 80% at 50% 0%, var(--desk) 0%, var(--desk2) 100%) fixed;
+  color: var(--ink); font-family: "BIZ UDGothic", sans-serif; min-height: 100vh;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px dashed var(--ink); outline-offset: 2px; }
+
+/* プリンタの排紙口 */
+.printer { position: sticky; top: 0; z-index: 5; height: 34px; background: linear-gradient(#2b2c2f, var(--slot)); box-shadow: 0 6px 14px rgba(0,0,0,.35); display: flex; justify-content: center; align-items: flex-end; }
+.printer .slit { width: 432px; max-width: calc(100% - 24px); height: 6px; background: #000; border-radius: 3px 3px 0 0; }
+.printer .lamp { position: absolute; left: 16px; top: 11px; width: 8px; height: 8px; border-radius: 50%; background: #3c8f4a; box-shadow: 0 0 6px rgba(60,143,74,.5); }
+.printer .lamp.busy { background: #d99a2b; box-shadow: 0 0 6px rgba(217,154,43,.6); }
+
+.desk { display: flex; justify-content: center; gap: 28px; padding: 0 16px 80px; align-items: flex-start; }
+.feed { overflow: hidden; padding: 0 10px 28px; }
+.receipt {
+  width: 400px; max-width: calc(100vw - 52px);
+  background: var(--paper);
+  padding: 26px 24px 34px;
+  font-size: 14px; line-height: 1.55;
+  box-shadow: 0 1px 1px rgba(0,0,0,.06), 0 10px 22px rgba(0,0,0,.18);
+  transform-origin: top center;
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 12px 100%;
+          mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 12px 100%;
+}
+/* 署名の動き: 1行ずつ送られて出てくる（段の数＝送りの回数） */
+.receipt.printing { animation: feed 1.9s steps(46, end) both; }
+@keyframes feed { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+
+.c { text-align: center; }
+.logo { font-size: 26px; font-weight: 700; letter-spacing: .14em; text-align: center; margin: 4px 0 2px; transform: scaleY(1.25); }
+.small { font-size: 11px; color: var(--faint); }
+.rule { border: 0; border-top: 1px dashed var(--ink); margin: 10px 0; opacity: .7; }
+.rule.solid { border-top-style: solid; }
+.ln { display: flex; justify-content: space-between; gap: 10px; font-variant-numeric: tabular-nums; }
+.ln .r { white-space: nowrap; }
+.head2 { text-align: center; font-weight: 700; margin: 12px 0 6px; letter-spacing: .3em; }
+
+.item { position: relative; padding: 4px 0 4px 22px; cursor: pointer; }
+.item:hover { background: rgba(39,48,74,.045); }
+.item .no { position: absolute; left: 0; top: 4px; width: 20px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.item .nm { word-break: break-all; }
+.item .sm { font-size: 11.5px; color: var(--faint); margin-top: 1px; }
+.item .new { font-size: 11px; border: 1px solid var(--ink); padding: 0 3px; margin-left: 4px; }
+.item .ext { font-size: 11.5px; overflow: hidden; }
+.item .ext .bars { letter-spacing: 1px; font-size: 15px; line-height: 1.2; word-break: break-all; }
+.item .ext.out { animation: out .5s steps(4, end) both; }
+@keyframes out { from { max-height: 0; } to { max-height: 120px; } }
+.fav { position: absolute; right: -6px; top: 0; border: 0; background: none; padding: 4px; color: var(--faint); font-size: 11px; opacity: .0; transition: opacity .15s; }
+.item:hover .fav, .fav:focus-visible, .fav.on { opacity: 1; }
+.stampmark { position: absolute; right: 26px; top: -2px; width: 38px; height: 38px; border: 2.5px solid var(--stamp); border-radius: 50%; color: var(--stamp); font-weight: 700; font-size: 13px; display: grid; place-items: center; opacity: .82; mix-blend-mode: multiply; pointer-events: none; }
+.stampmark.hit { animation: stamp .22s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes stamp { from { transform: scale(1.7) rotate(var(--rot)); opacity: 0; } to { transform: scale(1) rotate(var(--rot)); opacity: .82; } }
+
+.big { font-size: 20px; font-weight: 700; transform: scaleX(1.0) scaleY(1.6); transform-origin: left; margin: 10px 0 14px; }
+.inv { background: var(--ink); color: var(--paper); text-align: center; padding: 3px 0; font-weight: 700; margin: 8px 0; }
+.barcode { display: flex; justify-content: center; height: 46px; margin: 12px 0 2px; gap: 0; }
+.barcode i { display: block; height: 100%; background: var(--ink); }
+.barcode i.s { background: transparent; }
+
+.side { position: sticky; top: 56px; padding-top: 22px; width: 190px; color: #f1f2ee; font-size: 13px; line-height: 1.7; }
+.side button { display: block; width: 100%; text-align: left; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); color: #fff; padding: 10px 12px; margin-bottom: 8px; border-radius: 2px; transition: background-color .15s; }
+.side button:hover { background: rgba(255,255,255,.22); }
+.side button:active { transform: translateY(1px); }
+.side button[disabled] { opacity: .35; cursor: default; }
+.side p { margin: 14px 0 0; color: #e3e5e0; font-size: 12px; }
+@media (max-width: 760px) {
+  .desk { flex-direction: column-reverse; align-items: center; gap: 0; padding: 0 0 60px; }
+  .side { position: static; width: calc(100vw - 32px); display: flex; gap: 8px; flex-wrap: wrap; padding-top: 14px; }
+  .side button { width: auto; flex: 1; margin: 0; }
+  .side p { display: none; }
+  .receipt { padding: 22px 16px 30px; }
+}
+@media (prefers-reduced-motion: reduce) { .receipt.printing, .item .ext.out, .stampmark.hit { animation: none; } }
+</style>
+</head>
+<body>
+<div class="printer" aria-hidden="true"><span class="lamp" id="lamp"></span><span class="slit"></span></div>
+<div class="desk">
+  <div class="feed"><article class="receipt" id="receipt" aria-label="今朝のレシート"></article></div>
+  <aside class="side" id="side"></aside>
+</div>
+<script src="../shared/data.js"></script>
+<script src="../shared/common.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el;
+  const r = document.getElementById("receipt");
+  const BLOCKS = "▁▂▃▄▅▆▇█";
+
+  const ln = (l, rr, cls) => el("div", { class: "ln" + (cls ? " " + cls : "") }, el("span", {}, l), el("span", { class: "r" }, rr));
+  const rule = (solid) => el("hr", { class: "rule" + (solid ? " solid" : "") });
+
+  function stamp(item, repo, animate) {
+    item.querySelector(".stampmark")?.remove();
+    if (!P.fav.has(repo)) return;
+    let h = 0; for (const ch of repo) h = (h * 33 + ch.charCodeAt(0)) >>> 0;
+    const m = el("span", { class: "stampmark" + (animate ? " hit" : ""), style: `--rot:${(h % 23) - 11}deg; transform: rotate(${(h % 23) - 11}deg)` }, "保存");
+    item.append(m);
+  }
+
+  function itemRow(it, no, right) {
+    const fav = el("button", { class: "fav" + (P.fav.has(it.repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(it.repo)), "aria-label": it.repo + " を保存" }, P.fav.has(it.repo) ? "取消" : "保存");
+    const row = el("div", { class: "item", tabindex: "0" },
+      el("span", { class: "no" }, no),
+      ln(it.repo, right),
+      el("div", { class: "sm" }, it.summary),
+      fav
+    );
+    row.querySelector(".ln span").classList.add("nm");
+    if (it.delta === null) row.querySelector(".ln span").append(el("span", { class: "new" }, "新商品"));
+    fav.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const on = P.fav.toggle(it.repo);
+      fav.textContent = on ? "取消" : "保存"; fav.classList.toggle("on", on); fav.setAttribute("aria-pressed", String(on));
+      stamp(row, it.repo, true); side();
+    });
+    // 行を押すと、その下に★の推移を追加で印字する
+    const toggle = () => {
+      const old = row.querySelector(".ext");
+      if (old) { old.remove(); return; }
+      const hist = P.history(it.repo, it.stars);
+      const vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+      const lo = Math.min(...vals), hi = Math.max(...vals);
+      const bars = hist.map((h) => (h.stars == null ? "×" : BLOCKS[Math.round(((h.stars - lo) / Math.max(1, hi - lo)) * 7)])).join("");
+      row.append(el("div", { class: "ext out" },
+        ln(`★推移 ${hist[0].date.slice(5).replace("-", "/")}→${hist[hist.length - 1].date.slice(5).replace("-", "/")}`, "総★" + P.fmt(it.stars)),
+        el("div", { class: "bars", "aria-label": "★の推移。×は記録の無い日" }, bars),
+        el("div", { class: "small" }, it.desc)
+      ));
+    };
+    row.addEventListener("click", toggle);
+    row.addEventListener("keydown", (e) => { if (e.key === "Enter") toggle(); });
+    stamp(row, it.repo, false);
+    return row;
+  }
+
+  function barcode(seed) {
+    const box = el("div", { class: "barcode", "aria-hidden": "true" });
+    let h = 0; for (const ch of seed) h = (h * 131 + ch.charCodeAt(0)) >>> 0;
+    const widths = [2, 1, 1, 2, 1, 3, 1, 1];
+    for (let k = 0; k < 64; k++) {
+      h = (h * 1103515245 + 12345) >>> 0;
+      box.append(el("i", { class: k % 2 ? "s" : "", style: `width:${widths[(h >>> 8) % 8] + (k < 3 || k > 60 ? 0 : 0)}px` }));
+    }
+    return box;
+  }
+
+  function side() {
+    const sd = document.getElementById("side");
+    const prev = el("button", { type: "button", disabled: !P.hasPrev() }, "← 前の日のレシート");
+    const next = el("button", { type: "button", disabled: !P.hasNext() }, "次の日のレシート →");
+    prev.addEventListener("click", () => P.step(-1));
+    next.addEventListener("click", () => P.step(1));
+    sd.replaceChildren(prev, next,
+      el("p", {}, "行を押すと、★の推移を追加で印字します。"),
+      el("p", {}, `保存したもの ${P.fav.count()}点` + (P.fav.available() ? "（このブラウザに保存）" : "（このブラウザでは保存できません）")));
+  }
+
+  function render(animate) {
+    const day = P.day, items = day.trending.items;
+    const d = day.date;
+    const total = items.reduce((a, b) => a + b.today, 0);
+    r.replaceChildren(...[
+      el("div", { class: "logo" }, "★急上昇ストア"),
+      el("div", { class: "c small" }, "GitHub Trending 入荷 毎朝7:00まで"),
+      rule(),
+      ln(`${d.slice(0, 4)}年${+d.slice(5, 7)}月${+d.slice(8)}日(${P.weekday(d)})`, day.updatedAt.slice(11, 16)),
+      ln(`レジ01  取引No.${String(day.issueNo).padStart(4, "0")}`, "担当 Actions"),
+      P.state === "stale" ? el("div", { class: "inv", role: "status" }, "※印字データは 11/10 のものです※") : null,
+      el("div", { class: "head2" }, "【本日の急上昇】"),
+      ...items.map((it) => itemRow(it, it.rank, "★+" + P.fmt(it.today))),
+      rule(),
+      ln(`小計  ${items.length}点`, "★+" + P.fmt(total)),
+    ].filter(Boolean));
+    day.topics.forEach((t) => {
+      const sub = t.items.reduce((a, b) => a + (b.delta || 0), 0);
+      r.append(el("div", { class: "head2" }, `◆ ${t.label} 売場`), ...t.items.slice(0, 5).map((it, i) => itemRow(it, i + 1, it.delta == null ? "──" : "★+" + P.fmt(it.delta))), ln("　小計（前日比）", "★+" + P.fmt(sub), "small"));
+    });
+    const grand = total + day.topics.reduce((a, t) => a + t.items.reduce((x, y) => x + (y.delta || 0), 0), 0);
+    r.append(
+      rule(true),
+      el("div", { class: "big ln" }, el("span", {}, "合計"), el("span", {}, "★+" + P.fmt(grand))),
+      ln("お買上点数", `${items.length + day.topics.reduce((a, t) => a + Math.min(5, t.items.length), 0)}点`),
+      ln("保存", `${P.fav.count()}点`),
+      rule(),
+      el("div", { class: "c small" }, "★の数は GitHub の公開データから。要約は日本語の1行。"),
+      barcode(d + day.issueNo),
+      el("div", { class: "c small" }, d.replaceAll("-", "") + String(day.issueNo).padStart(5, "0")),
+      el("div", { class: "c", style: "margin-top:10px" }, "また明日の朝に。"),
+      el("div", { class: "c small", style: "margin-top:14px" }, "案D「レシート」— 毎朝の結果を感熱紙のレシートとして印字する。データは架空。")
+    );
+    side();
+    if (animate && !P.reduced()) {
+      const lamp = document.getElementById("lamp");
+      r.classList.remove("printing"); void r.offsetWidth; r.classList.add("printing");
+      lamp.classList.add("busy");
+      r.addEventListener("animationend", () => lamp.classList.remove("busy"), { once: true });
+      window.scrollTo({ top: 0 });
+    }
+  }
+  P.onDate(() => render(true));
+  render(true);
+})();
+</script>
+</body>
+</html>

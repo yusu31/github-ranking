@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案B スイス — github-ranking v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root { --ink: #0a0a0a; --paper: #ffffff; --grey: #6e6e6e; --hair: #d4d4d4; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: "Archivo", "Zen Kaku Gothic New", sans-serif;
+  font-variation-settings: "wdth" 100;
+}
+.jp { font-family: "Zen Kaku Gothic New", sans-serif; }
+.cond { font-stretch: 62%; font-variation-settings: "wdth" 62; }
+.wrap { max-width: 1360px; margin: 0 auto; padding: 32px 40px 64px; display: grid; grid-template-columns: repeat(12, 1fr); column-gap: 24px; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* 左の細い列: 日付と操作（題字は置かない） */
+.meta { grid-column: 1 / span 3; padding-top: 14px; font-size: 13px; line-height: 1.5; }
+.meta .y { font-weight: 300; }
+.meta .md { font-size: 56px; line-height: .9; font-weight: 800; letter-spacing: -.02em; font-variation-settings: "wdth" 62; margin: 4px 0 6px; }
+.meta .wd { color: var(--grey); }
+.meta .nav { display: flex; gap: 18px; margin-top: 18px; }
+.meta .nav button { border-bottom: 1px solid var(--ink); padding-bottom: 1px; }
+.meta .nav button:hover { border-bottom-width: 3px; padding-bottom: 0; }
+.meta .nav button[disabled] { color: var(--hair); border-color: var(--hair); cursor: default; }
+.meta .src { margin-top: 28px; color: var(--grey); font-size: 12px; max-width: 18em; }
+
+/* 1〜3位: 巨大な数字。2位と3位は段をずらす（非対称） */
+.top { grid-column: 4 / span 9; display: grid; grid-template-columns: repeat(9, 1fr); column-gap: 24px; }
+.first { grid-column: 1 / span 9; display: grid; grid-template-columns: auto 1fr; column-gap: 28px; align-items: end; border-bottom: 8px solid var(--ink); padding-bottom: 18px; }
+.num { font-weight: 900; line-height: .78; letter-spacing: -.04em; font-variation-settings: "wdth" 62; }
+.first .num { font-size: clamp(140px, 19vw, 300px); }
+.first .repo { font-size: clamp(28px, 3.4vw, 52px); font-weight: 700; letter-spacing: -.02em; line-height: 1; word-break: break-all; }
+.first .sum { font-size: 20px; line-height: 1.6; margin: 14px 0 0; max-width: 30em; }
+.first .fig { display: flex; gap: 28px; margin-top: 14px; align-items: baseline; }
+.big { font-size: 40px; font-weight: 800; font-variation-settings: "wdth" 75; letter-spacing: -.01em; }
+.lbl { font-size: 12px; color: var(--grey); display: block; }
+.second, .third { grid-column: span 4; padding-top: 18px; display: grid; grid-template-columns: auto 1fr; column-gap: 16px; align-items: start; }
+.third { grid-column: 6 / span 4; margin-top: 64px; }
+.second .num, .third .num { font-size: clamp(80px, 9vw, 140px); }
+.second .repo, .third .repo { font-size: 20px; font-weight: 700; word-break: break-all; line-height: 1.15; }
+.second .sum, .third .sum { font-size: 14px; line-height: 1.7; margin: 8px 0; }
+.mid { font-size: 22px; font-weight: 800; font-variation-settings: "wdth" 75; }
+
+.fav { font-size: 13px; margin-left: 14px; display: inline-flex; align-items: center; gap: 6px; color: var(--grey); }
+.fav i { width: 11px; height: 11px; border: 1.5px solid var(--ink); display: inline-block; transition: background-color .15s ease-out; }
+.fav.on { color: var(--ink); }
+.fav.on i { background: var(--ink); }
+.fav:hover i { transform: scale(1.15); }
+
+/* 4位以下の表＋右の追跡（触れた行の★の推移を描く） */
+.list { grid-column: 1 / span 9; margin-top: 88px; }
+.sec { display: flex; justify-content: space-between; align-items: baseline; border-top: 3px solid var(--ink); padding-top: 8px; margin-bottom: 4px; }
+.sec h2 { margin: 0; font-size: 15px; font-weight: 700; }
+.sec span { font-size: 12px; color: var(--grey); }
+table { width: 100%; border-collapse: collapse; }
+td, th { padding: 9px 0; vertical-align: top; border-bottom: 1px solid var(--hair); text-align: left; }
+th { font-size: 11px; font-weight: 400; color: var(--grey); border-bottom: 1px solid var(--ink); padding: 6px 0; }
+tr.r { cursor: pointer; }
+tr.r:hover td, tr.r.on td { background: #f3f3f3; }
+td.n { width: 3.2em; font-weight: 800; font-size: 22px; font-variation-settings: "wdth" 62; line-height: 1; padding-top: 10px; }
+td.repo { width: 34%; font-weight: 600; font-size: 15px; word-break: break-all; padding-right: 16px; }
+td.repo small { display: block; font-weight: 400; color: var(--grey); font-size: 11px; margin-top: 3px; }
+td.sum { font-size: 14px; line-height: 1.7; padding-right: 16px; }
+td.t { text-align: right; width: 6em; font-weight: 700; font-variation-settings: "wdth" 75; font-size: 16px; font-variant-numeric: tabular-nums; }
+td.tot { text-align: right; width: 6em; color: var(--grey); font-size: 13px; font-variant-numeric: tabular-nums; }
+td.f { width: 3em; text-align: right; }
+td.f .fav span { display: none; }
+td.f .fav, .first .fav { margin-left: 0; }
+th.r { text-align: right; }
+
+.trace { grid-column: 10 / span 3; margin-top: 88px; }
+.trace .box { position: sticky; top: 24px; border-top: 3px solid var(--ink); padding-top: 8px; }
+.trace h3 { margin: 0 0 2px; font-size: 15px; font-weight: 700; word-break: break-all; min-height: 1.3em; }
+.trace p { margin: 0; font-size: 12px; color: var(--grey); line-height: 1.6; }
+.trace svg { display: block; width: 100%; height: auto; margin: 16px 0 8px; overflow: visible; }
+.trace .line { fill: none; stroke: var(--ink); stroke-width: 2; }
+.trace .line.draw { animation: draw .7s cubic-bezier(.2,.7,.2,1) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.trace .gap { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 2 3; }
+.trace .ax { font-size: 10px; fill: var(--grey); font-family: "Archivo", sans-serif; }
+.trace .val { font-size: 34px; font-weight: 800; font-variation-settings: "wdth" 62; }
+
+/* 関心領域: 左に名前、右に流れる並び */
+.topics { grid-column: 1 / span 12; margin-top: 120px; }
+.topic { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: 24px; border-top: 1px solid var(--ink); padding: 14px 0 22px; }
+.topic:first-of-type { border-top-width: 8px; }
+.topic h3 { grid-column: 1 / span 3; margin: 0; font-size: 34px; font-weight: 800; font-variation-settings: "wdth" 70; letter-spacing: -.01em; line-height: 1; }
+.topic h3 small { display: block; font-size: 11px; font-weight: 400; color: var(--grey); margin-top: 8px; letter-spacing: 0; }
+.topic ol { grid-column: 4 / span 9; margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px 24px; }
+.topic li { font-size: 13px; line-height: 1.6; cursor: pointer; }
+.topic li:hover b { text-decoration: underline; text-decoration-thickness: 2px; }
+.topic li b { display: block; font-size: 14px; word-break: break-all; }
+.topic li .d { font-weight: 800; font-variation-settings: "wdth" 75; font-size: 18px; }
+.topic li .new { font-size: 11px; border: 1.5px solid var(--ink); padding: 0 5px; font-weight: 700; }
+.topic li:nth-child(n+2) .d { font-size: 15px; }
+
+.stale { grid-column: 1 / span 12; background: var(--ink); color: var(--paper); padding: 10px 16px; font-size: 14px; margin-bottom: 24px; display: flex; gap: 24px; }
+.stale b { font-weight: 700; }
+
+footer { grid-column: 1 / span 12; margin-top: 96px; border-top: 1px solid var(--ink); padding-top: 10px; display: flex; justify-content: space-between; font-size: 12px; color: var(--grey); }
+footer .pg { color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 900px) {
+  .wrap { padding: 20px 16px 48px; column-gap: 12px; }
+  .meta, .top, .list, .trace, .topics { grid-column: 1 / -1; }
+  .meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 0 0 18px; }
+  .meta .md { font-size: 40px; margin: 0; }
+  .meta .nav { margin: 0 0 0 auto; } .meta .src { display: none; }
+  .first { grid-template-columns: 1fr; } .first .num { font-size: 150px; }
+  .second, .third { grid-column: 1 / -1; margin-top: 0; }
+  .third { padding-left: 28%; }
+  .list, .trace { margin-top: 56px; }
+  td.sum, td.tot, th.hide { display: none; }
+  td.repo { width: auto; } td.repo small.s { display: block; font-size: 12px; color: var(--ink); margin-top: 4px; }
+  .trace { order: 9; }
+  .topic h3 { grid-column: 1 / -1; margin-bottom: 12px; font-size: 26px; }
+  .topic ol { grid-column: 1 / -1; }
+}
+@media (min-width: 901px) { td.repo small.s { display: none; } }
+@media (prefers-reduced-motion: reduce) { .trace .line.draw { animation: none; stroke-dashoffset: 0 !important; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/common.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, s = P.svg;
+  const app = document.getElementById("app");
+  let traced = null;
+
+  const pad = (n) => String(n).padStart(2, "0");
+  function favBtn(repo, label) {
+    const b = el("button", { class: "fav" + (P.fav.has(repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(repo)), "aria-label": repo + " を保存" }, el("i"), el("span", {}, label || (P.fav.has(repo) ? "保存済" : "保存")));
+    b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const on = P.fav.toggle(repo);
+      b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on));
+      const sp = b.querySelector("span"); if (sp && !label) sp.textContent = on ? "保存済" : "保存";
+    });
+    return b;
+  }
+
+  function drawTrace(it) {
+    const box = document.querySelector(".trace .box");
+    if (!box || !it) return;
+    traced = it.repo;
+    const hist = P.history(it.repo, it.stars);
+    const W = 300, H = 150;
+    const vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const x = (i) => (i / (hist.length - 1)) * W;
+    const y = (v) => H - ((v - lo) / Math.max(1, hi - lo)) * H;
+    let d = "", pen = false;
+    const gaps = [];
+    hist.forEach((h, i) => {
+      if (h.stars == null) { pen = false; gaps.push(i); return; }
+      d += (pen ? "L" : "M") + x(i).toFixed(1) + " " + y(h.stars).toFixed(1) + " ";
+      pen = true;
+    });
+    const g = s("svg", { viewBox: `0 -6 ${W} ${H + 30}`, role: "img", "aria-label": it.repo + " の★の推移" });
+    gaps.forEach((i) => g.append(s("line", { class: "gap", x1: x(i), x2: x(i), y1: 0, y2: H })));
+    const path = s("path", { class: "line", d });
+    g.append(path,
+      s("text", { class: "ax", x: 0, y: H + 22 }, hist[0].date.slice(5).replace("-", ".")),
+      s("text", { class: "ax", x: W, y: H + 22, "text-anchor": "end" }, hist[hist.length - 1].date.slice(5).replace("-", ".")),
+      s("circle", { cx: x(hist.length - 1), cy: y(it.stars), r: 4, fill: "#0a0a0a" }));
+    box.replaceChildren(
+      el("h3", {}, it.repo),
+      el("p", { class: "jp" }, it.summary),
+      g,
+      el("div", { class: "val" }, P.fmt(it.stars)),
+      el("p", { class: "jp" }, "総★。記録を取り始めた " + hist[0].date.slice(5).replace("-", "月") + "日 から。点線は記録の無い日。")
+    );
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = len; path.style.strokeDashoffset = len;
+    requestAnimationFrame(() => path.classList.add("draw"));
+    document.querySelectorAll("tr.r").forEach((tr) => tr.classList.toggle("on", tr.dataset.repo === it.repo));
+  }
+
+  function render() {
+    const day = P.day, items = day.trending.items;
+    const idx = P.data.DATES.indexOf(P.date);
+    app.replaceChildren();
+    if (P.state === "stale") app.append(el("div", { class: "stale jp", role: "status" }, el("b", {}, "更新が止まっています"), el("span", {}, "最後の記録は 11.10。2日分が欠けています。")));
+
+    const prev = el("button", { type: "button", class: "jp", disabled: !P.hasPrev() }, "← 前の日");
+    const next = el("button", { type: "button", class: "jp", disabled: !P.hasNext() }, "次の日 →");
+    prev.addEventListener("click", () => P.step(-1));
+    next.addEventListener("click", () => P.step(1));
+    app.append(el("aside", { class: "meta" },
+      el("div", { class: "y" }, day.date.slice(0, 4)),
+      el("div", { class: "md" }, day.date.slice(5).replace("-", ".")),
+      el("div", { class: "wd jp" }, P.weekday(day.date) + "曜日　" + day.updatedAt.slice(11, 16) + " 更新"),
+      el("div", { class: "nav" }, prev, next),
+      el("p", { class: "src jp" }, "GitHub Trending（全言語・daily）の掲載と、関心領域の★の前日比。要約は日本語の1行。")
+    ));
+
+    const [a, b, c] = items;
+    const top = el("section", { class: "top", "aria-label": "1〜3位" },
+      el("div", { class: "first" },
+        el("div", { class: "num" }, "1"),
+        el("div", {},
+          el("div", { class: "repo" }, a.repo),
+          el("p", { class: "sum jp" }, a.summary),
+          el("div", { class: "fig" },
+            el("div", {}, el("span", { class: "lbl jp" }, "今日の★"), el("span", { class: "big" }, "+" + P.fmt(a.today))),
+            el("div", {}, el("span", { class: "lbl jp" }, "総★"), el("span", { class: "mid" }, P.fmt(a.stars))),
+            el("div", {}, el("span", { class: "lbl" }, " "), favBtn(a.repo))
+          )
+        )
+      ),
+      ...[b, c].map((it, k) => el("div", { class: k ? "third" : "second" },
+        el("div", { class: "num" }, String(k + 2)),
+        el("div", {},
+          el("div", { class: "repo" }, it.repo),
+          el("p", { class: "sum jp" }, it.summary),
+          el("span", { class: "mid" }, "+" + P.fmt(it.today)), " ", favBtn(it.repo)
+        )
+      ))
+    );
+    app.append(top);
+
+    const tbody = el("tbody");
+    items.slice(3).forEach((it) => {
+      const tr = el("tr", { class: "r", tabindex: "0", "data-repo": it.repo },
+        el("td", { class: "n" }, pad(it.rank)),
+        el("td", { class: "repo" }, it.repo, el("small", {}, it.lang), el("small", { class: "s jp" }, it.summary)),
+        el("td", { class: "sum jp" }, it.summary),
+        el("td", { class: "t" }, "+" + P.fmt(it.today)),
+        el("td", { class: "tot" }, P.fmt(it.stars)),
+        el("td", { class: "f" }, favBtn(it.repo, " "))
+      );
+      tr.addEventListener("mouseenter", () => drawTrace(it));
+      tr.addEventListener("focus", () => drawTrace(it));
+      tr.addEventListener("click", () => { drawTrace(it); if (matchMedia("(max-width: 900px)").matches) document.querySelector(".trace").scrollIntoView({ behavior: P.reduced() ? "auto" : "smooth" }); });
+      tbody.append(tr);
+    });
+    app.append(
+      el("section", { class: "list" },
+        el("div", { class: "sec" }, el("h2", { class: "jp" }, "4位から25位"), el("span", { class: "jp" }, "行に触れると、右に★の推移")),
+        el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "#"), el("th", {}, "Repository"), el("th", { class: "jp hide" }, "1行要約"), el("th", { class: "r jp" }, "今日の★"), el("th", { class: "r jp hide" }, "総★"), el("th"))), tbody)
+      ),
+      el("aside", { class: "trace", "aria-live": "polite" }, el("div", { class: "box" }))
+    );
+
+    const topics = el("section", { class: "topics", "aria-label": "関心領域" });
+    day.topics.forEach((t) => {
+      const ol = el("ol");
+      t.items.slice(0, 6).forEach((it) => {
+        const li = el("li", { tabindex: "0" },
+          el("b", {}, it.repo),
+          it.delta == null ? el("span", { class: "new jp" }, "新顔") : el("span", { class: "d" }, "+" + P.fmt(it.delta)),
+          el("div", { class: "jp" }, it.summary)
+        );
+        li.addEventListener("click", () => { drawTrace(it); document.querySelector(".trace").scrollIntoView({ behavior: P.reduced() ? "auto" : "smooth", block: "start" }); });
+        ol.append(li);
+      });
+      topics.append(el("div", { class: "topic" }, el("h3", {}, t.label, el("small", { class: "jp" }, "前日比の★")), ol));
+    });
+    app.append(topics);
+
+    app.append(el("footer", {},
+      el("span", { class: "jp" }, "案B「スイス」— 色を使わず、文字の大きさと罫線だけで順位を見せる。データは架空。"),
+      el("span", { class: "pg" }, pad(idx + 1) + " / " + pad(P.data.DATES.length))
+    ));
+    drawTrace(items.find((x) => x.repo === traced) || items[3]);
+  }
+  P.onDate(render);
+  render();
+})();
+</script>
+</body>
+</html>

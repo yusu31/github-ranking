@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案O リザルト画面 — github-ranking v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0c0d; --panel: #131516; --line: #2a2f31; --grid: rgba(255,255,255,.035);
+  --text: #f4f6f6; --sub: #9aa6a9; --cy: #1fd6ea; --down: #ff7468; --white: #ffffff;
+  --jp: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --num: "Rajdhani", "Arial Narrow", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+  color: var(--text); font-family: var(--jp); font-weight: 500; line-height: 1.6; font-size: 15px;
+  line-break: strict; word-break: auto-phrase;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--cy); outline-offset: 2px; }
+.app { max-width: 940px; margin: 0 auto; padding: 16px 16px 56px; }
+.num { font-family: var(--num); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* 上部バー */
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--cy); padding-bottom: 8px; }
+.top .tag { font-family: var(--num); font-weight: 700; letter-spacing: .2em; font-size: 14px; color: var(--cy); }
+.top .iss { font-family: var(--num); font-weight: 600; color: var(--sub); font-size: 15px; }
+.top .upd { margin-left: auto; color: var(--sub); font-size: 14px; }
+.days { display: flex; gap: 6px; margin: 12px 0; }
+.days button { flex: 1; background: var(--panel); border: 1px solid var(--line); padding: 6px 0; color: var(--sub); font-weight: 700; font-size: 15px; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+.days button small { display: block; font-size: 12px; font-weight: 500; line-height: 1.3; }
+.days button:hover { color: var(--text); }
+.days button[aria-current="true"] { background: var(--cy); color: #04181b; border-color: var(--cy); }
+.stale { border-left: 5px solid var(--down); background: #2a1512; color: #ffd0ca; padding: 10px 14px; margin: 0 0 12px; font-size: 14px; }
+
+/* 結果パネル */
+.result { position: relative; background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--white); display: grid; grid-template-columns: auto 1fr; gap: 8px 28px; padding: 18px 26px 18px 22px; clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 26px 100%, 0 calc(100% - 26px)); }
+.result .lab { font-family: var(--num); font-size: 14px; letter-spacing: .18em; color: var(--sub); font-weight: 600; }
+.rankbox { text-align: center; min-width: 150px; }
+.rankletter { display: block; font-weight: 900; font-style: italic; font-size: 136px; line-height: .95; color: var(--cy); padding: 0 12px 0 0; font-family: var(--jp); }
+.rankletter.S { color: var(--cy); } .rankletter.A { color: var(--white); } .rankletter.B { color: var(--sub); }
+.rankletter.stamp { animation: stamp .42s cubic-bezier(.2,1.6,.4,1) 1.15s both; }
+@keyframes stamp { 0% { transform: scale(2.8) rotate(-9deg); opacity: 0; } 60% { opacity: 1; } 100% { transform: scale(1) rotate(-3deg); opacity: 1; } }
+.rankletter { transform: rotate(-3deg); }
+.score { align-self: end; }
+.score .big { font-family: var(--num); font-weight: 700; font-size: 84px; line-height: 1; color: var(--white); letter-spacing: .01em; }
+.score .big small { font-size: 26px; color: var(--cy); margin-left: 8px; }
+.score .lab { margin-bottom: 2px; }
+.digest { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 10px; font-size: 16px; font-weight: 700; }
+.digest span { color: var(--sub); font-weight: 500; font-size: 14px; display: block; }
+
+/* タブ */
+.tabs { display: flex; gap: 4px; margin: 22px 0 0; }
+.tabs.sub { margin: 8px 0 0; flex-wrap: wrap; }
+.tabs button { background: transparent; border: 1px solid var(--line); border-bottom: 0; padding: 8px 22px 8px 18px; font-weight: 900; font-size: 16px; color: var(--sub); clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 100%, 0 100%); }
+.tabs button[aria-selected="true"] { background: var(--white); color: #0b0c0d; border-color: var(--white); }
+.tabs.sub button { font-size: 14px; font-weight: 700; padding: 5px 18px 5px 14px; border-bottom: 1px solid var(--line); }
+.tabs.sub button[aria-selected="true"] { background: var(--cy); border-color: var(--cy); color: #04181b; }
+
+/* 楽曲リスト風の行 */
+.list { border-top: 2px solid var(--white); }
+.rowwrap { border-bottom: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: 56px 44px minmax(0, 1fr) 100px 44px 84px 40px; align-items: center; gap: 12px; padding: 10px 6px 10px 0; cursor: pointer; position: relative; }
+.row:hover { background: rgba(255,255,255,.05); }
+.rowwrap.open { background: #181b1c; }
+.rk { font-family: var(--num); font-weight: 700; font-size: 34px; line-height: 1; text-align: center; color: var(--sub); }
+.rk.top3 { color: var(--white); font-size: 40px; }
+.who b { display: block; font-weight: 900; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.who b span { color: var(--sub); font-weight: 500; }
+.who p { margin: 0; font-size: 14px; line-height: 1.55; color: #d3dcde; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sc { text-align: right; }
+.sc .pts { display: block; font-family: var(--num); font-weight: 700; font-size: 26px; line-height: 1.1; color: var(--white); }
+.chg { font-family: var(--num); font-weight: 700; font-size: 14px; letter-spacing: .04em; }
+.chg.up { color: var(--cy); } .chg.down { color: var(--down); } .chg.same { color: var(--sub); }
+.chg.new { background: var(--white); color: #0b0c0d; padding: 0 6px; }
+.badge { width: 40px; height: 40px; display: grid; place-items: center; font-weight: 900; font-style: italic; font-size: 24px; line-height: 1; clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 100%, 0 100%); }
+.badge.S { background: var(--cy); color: #04181b; }
+.badge.A { background: var(--white); color: #0b0c0d; }
+.badge.B { background: #2a3033; color: #cfd8da; }
+.combo { font-size: 13px; color: var(--sub); line-height: 1.35; }
+.combo b { font-family: var(--num); font-size: 22px; color: var(--text); margin-right: 3px; }
+.combo em { display: block; font-style: normal; font-size: 12px; }
+.combo .hof { color: #04181b; background: var(--cy); font-weight: 900; padding: 0 5px; }
+.favb { width: 40px; height: 40px; background: transparent; border: 1px solid var(--line); color: var(--sub); font-size: 18px; }
+.favb:hover { border-color: var(--text); }
+.favb.on { background: var(--white); color: #0b0c0d; border-color: var(--white); }
+.favb.pop { animation: pop .25s ease-out; }
+@keyframes pop { 50% { transform: scale(1.2); } }
+
+/* 1位の帯 */
+.record { display: flex; align-items: center; gap: 10px; background: var(--cy); color: #04181b; font-family: var(--num); font-weight: 700; letter-spacing: .22em; font-size: 15px; padding: 2px 16px 2px 12px; width: max-content; max-width: 100%; clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); margin-top: 8px; }
+.rowwrap.first .row { background: linear-gradient(90deg, rgba(31,214,234,.14), transparent 60%); }
+.rowwrap.first .who b { font-size: 18px; }
+
+/* 詳細 */
+.more { padding: 4px 8px 14px 68px; display: grid; gap: 8px; }
+.more .en { color: var(--sub); font-size: 14px; word-break: break-word; }
+.bars { display: flex; align-items: flex-end; gap: 4px; height: 76px; }
+.bars i { flex: 1; background: #4d5659; }
+.bars i.miss { background: transparent; border: 2px dashed #4d5659; height: 100% !important; }
+.bars i.last { background: var(--cy); }
+.cap { display: flex; justify-content: space-between; font-size: 13px; color: var(--sub); }
+.more .favb { display: none; width: auto; padding: 0 16px; font-size: 14px; justify-self: start; }
+
+footer { color: var(--sub); font-size: 13px; margin-top: 36px; line-height: 1.7; border-top: 1px solid var(--line); padding-top: 10px; }
+
+@media (max-width: 640px) {
+  .app { padding: 12px 14px 48px; }
+  .result { grid-template-columns: 1fr; padding: 14px 16px; gap: 4px; }
+  .rankbox { display: flex; align-items: center; gap: 14px; text-align: left; min-width: 0; }
+  .rankletter { font-size: 92px; }
+  .score .big { font-size: 60px; }
+  .score .big small { font-size: 20px; }
+  .row { grid-template-columns: 34px 38px minmax(0, 1fr) auto; grid-template-areas: "rk ic who sc" ". . cb bd"; gap: 4px 10px; padding-right: 0; }
+  .row .rk { grid-area: rk; font-size: 26px; } .row .rk.top3 { font-size: 30px; }
+  .row .ident { grid-area: ic; width: 38px; height: 38px; }
+  .who { grid-area: who; } .sc { grid-area: sc; } .combo { grid-area: cb; } .badge { grid-area: bd; justify-self: end; width: 34px; height: 34px; font-size: 20px; }
+  .row > .favb { display: none; }
+  .more { padding-left: 4px; } .more .favb { display: block; }
+  .combo em { display: inline; margin-left: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rankletter.stamp { animation: none; }
+  .favb.pop { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, V = V3;
+  let open = null, mode = "trend", topicId = null;
+  let listBox = null;
+
+  // 評価: 今日の★増から。行ごと（トレンド用・ジャンル用で目盛りが違う）と全体
+  const gradeRow = (n, topic) => (n == null ? "B" : topic ? (n >= 300 ? "S" : n >= 120 ? "A" : "B") : (n >= 800 ? "S" : n >= 300 ? "A" : "B"));
+  const gradeAll = (n) => (n >= 6000 ? "S" : n >= 4500 ? "A" : "B");
+  // 連続登場（仮）: 名前から決める。最長の1件だけ「殿堂入り」
+  const streakOf = (repo) => 1 + (V.hash(repo) % 9);
+  const reentry = (repo) => V.hash(repo + "r") % 5 === 0;
+
+  function feed() {
+    const d = P.day;
+    return d.trending.status === "ok" ? d.trending.items : d.fallback;
+  }
+  function hofRepo(items) {
+    let best = null;
+    items.forEach((it) => { if (!best || streakOf(it.repo) > streakOf(best.repo)) best = it; });
+    return best && streakOf(best.repo) >= 7 ? best.repo : null;
+  }
+
+  function favBtn(repo) {
+    const b = el("button", { class: "favb" + (P.fav.has(repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(repo)), "aria-label": repo + " をお気に入り" }, "★");
+    b.addEventListener("click", (e) => { e.stopPropagation(); const on = P.fav.toggle(repo); b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); });
+    return b;
+  }
+  function more(it) {
+    const hist = P.history(it.repo, it.stars);
+    const vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const bars = el("div", { class: "bars", role: "img", "aria-label": "★の推移" }, hist.map((h, i) => el("i", { class: h.stars == null ? "miss" : i === hist.length - 1 ? "last" : "", title: h.date + " ★" + P.fmt(h.stars), style: h.stars == null ? "" : `height:${12 + ((h.stars - lo) / Math.max(1, hi - lo)) * 88}%` })));
+    return el("div", { class: "more" },
+      el("div", { class: "en" }, it.desc),
+      bars,
+      el("div", { class: "cap" }, el("span", {}, hist[0].date.slice(5).replace("-", "/") + " から（点線は記録の無い日）"), el("span", { class: "num" }, "総★ " + P.fmt(it.stars))),
+      favBtn(it.repo));
+  }
+
+  function row(it, i, o) {
+    const score = o.topic ? it.delta : it.today;
+    const g = gradeRow(score, o.topic);
+    const st = streakOf(it.repo);
+    const isHof = o.hof === it.repo;
+    const right = o.topic
+      ? (it.delta == null ? el("span", { class: "chg new" }, "前日に無し") : el("span", { class: "chg same" }, "前日比"))
+      : V.changeEl(it.repo);
+    const combo = el("div", { class: "combo" }, el("b", { class: "num" }, st), "日連続", isHof ? el("em", {}, el("span", { class: "hof" }, "殿堂入り(仮)")) : el("em", {}, reentry(it.repo) ? "再登場(仮)" : st === 1 ? "初登場(仮)" : "(仮)"));
+    const r = el("div", { class: "row", tabindex: "0", role: "button", "aria-expanded": String(open === it.repo) },
+      el("span", { class: "rk num" + (i < 3 ? " top3" : "") }, i + 1),
+      V.identicon(V.owner(it.repo), 44, 4),
+      el("div", { class: "who" }, el("b", {}, el("span", {}, V.owner(it.repo) + "/"), V.name(it.repo)), el("p", {}, it.summary)),
+      el("div", { class: "sc" }, el("span", { class: "pts" }, score == null ? "NEW" : "+" + P.fmt(score)), right),
+      el("span", { class: "badge " + g, "aria-label": "評価 " + g }, g),
+      combo,
+      favBtn(it.repo));
+    const w = el("div", { class: "rowwrap" + (open === it.repo ? " open" : "") + (i === 0 ? " first" : "") });
+    if (i === 0) w.append(el("div", { class: "record" }, "NEW RECORD", el("span", { style: "font-family:var(--jp);letter-spacing:.04em;font-weight:900" }, "今日の1位")));
+    w.append(r);
+    if (open === it.repo) w.append(more(it));
+    const toggle = () => { open = open === it.repo ? null : it.repo; renderList(); };
+    r.addEventListener("click", toggle);
+    r.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+    return w;
+  }
+
+  function currentTopic() { const d = P.day; return d.topics.find((t) => t.id === topicId) || d.topics[0]; }
+
+  function renderList() {
+    const items = feed();
+    if (mode === "trend") {
+      const hof = hofRepo(items);
+      listBox.replaceChildren(...items.map((it, i) => row(it, i, { hof })));
+    } else {
+      const t = currentTopic();
+      listBox.replaceChildren(...t.items.map((it, i) => row(it, i, { topic: true, hof: null })));
+    }
+  }
+
+  function digest(items) {
+    const byLang = {};
+    items.slice(0, 10).forEach((it) => { byLang[it.lang] = (byLang[it.lang] || 0) + it.today; });
+    const langs = Object.entries(byLang).sort((a, b) => b[1] - a[1]).slice(0, 2).map((x) => x[0]);
+    const news = items.filter((it) => V.change(it.repo).kind === "new").length;
+    const top = items[0];
+    return `今日は ${langs.join(" と ")} が強い。新顔が${news}件。トップは ${V.name(top.repo)}（+${P.fmt(top.today)}★）。`;
+  }
+
+  function render() {
+    const day = P.day, items = feed(), app = document.getElementById("app");
+    const total = items.reduce((s, it) => s + it.today, 0);
+    const grade = gradeAll(total);
+    const bigNum = el("span", { class: "num" }, "+0");
+    const letter = el("span", { class: "rankletter " + grade + (P.reduced() ? "" : " stamp"), "aria-label": "今日の評価 " + grade }, grade);
+    V.countUp(bigNum, total, "+", 1100);
+
+    const days = el("div", { class: "days", role: "group", "aria-label": "日付" }, P.data.DATES.map((d) => {
+      const b = el("button", { type: "button", "aria-current": String(d === P.date) }, `${+d.slice(5, 7)}/${+d.slice(8)}`, el("small", {}, P.weekday(d) + "曜"));
+      b.addEventListener("click", () => { open = null; P.setDate(d); });
+      return b;
+    }));
+    const stale = P.state === "stale" ? (() => {
+      const dt = new Date(P.date + "T00:00:00+09:00"); dt.setDate(dt.getDate() - 2);
+      const s = dt.toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+      return el("div", { class: "stale", role: "status" }, `更新が2日止まっています。表示は ${+s.slice(5, 7)}/${+s.slice(8)} の記録です。`);
+    })() : null;
+    const fb = day.trending.status === "ok" ? null : el("div", { class: "stale", role: "status" }, "Trending を読めなかったので、最近できて★が急に増えたリポジトリで代用しています。");
+
+    const mainTabs = el("div", { class: "tabs", role: "tablist", "aria-label": "表示" }, [["trend", "トレンド " + items.length], ["genre", "ジャンル"]].map(([k, label]) => {
+      const b = el("button", { type: "button", role: "tab", "aria-selected": String(mode === k) }, label);
+      b.addEventListener("click", () => { mode = k; open = null; render2(); });
+      return b;
+    }));
+    const subSlot = el("div", { id: "subslot" });
+    listBox = el("div", { class: "list" });
+
+    function render2() {
+      // タブの選択状態と副タブ・リストだけ更新（上のスコアは再演出しない）
+      [...mainTabs.children].forEach((b, i) => b.setAttribute("aria-selected", String((i === 0) === (mode === "trend"))));
+      if (mode === "genre") {
+        const cur = currentTopic();
+        subSlot.replaceChildren(el("div", { class: "tabs sub", role: "tablist", "aria-label": "ジャンル" }, day.topics.map((t) => {
+          const b = el("button", { type: "button", role: "tab", "aria-selected": String(t.id === cur.id) }, t.label);
+          b.addEventListener("click", () => { topicId = t.id; open = null; render2(); });
+          return b;
+        })));
+      } else subSlot.replaceChildren();
+      renderList();
+    }
+
+    app.replaceChildren(...[
+      el("div", { class: "top" }, el("span", { class: "tag" }, "RESULT"), el("span", { class: "iss" }, "第" + day.issueNo + "号"), el("span", { class: "upd num" }, day.updatedAt.slice(11, 16) + " JST 更新")),
+      days, stale, fb,
+      el("section", { class: "result", "aria-label": "今日の結果" },
+        el("div", { class: "rankbox" }, el("div", { class: "lab" }, "RANK"), letter),
+        el("div", { class: "score" }, el("div", { class: "lab" }, "TODAY'S ★ GAIN（全体の合計）"), el("div", { class: "big" }, bigNum, el("small", {}, "★"))),
+        el("div", { class: "digest" }, "今日の概況", el("span", {}, digest(items)), el("span", {}, `評価の目安: 合計 +6,000★以上で S／+4,500★以上で A`))),
+      mainTabs, subSlot, listBox,
+      el("footer", {}, "案O「リザルト画面」— 音楽ゲームやレースの結果画面の文法（ランク文字のスタンプ・スコアのカウントアップ・楽曲リスト風の行・NEW RECORD の帯）。連続日数・再登場・殿堂入りは仮の値。アイコンは GitHub の初期アバターと同じ作りの模様で、データは架空。")
+    ].filter(Boolean));
+    render2();
+  }
+  P.onDate(() => render());
+  render();
+})();
+</script>
+</body>
+</html>

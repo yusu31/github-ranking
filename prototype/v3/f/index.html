@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案F ランキング誌 — github-ranking v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root { --page: #f3f3f1; --card: #ffffff; --ink: #141414; --sub: #6b6b6b; --up: #0aa35b; --down: #e5484d; --hot: #ff4d2e; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font-family: "Noto Sans JP", sans-serif; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--hot); outline-offset: 2px; }
+.dela { font-family: "Dela Gothic One", sans-serif; font-weight: 400; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 22px 16px 64px; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* 見出し: 日付の札＋日付の切り替え */
+.top { display: flex; align-items: stretch; gap: 16px; flex-wrap: wrap; }
+.datebox { background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 6px; display: grid; place-items: center; text-align: center; }
+.datebox b { font-size: 34px; line-height: 1; }
+.datebox span { font-size: 12px; margin-top: 4px; }
+.title { display: flex; flex-direction: column; justify-content: center; }
+.title h1 { margin: 0; font-size: 28px; line-height: 1.2; }
+.title p { margin: 4px 0 0; color: var(--sub); font-size: 13px; }
+.days { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.days button { border: 2px solid var(--ink); background: #fff; border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 14px; transition: transform .1s; }
+.days button:hover { background: #eee; }
+.days button:active { transform: scale(.96); }
+.days button[aria-current="true"] { background: var(--ink); color: #fff; }
+.stale { margin-top: 14px; background: #fff3cd; border: 2px solid #e8b100; padding: 10px 14px; border-radius: 8px; font-weight: 700; font-size: 14px; }
+
+/* 表紙（生成）: 言語の色・模様・名前。本番は持ち主のアバターと SNS 用の画像 */
+.cover { position: relative; overflow: hidden; border-radius: 10px; aspect-ratio: 4 / 5; color: #fff; isolation: isolate; }
+.cover .pat { position: absolute; inset: -10%; z-index: -1; opacity: .9; }
+.cover .owner { position: absolute; left: 10px; top: 10px; font-size: 11px; font-weight: 700; background: rgba(0,0,0,.35); padding: 2px 7px; border-radius: 4px; }
+.cover .ttl { position: absolute; left: 10px; right: 10px; top: 38px; font-family: "Dela Gothic One", sans-serif; font-size: clamp(17px, 2vw, 23px); line-height: 1.12; overflow-wrap: anywhere; text-shadow: 0 2px 0 rgba(0,0,0,.18); }
+.cover .tag { position: absolute; right: 10px; top: 10px; background: var(--hot); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.cover .heart { position: absolute; right: 8px; bottom: 8px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); color: #999; font-size: 18px; display: grid; place-items: center; transition: transform .12s; }
+.cover .heart:hover { transform: scale(1.1); }
+.cover .heart.on { color: var(--hot); }
+
+/* 今日のイチオシ（1位） */
+.pick { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 24px; background: var(--card); border-radius: 14px; padding: 18px; margin: 22px 0 30px; align-items: center; }
+.pick .cover { aspect-ratio: 16 / 9; }
+.pick .cover .ttl { font-size: clamp(28px, 4vw, 46px); top: auto; bottom: 24px; }
+.pick .lab { display: inline-block; background: var(--hot); color: #fff; font-weight: 700; font-size: 12px; padding: 3px 9px; border-radius: 4px; }
+.pick .big { font-size: 96px; line-height: .9; margin: 10px 0 4px; }
+.pick h2 { margin: 0; font-size: 22px; word-break: break-all; }
+.pick p { font-size: 16px; line-height: 1.75; margin: 8px 0 12px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 13px; color: var(--sub); }
+.meta .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: -1px; }
+.meta .st { color: var(--ink); font-weight: 700; font-size: 15px; }
+.chg { font-weight: 700; font-size: 12px; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.same { color: var(--sub); }
+.chg.new { background: var(--up); color: #fff; padding: 1px 6px; border-radius: 4px; }
+
+/* 一覧: 表紙＋表紙の下端に重なる大きな順位 */
+.sec { display: flex; align-items: baseline; gap: 12px; margin: 0 0 12px; }
+.sec h3 { margin: 0; font-size: 20px; }
+.sec span { color: var(--sub); font-size: 13px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 26px 16px; }
+.card { cursor: pointer; transition: transform .18s ease-out; }
+.card:hover { transform: translateY(-3px); }
+.card:hover .cover { box-shadow: 0 10px 22px rgba(0,0,0,.15); }
+.card .cover { transition: box-shadow .18s ease-out; }
+.card .rank { font-family: "Dela Gothic One", sans-serif; font-size: 54px; line-height: .8; margin: -30px 0 0 6px; position: relative; color: var(--ink); paint-order: stroke; -webkit-text-stroke: 6px var(--page); }
+.card .rank::after { content: attr(data-r); position: absolute; left: 0; top: 0; -webkit-text-stroke: 0; color: var(--ink); }
+.card .row1 { display: flex; align-items: baseline; gap: 6px; margin-top: 6px; }
+.card h4 { margin: 4px 0 2px; font-size: 15px; line-height: 1.3; word-break: break-all; }
+.card p { margin: 0 0 6px; font-size: 13px; line-height: 1.6; color: #333; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* 関心領域: 横にずらす棚 */
+.shelf { margin-top: 40px; }
+.shelfrow { display: grid; grid-auto-flow: column; grid-auto-columns: 150px; gap: 14px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
+.shelfrow .cover { aspect-ratio: 1 / 1; }
+.shelfrow .cover .ttl { font-size: 16px; }
+
+/* 詳しい表示（下から出る） */
+.sheet { position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 110%); width: min(640px, 100%); background: #fff; border-radius: 18px 18px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,.2); padding: 18px 18px 24px; transition: transform .28s cubic-bezier(.2,.8,.2,1); z-index: 10; }
+.sheet.on { transform: translate(-50%, 0); }
+.sheet h3 { margin: 0 0 4px; font-size: 18px; word-break: break-all; padding-right: 40px; }
+.sheet p { margin: 4px 0; font-size: 14px; line-height: 1.7; }
+.sheet .en { color: var(--sub); font-size: 12.5px; word-break: break-word; }
+.sheet .x { position: absolute; right: 12px; top: 12px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: #eee; font-size: 18px; }
+.sheet svg.line { width: 100%; height: 90px; display: block; margin-top: 8px; }
+footer { margin-top: 48px; color: var(--sub); font-size: 12px; line-height: 1.7; }
+@media (max-width: 760px) {
+  .pick { grid-template-columns: minmax(0, 1fr); padding: 14px; }
+  .pick .big { font-size: 64px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; }
+  .days { margin-left: 0; width: 100%; }
+  .days button { flex: 1; }
+  .card .rank { font-size: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { .card, .sheet, .card .cover { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="false" aria-label="詳しい表示"></div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, s = P.svg, V = V3;
+
+  // 表紙の生成: 言語の色を地に、3種類の模様（持ち主の名前から決まる）。本番は本物の画像
+  function cover(it, opts) {
+    const h = V.hash(it.repo), base = V.langColor(it.lang);
+    const dark = ["#f1e05a", "#89e051", "#dea584", "#00ADD8", "#ec915c"].includes(base);
+    const c = el("div", { class: "cover", style: `background:${base}; color:${dark ? "#141414" : "#fff"}` });
+    const pat = s("svg", { class: "pat", viewBox: "0 0 100 125", preserveAspectRatio: "xMidYMid slice", "aria-hidden": "true" });
+    const kind = h % 3, ink = dark ? "rgba(0,0,0,.14)" : "rgba(255,255,255,.18)";
+    if (kind === 0) { for (let i = 0; i < 9; i++) pat.append(s("rect", { x: -20, y: i * 16 - 10, width: 160, height: 7, fill: ink, transform: "rotate(-18 50 60)" })); }
+    else if (kind === 1) { for (let i = 0; i < 5; i++) pat.append(s("circle", { cx: 78, cy: 26, r: 14 + i * 16, fill: "none", stroke: ink, "stroke-width": 6 })); }
+    else { const id = V.identicon(V.owner(it.repo), 100, 0); id.querySelector("rect").setAttribute("fill", "transparent"); id.querySelectorAll("rect").forEach((r, i) => i && r.setAttribute("fill", ink)); pat.append(id); }
+    // ハイフンの後ろで折り返せるよう、見えない改行の候補（ゼロ幅スペース）を入れる
+    c.append(pat, el("span", { class: "owner" }, V.owner(it.repo)), el("span", { class: "ttl" }, V.name(it.repo).replaceAll("-", "-​")));
+    if (opts && opts.tag) c.append(el("span", { class: "tag" }, opts.tag));
+    const heart = el("button", { class: "heart" + (P.fav.has(it.repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(it.repo)), "aria-label": it.repo + " をお気に入り" }, "♥");
+    heart.addEventListener("click", (e) => { e.stopPropagation(); const on = P.fav.toggle(it.repo); heart.classList.toggle("on", on); heart.setAttribute("aria-pressed", String(on)); });
+    c.append(heart);
+    return c;
+  }
+  function meta(it, val) {
+    return el("div", { class: "meta" },
+      el("span", {}, el("i", { class: "dot", style: `background:${V.langColor(it.lang)}` }), it.lang),
+      el("span", { class: "st num" }, val),
+      it.rank ? V.changeEl(it.repo) : it.delta == null ? el("span", { class: "chg new" }, "NEW") : "");
+  }
+  function openSheet(it) {
+    const sh = document.getElementById("sheet");
+    const hist = P.history(it.repo, it.stars);
+    const vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals), W = 600, H = 80;
+    let d = "", pen = false;
+    hist.forEach((p, i) => { if (p.stars == null) { pen = false; return; } d += (pen ? "L" : "M") + ((i / (hist.length - 1)) * W).toFixed(1) + " " + (H - ((p.stars - lo) / Math.max(1, hi - lo)) * H).toFixed(1); pen = true; });
+    const x = el("button", { class: "x", type: "button", "aria-label": "閉じる" }, "×");
+    x.addEventListener("click", () => sh.classList.remove("on"));
+    sh.replaceChildren(x, el("h3", {}, it.repo), el("p", {}, it.summary), el("p", { class: "en" }, it.desc),
+      s("svg", { class: "line", viewBox: `0 -6 ${W} ${H + 12}`, preserveAspectRatio: "none", role: "img", "aria-label": "★の推移" }, s("path", { d, fill: "none", stroke: "#141414", "stroke-width": 3, "vector-effect": "non-scaling-stroke" })),
+      el("p", { class: "en" }, `★の推移（${hist[0].date.slice(5).replace("-", "/")} から。途切れは記録の無い日）／総★ ${P.fmt(it.stars)}`));
+    sh.classList.add("on");
+  }
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") document.getElementById("sheet").classList.remove("on"); });
+
+  function render() {
+    const day = P.day, items = day.trending.items, [one] = items;
+    const days = el("div", { class: "days", role: "group", "aria-label": "日付" }, P.data.DATES.map((d) => {
+      const b = el("button", { type: "button", "aria-current": String(d === P.date) }, `${+d.slice(5, 7)}/${+d.slice(8)}(${P.weekday(d)})`);
+      b.addEventListener("click", () => P.setDate(d));
+      return b;
+    }));
+    const pickCover = cover(one, { tag: "今日のイチオシ" });
+    pickCover.style.cursor = "pointer"; pickCover.addEventListener("click", () => openSheet(one));
+    const grid = el("div", { class: "grid" }, items.slice(1).map((it) => {
+      const c = el("article", { class: "card", tabindex: "0" },
+        cover(it, V.change(it.repo).kind === "new" ? { tag: "初登場" } : null),
+        el("div", { class: "rank", "data-r": it.rank, "aria-hidden": "true" }, it.rank),
+        el("h4", {}, it.repo), el("p", {}, it.summary), meta(it, "★+" + P.fmt(it.today)));
+      c.addEventListener("click", () => openSheet(it));
+      c.addEventListener("keydown", (e) => { if (e.key === "Enter") openSheet(it); });
+      return c;
+    }));
+    const shelves = day.topics.map((t) => el("section", { class: "shelf" },
+      el("div", { class: "sec" }, el("h3", {}, t.label), el("span", {}, "前日比の★が多い順")),
+      el("div", { class: "shelfrow" }, t.items.map((it) => {
+        const c = el("article", { class: "card", tabindex: "0" }, cover(it, it.delta == null ? { tag: "NEW" } : null), el("h4", {}, V.name(it.repo)), el("p", {}, it.summary), meta(it, it.delta == null ? "" : "★+" + P.fmt(it.delta)));
+        c.addEventListener("click", () => openSheet(it));
+        return c;
+      }))));
+
+    document.getElementById("app").replaceChildren(
+      el("div", { class: "top" },
+        el("div", { class: "datebox" }, el("b", { class: "dela" }, `${+day.date.slice(5, 7)}.${+day.date.slice(8)}`), el("span", {}, P.weekday(day.date) + "曜のランキング")),
+        el("div", { class: "title" }, el("h1", { class: "dela" }, "GitHub 急上昇"), el("p", {}, `Trending 25件と関心領域。${day.updatedAt.slice(11, 16)} 更新`)),
+        days),
+      P.state === "stale" ? el("div", { class: "stale", role: "status" }, "更新が2日止まっています（表示は 11/10 の記録）") : "",
+      el("section", { class: "pick" }, pickCover,
+        el("div", {}, el("span", { class: "lab" }, "今日のイチオシ"), el("div", { class: "big dela" }, "1"), el("h2", {}, one.repo), el("p", {}, one.summary), meta(one, "★+" + P.fmt(one.today)))),
+      el("div", { class: "sec" }, el("h3", {}, "2位から25位"), el("span", {}, "押すと詳しく・♥でお気に入り")),
+      grid, ...shelves,
+      el("footer", {}, "案F「ランキング誌」— マンガアプリのランキングの文法（表紙・表紙に重なる大きな順位・今日のイチオシ・初登場の札）。表紙は仮に生成した模様で、本番は持ち主のアバターとリポジトリの SNS 用画像を使う。データは架空。"));
+  }
+  P.onDate(render);
+  render();
+})();
+</script>
+</body>
+</html>

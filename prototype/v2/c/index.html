@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案C データ報道 — github-ranking v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Zen+Maru+Gothic:wght@400;700&family=Yomogi&display=swap" rel="stylesheet">
+<style>
+:root {
+  --tomato: #ff5f45; --mint: #bfe7d1; --ink: #1c1b1a; --sub: #4a4f4b; --white: #ffffff;
+  --py: #1f8a70; --ts: #2f5fa7; --rs: #d9480f; --go: #e0a100; --etc: #7a7f87;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--mint); color: var(--ink); font-family: "Zen Maru Gothic", sans-serif; }
+.disp { font-family: "Bricolage Grotesque", "Zen Maru Gothic", sans-serif; }
+.hand { font-family: "Yomogi", cursive; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+/* 冒頭の色面: 見出しは「文」で書く */
+.lede { background: var(--tomato); padding: 40px 16px 120px; }
+.lede .in { max-width: 1120px; margin: 0 auto; }
+.dates { display: inline-flex; background: rgba(0,0,0,.12); border-radius: 999px; padding: 4px; gap: 2px; }
+.dates button { border: 0; background: transparent; padding: 8px 16px; border-radius: 999px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 15px; transition: background-color .2s ease-out, color .2s ease-out; }
+.dates button:hover { background: rgba(255,255,255,.35); }
+.dates button[aria-current="true"] { background: var(--ink); color: var(--tomato); }
+.lede h1 { font-family: "Zen Maru Gothic", sans-serif; font-weight: 700; font-size: clamp(28px, 4.4vw, 54px); line-height: 1.35; margin: 28px 0 14px; max-width: 18em; letter-spacing: .01em; }
+.lede h1 .r { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; background: var(--ink); color: var(--tomato); padding: 0 .2em; border-radius: 4px; white-space: nowrap; display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; line-height: 1.25; }
+.lede p { font-size: 17px; line-height: 1.8; max-width: 38em; margin: 0; }
+.lede .upd { font-size: 13px; opacity: .8; margin-top: 10px; }
+
+/* 散布図（主役） */
+.stage { max-width: 1120px; margin: -88px auto 0; padding: 0 16px; display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: start; }
+.plot { background: var(--white); border-radius: 18px; padding: 18px 18px 10px; position: relative; }
+.plot svg { display: block; width: 100%; height: auto; overflow: visible; }
+.axis-t { font-size: 13px; fill: var(--sub); font-family: "Zen Maru Gothic", sans-serif; }
+.tick { font-size: 11px; fill: var(--sub); font-family: "Bricolage Grotesque", sans-serif; }
+.grid { stroke: #e9ecea; }
+.pt { transition: transform .85s cubic-bezier(.65,0,.35,1); cursor: pointer; }
+.pt circle { stroke: var(--white); stroke-width: 2; transition: r .3s ease-out; }
+.pt:hover circle, .pt.on circle { stroke: var(--ink); stroke-width: 2.5; }
+.pt text { font-size: 12px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; fill: var(--ink); paint-order: stroke; stroke: var(--white); stroke-width: 4px; pointer-events: none; }
+.note { font-family: "Yomogi", cursive; font-size: 17px; fill: var(--ink); }
+.note-line { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; }
+.notes { transition: opacity .3s ease-out; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--sub); padding: 6px 4px 4px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+
+.card { background: var(--ink); color: var(--white); border-radius: 18px; padding: 18px; position: sticky; top: 16px; min-height: 360px; }
+.card .k { font-size: 12px; opacity: .7; }
+.card h2 { font-family: "Bricolage Grotesque", sans-serif; font-size: 22px; line-height: 1.15; margin: 4px 0 10px; word-break: break-all; }
+.card p { font-size: 14px; line-height: 1.75; margin: 0 0 10px; }
+.card .en { opacity: .7; font-size: 12.5px; word-break: break-word; }
+.card .nums { display: flex; gap: 18px; margin: 10px 0; }
+.card .nums b { display: block; font-family: "Bricolage Grotesque", sans-serif; font-size: 26px; }
+.card .nums span { font-size: 11px; opacity: .7; }
+.card svg { width: 100%; height: auto; overflow: visible; }
+.card .ln { fill: none; stroke: var(--tomato); stroke-width: 2.5; stroke-linejoin: round; }
+.card .hand { font-size: 15px; fill: var(--mint); }
+.fav { border: 2px solid var(--white); background: transparent; color: var(--white); border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 700; transition: background-color .15s, color .15s, transform .15s; }
+.fav:hover { transform: translateY(-1px); }
+.fav:active { transform: scale(.96); }
+.fav.on { background: var(--tomato); border-color: var(--tomato); color: var(--ink); }
+
+/* ことばの山: ★の増え方で文字の大きさが変わる */
+.pile { max-width: 1120px; margin: 56px auto 0; padding: 0 16px; }
+.pile h2, .multi h2 { font-size: 22px; margin: 0 0 6px; }
+.pile .lead, .multi .lead { margin: 0 0 18px; color: var(--sub); font-size: 14px; }
+.words { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 22px; }
+.w { background: none; border: 0; padding: 0; text-align: left; line-height: 1.05; max-width: 100%; }
+.w .rk { font-family: "Bricolage Grotesque", sans-serif; font-size: .5em; font-weight: 700; color: var(--sub); margin-right: .3em; vertical-align: .55em; }
+.w .nm { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; word-break: break-all; }
+.w .sm { display: block; font-size: 12px; line-height: 1.5; color: var(--sub); margin-top: 3px; max-width: 26em; }
+.w:hover .nm { text-decoration: underline wavy var(--tomato); text-underline-offset: 4px; }
+.w.on .nm { color: var(--tomato); }
+
+/* 関心領域: 小さな棒グラフを並べる */
+.multi { max-width: 1120px; margin: 64px auto 0; padding: 0 16px; }
+.mgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.m { background: var(--white); border-radius: 18px; padding: 16px 16px 10px; }
+.m h3 { font-family: "Bricolage Grotesque", sans-serif; margin: 0 0 10px; font-size: 19px; }
+.bar { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; margin-bottom: 9px; cursor: pointer; font-size: 13px; }
+.bar .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
+.bar .v { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; }
+.bar .track { grid-column: 1 / -1; height: 8px; background: #eef1ef; border-radius: 4px; overflow: hidden; }
+.bar .fill { height: 100%; background: var(--ink); border-radius: 4px; transition: width .6s cubic-bezier(.65,0,.35,1); }
+.bar:hover .fill { background: var(--tomato); }
+.bar .new { font-family: "Yomogi", cursive; color: var(--rs); }
+
+.sticky { position: absolute; right: 22px; top: -54px; background: #ffe36e; padding: 12px 14px; width: 230px; transform: rotate(2.5deg); box-shadow: 0 6px 14px rgba(0,0,0,.12); font-size: 17px; line-height: 1.5; z-index: 2; }
+
+footer { max-width: 1120px; margin: 72px auto 0; padding: 18px 16px 48px; font-size: 12px; color: var(--sub); border-top: 2px solid var(--ink); }
+
+@media (max-width: 900px) {
+  .stage { grid-template-columns: 1fr; }
+  .card { position: static; min-height: 0; }
+  .sticky { position: static; transform: rotate(-1deg); width: auto; margin: 0 0 12px; }
+  /* スマホ: 図だけ横にずらして読める大きさを保つ（ページ全体は横に動かない） */
+  .plot { overflow-x: auto; overscroll-behavior-x: contain; }
+  .plot svg { width: 640px; max-width: none; }
+  .plot::after { content: "← 図は横にずらせます →"; display: block; font-size: 11px; color: var(--sub); text-align: center; padding: 4px 0 2px; }
+  .lede { padding-bottom: 104px; }
+}
+@media (prefers-reduced-motion: reduce) { .pt, .bar .fill, .notes { transition: none; } }
+</style>
+</head>
+<body>
+<header class="lede"><div class="in" id="lede"></div></header>
+<section class="stage">
+  <div class="plot" id="plot"></div>
+  <aside class="card" id="card" aria-live="polite"></aside>
+</section>
+<section class="pile"><h2>今日の25件</h2><p class="lead">文字の大きさ＝今日増えた★。押すと上のカードに詳しく出ます。</p><div class="words" id="words"></div></section>
+<section class="multi"><h2>関心領域ごとの前日比</h2><p class="lead">棒の長さ＝前日から増えた★（領域の中で比べる）。</p><div class="mgrid" id="multi"></div></section>
+<footer>案C「データ報道」— 数字を文とグラフで語る。手書きの注記はその日のデータに合わせて3か所だけ。データは架空。</footer>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/common.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, s = P.svg;
+  const LANG = { Python: "py", TypeScript: "ts", Rust: "rs", Go: "go" };
+  const col = (l) => `var(--${LANG[l] || "etc"})`;
+  const W = 760, H = 440, M = { l: 54, r: 16, t: 20, b: 46 };
+  // 全日の範囲で軸を固定する（日付を変えたとき、点の動きに意味を持たせるため）
+  const all = P.data.DATES.flatMap((d) => P.data.days[d].trending.items);
+  const lx0 = Math.log10(Math.min(...all.map((i) => i.today)) * 0.8), lx1 = Math.log10(Math.max(...all.map((i) => i.today)) * 1.15);
+  const ly0 = Math.log10(Math.min(...all.map((i) => i.stars)) * 0.8), ly1 = Math.log10(Math.max(...all.map((i) => i.stars)) * 1.2);
+  const X = (v) => M.l + ((Math.log10(v) - lx0) / (lx1 - lx0)) * (W - M.l - M.r);
+  const Y = (v) => H - M.b - ((Math.log10(v) - ly0) / (ly1 - ly0)) * (H - M.t - M.b);
+  let picked = null;
+  const nodes = new Map();
+  let svgRoot, ptsLayer, notesLayer;
+
+  function buildPlot() {
+    const plot = document.getElementById("plot");
+    svgRoot = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "今日の★の増え方（横）と総★（縦）の散布図" });
+    [50, 100, 300, 1000, 2000].forEach((v) => { if (X(v) > M.l && X(v) < W - M.r) svgRoot.append(s("line", { class: "grid", x1: X(v), x2: X(v), y1: M.t, y2: H - M.b }), s("text", { class: "tick", x: X(v), y: H - M.b + 16, "text-anchor": "middle" }, P.fmt(v))); });
+    [1000, 3000, 10000, 30000].forEach((v) => { if (Y(v) < H - M.b && Y(v) > M.t) svgRoot.append(s("line", { class: "grid", x1: M.l, x2: W - M.r, y1: Y(v), y2: Y(v) }), s("text", { class: "tick", x: M.l - 6, y: Y(v) + 4, "text-anchor": "end" }, v >= 1000 ? v / 1000 + "k" : v)); });
+    svgRoot.append(
+      s("text", { class: "axis-t", x: W - M.r, y: H - 6, "text-anchor": "end" }, "右へ行くほど、今日たくさん★が増えた →"),
+      s("text", { class: "axis-t", x: 6, y: M.t - 6 }, "↑ 上ほど、もともと★が多い")
+    );
+    ptsLayer = s("g"); notesLayer = s("g", { class: "notes" });
+    svgRoot.append(ptsLayer, notesLayer);
+    const legend = el("div", { class: "legend" }, ...[["Python", "py"], ["TypeScript", "ts"], ["Rust", "rs"], ["Go", "go"], ["そのほか", "etc"]].map(([n, k]) => el("span", {}, el("i", { style: `background:var(--${k})` }), n)));
+    plot.append(svgRoot, legend);
+    if (P.state === "stale") plot.prepend(el("div", { class: "sticky hand", role: "status" }, "※ 11/10 から更新が止まっています。グラフは2日前のままです。"));
+  }
+
+  function select(it) {
+    picked = it.repo;
+    nodes.forEach((g, repo) => g.classList.toggle("on", repo === picked));
+    document.querySelectorAll(".w").forEach((w) => w.classList.toggle("on", w.dataset.repo === picked));
+    const card = document.getElementById("card");
+    const hist = P.history(it.repo, it.stars);
+    const vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals), w = 264, h = 90;
+    const x = (i) => (i / (hist.length - 1)) * w, y = (v) => h - ((v - lo) / Math.max(1, hi - lo)) * h;
+    let d = "", pen = false, miss = -1;
+    hist.forEach((p, i) => { if (p.stars == null) { pen = false; miss = i; return; } d += (pen ? "L" : "M") + x(i).toFixed(1) + " " + y(p.stars).toFixed(1); pen = true; });
+    const g = s("svg", { viewBox: `0 -10 ${w} ${h + 40}`, role: "img", "aria-label": "★の推移" }, s("path", { class: "ln", d }));
+    if (miss >= 0) g.append(s("text", { class: "hand", x: x(miss), y: h + 28, "text-anchor": "middle" }, "↑ この日は記録なし"));
+    const fav = el("button", { class: "fav" + (P.fav.has(it.repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(it.repo)) }, P.fav.has(it.repo) ? "★ お気に入り済み" : "☆ お気に入り");
+    fav.addEventListener("click", () => { const on = P.fav.toggle(it.repo); fav.classList.toggle("on", on); fav.textContent = on ? "★ お気に入り済み" : "☆ お気に入り"; fav.setAttribute("aria-pressed", String(on)); });
+    card.replaceChildren(
+      el("div", { class: "k" }, it.rank ? `Trending ${it.rank}位 ・ ${it.lang}` : it.lang),
+      el("h2", {}, it.repo),
+      el("p", {}, it.summary),
+      el("p", { class: "en" }, it.desc),
+      el("div", { class: "nums" },
+        el("div", {}, el("b", {}, it.today == null && it.delta == null ? "新顔" : "+" + P.fmt(it.today ?? it.delta)), el("span", {}, it.today != null ? "今日の★" : "前日比の★")),
+        el("div", {}, el("b", {}, P.fmt(it.stars)), el("span", {}, "総★"))),
+      g, fav
+    );
+  }
+
+  function renderPlot(day) {
+    const items = day.trending.items;
+    const seen = new Set();
+    items.forEach((it) => {
+      seen.add(it.repo);
+      let g = nodes.get(it.repo);
+      if (!g) {
+        g = s("g", { class: "pt", tabindex: "0", role: "button", "aria-label": `${it.rank}位 ${it.repo}` }, s("circle", { r: 0 }), s("text", { x: 11, y: 4 }));
+        g.style.transform = `translate(${X(it.today)}px, ${Y(it.stars)}px)`;
+        ptsLayer.append(g); nodes.set(it.repo, g);
+      }
+      g.onclick = () => select(it);
+      g.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(it); } };
+      g.querySelector("circle").setAttribute("fill", col(it.lang));
+      g.querySelector("circle").setAttribute("r", it.rank <= 3 ? 9 : 6);
+      g.querySelector("text").textContent = it.rank <= 5 ? it.repo.split("/")[1] : "";
+      requestAnimationFrame(() => (g.style.transform = `translate(${X(it.today)}px, ${Y(it.stars)}px)`));
+    });
+    nodes.forEach((g, repo) => { if (!seen.has(repo)) { g.querySelector("circle").setAttribute("r", 0); g.querySelector("text").textContent = ""; } });
+
+    // 手書きの注記: その日のデータから3か所だけ
+    notesLayer.replaceChildren();
+    const first = items[0];
+    const sleeper = items.slice(3).reduce((a, b) => (b.today / b.stars > a.today / a.stars ? b : a));
+    // 注記は点から離れた空き（下側の中ほど）に置き、曲線で点を指す
+    const notes = [
+      [first, "今日いちばん伸びた"],
+      [sleeper, `★${P.fmt(sleeper.stars)}なのに、今日だけで +${P.fmt(sleeper.today)}`],
+    ];
+    notes.forEach(([it, txt], k) => {
+      const px = X(it.today), py = Y(it.stars);
+      const below = py < (H - M.b) * 0.55;
+      const tx = Math.max(M.l + 12, Math.min(W - M.r - 250, px - (k ? 40 : 230)));
+      const ty = below ? py + 92 : py - 70;
+      const sx = k ? tx + 40 : tx + 200, sy = below ? ty - 18 : ty + 8;
+      notesLayer.append(
+        s("path", { class: "note-line", d: `M${sx} ${sy} Q ${sx + (px - sx) * 0.2} ${(sy + py) / 2} ${px + (px > sx ? -10 : 10)} ${py + (below ? 10 : -10)}` }),
+        s("path", { class: "note-line", d: `M${px + (px > sx ? -10 : 10)} ${py + (below ? 10 : -10)} l ${px > sx ? -7 : 7} ${below ? 2 : -2} M${px + (px > sx ? -10 : 10)} ${py + (below ? 10 : -10)} l ${px > sx ? -1 : 1} ${below ? 7 : -7}` }),
+        s("text", { class: "note", x: tx, y: ty }, txt)
+      );
+    });
+  }
+
+  function render() {
+    const day = P.day, items = day.trending.items;
+    const lede = document.getElementById("lede");
+    const dates = el("div", { class: "dates", role: "group", "aria-label": "日付" },
+      ...P.data.DATES.map((d) => {
+        const b = el("button", { type: "button", "aria-current": String(d === P.date) }, d.slice(5).replace("-", "."));
+        b.addEventListener("click", () => P.setDate(d));
+        return b;
+      }));
+    lede.replaceChildren(
+      dates,
+      el("h1", {}, `${+day.date.slice(5, 7)}月${+day.date.slice(8)}日、いちばん★を集めたのは `, el("span", { class: "r" }, items[0].repo.split("/")[1]), ` だった。`),
+      el("p", {}, `今日の ${items[0].repo} は +${P.fmt(items[0].today)}★。${items[0].summary}。2位の ${items[1].repo.split("/")[1]} とは ${P.fmt(items[0].today - items[1].today)}★ の差。`),
+      el("p", { class: "upd" }, `GitHub Trending（全言語・daily）25件。${day.updatedAt.slice(11, 16)} 更新。`)
+    );
+    renderPlot(day);
+
+    const words = document.getElementById("words");
+    words.replaceChildren();
+    const maxT = items[0].today;
+    items.forEach((it) => {
+      const size = 15 + Math.sqrt(it.today / maxT) * 33;
+      const b = el("button", { class: "w" + (it.repo === picked ? " on" : ""), type: "button", "data-repo": it.repo, style: `font-size:${size.toFixed(1)}px` },
+        el("span", { class: "rk" }, it.rank), el("span", { class: "nm" }, it.repo.split("/")[1]), el("span", { class: "sm" }, it.summary));
+      b.addEventListener("click", () => { select(it); document.getElementById("card").scrollIntoView({ behavior: P.reduced() ? "auto" : "smooth", block: "center" }); });
+      words.append(b);
+    });
+
+    const multi = document.getElementById("multi");
+    multi.replaceChildren();
+    day.topics.forEach((t) => {
+      const max = Math.max(...t.items.map((i) => i.delta || 0));
+      const m = el("div", { class: "m" }, el("h3", {}, t.label));
+      t.items.slice(0, 5).forEach((it) => {
+        const fill = el("div", { class: "fill", style: "width:0" });
+        const row = el("div", { class: "bar", tabindex: "0" },
+          el("span", { class: "nm" }, it.repo),
+          it.delta == null ? el("span", { class: "new" }, "新顔！") : el("span", { class: "v" }, "+" + P.fmt(it.delta)),
+          el("div", { class: "track" }, fill));
+        row.addEventListener("click", () => { select(it); document.getElementById("card").scrollIntoView({ behavior: P.reduced() ? "auto" : "smooth", block: "center" }); });
+        m.append(row);
+        requestAnimationFrame(() => (fill.style.width = it.delta == null ? "0" : ((it.delta / max) * 100).toFixed(1) + "%"));
+      });
+      multi.append(m);
+    });
+    select(items.find((x) => x.repo === picked) || items[0]);
+  }
+
+  buildPlot();
+  P.onDate(render);
+  render();
+})();
+</script>
+</body>
+</html>

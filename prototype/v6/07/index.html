@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⑦ ドット見出し×白 — github-ranking v6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff; --grid: #eef0f4; --ink: #111111; --sub: #6a6d73; --line: #111111;
+  --blue: #1f00ff;  /* ただ1つの色: 強調・自分向け・1位 */
+  --pale: #eceaff;
+  --dot: "DotGothic16", monospace;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; color: var(--ink); font-family: "Noto Sans JP", system-ui, sans-serif; font-size: 14px; line-height: 1.65;
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+button { font: inherit; color: inherit; }
+.px { font-family: var(--dot); font-weight: 400; letter-spacing: .02em; }
+svg.ico { shape-rendering: crispEdges; display: block; }
+
+header { position: sticky; top: 0; z-index: 4; background: rgba(255,255,255,.94); border-bottom: 1px solid var(--line); }
+.hd { max-width: 1240px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; gap: 24px; }
+.logo { display: flex; align-items: center; gap: 10px; font-size: 20px; }
+.logo b { font-family: var(--dot); font-weight: 400; }
+.nav { display: flex; gap: 22px; margin-left: auto; font-family: var(--mono); font-size: 12.5px; letter-spacing: .06em; }
+.nav a { color: var(--ink); text-decoration: none; padding-bottom: 4px; border-bottom: 2px solid transparent; }
+.nav a:hover { border-color: var(--ink); }
+.when { font-family: var(--mono); font-size: 12px; color: var(--sub); border-left: 1px solid var(--line); padding-left: 20px; }
+
+main { max-width: 1240px; margin: 0 auto; padding: 24px; }
+.bento { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); background: #fff; }
+.tile { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 20px 22px; position: relative; min-width: 0; }
+.lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--sub); text-transform: uppercase; display: flex; justify-content: space-between; gap: 8px; }
+
+/* A: 今日の見出し（主役） */
+.tA { grid-column: span 8; min-height: 360px; display: flex; flex-direction: column; overflow: hidden; }
+.tA h1 { font-family: var(--dot); font-weight: 400; font-size: 64px; line-height: 1.12; margin: 18px 0 0; position: relative; z-index: 1; word-break: auto-phrase; }
+.tA h1 .b { color: #fff; background: var(--blue); padding: 2px 10px 6px; display: inline-block; margin-bottom: 10px; white-space: nowrap; }
+.wb p, .one, .tA p { word-break: auto-phrase; }
+.tA p { margin: auto 0 0; max-width: 30em; position: relative; z-index: 1; color: #2a2c30; }
+.blob { position: absolute; right: -10px; bottom: -10px; width: 330px; height: 330px; display: grid; grid-template-columns: repeat(10, 1fr); }
+.blob i { background: var(--blue); opacity: 0; animation: pop .01s steps(1) forwards; }
+.blob i.o { visibility: hidden; }
+@keyframes pop { to { opacity: 1; } }
+
+/* B: 1位 */
+.tB { grid-column: span 4; display: flex; flex-direction: column; cursor: pointer; background: #fff; }
+.tB:hover { background: var(--pale); }
+.tB .n1 { font-family: var(--dot); font-size: 120px; line-height: .9; margin-top: 10px; color: var(--blue); }
+.tB .nm { font-family: var(--dot); font-size: 24px; margin-top: 10px; word-break: break-all; }
+.tB .ow { font-family: var(--mono); font-size: 12px; color: var(--sub); }
+.tB .one { margin: 8px 0 0; }
+.tB .sc { margin-top: auto; padding-top: 14px; display: flex; align-items: baseline; gap: 8px; }
+.tB .sc b { font-family: var(--dot); font-weight: 400; font-size: 34px; }
+
+/* C: 数字3つ */
+.tC { grid-column: span 4; }
+.tC .v { font-family: var(--dot); font-size: 56px; line-height: 1; margin-top: 10px; }
+.tC .v small { font-size: 18px; margin-left: 4px; }
+.tC .s { color: var(--sub); font-size: 12.5px; margin-top: 6px; }
+.tC.me .v { color: var(--blue); }
+
+/* D: あなた向け */
+.tD { grid-column: span 12; }
+.mine { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-top: 12px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.mine button { border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fff; text-align: left; padding: 12px 14px; cursor: pointer; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; }
+.mine button:hover, .mine button:focus-visible { background: var(--pale); }
+.mine .k { grid-column: 2 / 4; font-family: var(--mono); font-size: 10.5px; color: var(--blue); letter-spacing: .08em; }
+.mine .nm { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mine .td { font-family: var(--dot); font-size: 15px; }
+
+/* E: 分類の列パネル */
+.tE { grid-column: span 12; padding: 0; border-right: 0; }
+.tE > .lbl { padding: 16px 22px 0; }
+.cols { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 12px; border-top: 1px solid var(--line); }
+.col { border-right: 1px solid var(--line); padding: 14px 16px 18px; min-width: 0; }
+.col:last-child { border-right: 0; }
+.col h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-family: var(--dot); font-weight: 400; font-size: 20px; }
+.col h2 small { font-family: var(--mono); font-size: 11px; color: var(--sub); margin-left: auto; }
+.it { display: block; width: 100%; border: 0; background: transparent; text-align: left; padding: 8px 0 9px; border-top: 1px dashed #c8cad0; cursor: pointer; }
+.it:hover .nm, .it:focus-visible .nm { color: var(--blue); }
+.it .row { display: flex; align-items: baseline; gap: 6px; }
+.it .rk { font-family: var(--dot); font-size: 13px; color: var(--sub); width: 2.2em; flex: none; }
+.it .nm { font-weight: 700; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.it .nw { font-family: var(--dot); font-size: 11px; background: var(--ink); color: #fff; padding: 0 4px; flex: none; }
+.it .bar { display: flex; align-items: center; gap: 8px; margin-top: 5px; padding-left: 2.2em; }
+.it .bar span { display: flex; gap: 2px; }
+.it .bar i { width: 6px; height: 8px; background: var(--ink); }
+.it.mineI .bar i { background: var(--blue); }
+.it .bar b { font-family: var(--dot); font-weight: 400; font-size: 13px; }
+
+/* 詳しく（窓） */
+.ov { position: fixed; inset: 0; background: rgba(255,255,255,.88); display: none; z-index: 10; padding: 24px; overflow-y: auto; }
+.ov.on { display: block; }
+.win { max-width: 900px; margin: 4vh auto; background: #fff; border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--blue); }
+.wh { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 2px solid var(--ink); }
+.wh .lbl { flex: 1; }
+.wh button { border: 2px solid var(--ink); background: #fff; font-family: var(--dot); padding: 0 10px; cursor: pointer; }
+.wb { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.wb > div { padding: 20px 22px; }
+.wb > div + div { border-left: 1px solid var(--line); }
+.wb h3 { font-family: var(--dot); font-weight: 400; font-size: 34px; line-height: 1.2; margin: 0; word-break: break-all; display: flex; align-items: center; gap: 12px; }
+.wb .ow { font-family: var(--mono); font-size: 12px; color: var(--sub); margin-top: 4px; }
+.wb .one { font-weight: 700; font-size: 16px; margin: 14px 0 6px; }
+.wb h4 { font-family: var(--dot); font-weight: 400; font-size: 16px; margin: 18px 0 6px; }
+.wb p { margin: 0; }
+.pc { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); margin-top: 16px; }
+.pc > div { padding: 10px 12px; }
+.pc > div + div { border-left: 1px solid var(--line); }
+.pc h4 { margin: 0 0 6px; display: flex; gap: 6px; align-items: center; }
+.pc ul { margin: 0; padding-left: 1.1em; font-size: 13px; }
+.use { margin-top: 16px; background: var(--blue); color: #fff; padding: 12px 14px; }
+.use b { font-family: var(--dot); font-weight: 400; display: block; font-size: 13px; letter-spacing: .06em; }
+.cmp { display: grid; gap: 12px; }
+.cmp .who { display: grid; grid-template-columns: 9em repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 11.5px; font-weight: 700; }
+.cmp .who span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmp .who span.me { color: var(--blue); }
+.cmp .fr { display: grid; grid-template-columns: 9em repeat(3, minmax(0, 1fr)); gap: 8px; align-items: center; font-size: 12.5px; }
+.cmp .cells { display: flex; gap: 3px; }
+.cmp .cells i { width: 14px; height: 14px; border: 2px solid var(--ink); }
+.cmp .cells i.f { background: var(--ink); }
+.cmp .me .cells i.f { background: var(--blue); border-color: var(--blue); }
+.cmp .me .cells i { border-color: var(--blue); }
+.legend { font-size: 11.5px; color: var(--sub); margin-top: 6px; display: flex; gap: 14px; align-items: center; }
+.legend .cells { display: inline-flex; gap: 2px; }
+.legend .cells i { width: 9px; height: 9px; border: 1.5px solid var(--ink); display: inline-block; }
+.legend .cells i.f { background: var(--ink); }
+
+@media (max-width: 860px) {
+  .hd { padding: 0 16px; height: 52px; gap: 12px; }
+  .nav { display: none; }
+  .when { margin-left: auto; border: 0; padding: 0; font-size: 11px; }
+  main { padding: 16px; }
+  .tile { grid-column: 1 / -1 !important; padding: 16px; }
+  .logo { font-size: 15px; white-space: nowrap; }
+  .tA { min-height: 300px; padding-bottom: 130px; }
+  .tA h1 { font-size: 36px; }
+  .tA p { margin-top: 16px; }
+  .blob { width: 120px; height: 120px; right: 12px; bottom: 12px; }
+  .tC { grid-column: span 4 !important; padding: 12px 10px; }
+  .tC .v { font-size: 34px; }
+  .tC .v small { font-size: 12px; }
+  .tC .s { font-size: 11px; line-height: 1.4; }
+  .tB .n1 { font-size: 80px; }
+  .mine { grid-template-columns: 1fr; }
+  .cols { grid-template-columns: 1fr; }
+  .col { border-right: 0; border-bottom: 1px solid var(--line); }
+  .ov { padding: 0; }
+  .win { margin: 0; min-height: 100%; box-shadow: none; border: 0; }
+  .wb { grid-template-columns: 1fr; }
+  .wb > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .wb h3 { font-size: 26px; }
+  .cmp .who, .cmp .fr { grid-template-columns: 7em repeat(3, minmax(0, 1fr)); }
+  .cmp .cells i { width: 11px; height: 11px; }
+}
+@media (prefers-reduced-motion: reduce) { .blob i { animation: none; opacity: 1; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <div class="logo"><span id="logoIco"></span><b>ギットハブ ランキング</b></div>
+    <nav class="nav" aria-label="移動"><a href="#mine">FOR YOU</a><a href="#cats">CATEGORY</a><a href="#" data-dummy>ARCHIVE</a></nav>
+    <div class="when" id="when"></div>
+  </div>
+</header>
+
+<main>
+  <div class="bento">
+    <section class="tile tA" aria-label="今日の要点">
+      <div class="lbl"><span id="aLbl"></span><span>今日の要点</span></div>
+      <h1 id="h1"></h1>
+      <p id="aP"></p>
+      <div class="blob" id="blob" aria-hidden="true"></div>
+    </section>
+    <section class="tile tB" id="tB" tabindex="0" role="button" aria-label="1位を詳しく見る"></section>
+    <section class="tile tC" id="c1"></section>
+    <section class="tile tC me" id="c2"></section>
+    <section class="tile tC" id="c3" style="border-right:0"></section>
+    <section class="tile tD" id="mine" style="border-right:0">
+      <div class="lbl"><span>FOR YOU · あなたの関心に当たるもの</span><span id="mineN"></span></div>
+      <div class="mine" id="mineList"></div>
+    </section>
+    <section class="tile tE" id="cats" style="border-bottom:0">
+      <div class="lbl"><span>BY CATEGORY · 分類ごと（■1つ＝★200）</span><span>押すと詳しく</span></div>
+      <div class="cols" id="cols"></div>
+    </section>
+  </div>
+</main>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="wTitle">
+  <div class="win" id="win"></div>
+</div>
+
+<script src="../data.js"></script>
+<script>
+(function () {
+  const D = window.V6;
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const F = (n) => String(n); // ドットの書体はカンマの後ろが空くので、カンマを付けない（5桁まで）
+
+  // 手で置いたドット絵のアイコン（10×10）
+  const ICONS = {
+    agent: ["....##....", ".########.", ".#......#.", ".#.#..#.#.", ".#......#.", ".#.####.#.", ".########.", "...#..#...", "..##..##..", ".........."],
+    ui:    ["##########", "#.#.#....#", "##########", "#........#", "#.##.....#", "#.##..#..#", "#.....##.#", "#.....###.", "######.##.", ".......#.."],
+    game:  ["....##....", "..##..##..", "##......##", "#.##..##.#", "#...##...#", "#....#...#", "#....#...#", "##...#..##", "..##.#.#..", "....##...."],
+    dev:   ["##########", "#........#", "#.#......#", "#..#.....#", "#...#....#", "#..#.....#", "#.#..###.#", "#........#", "##########", ".........."],
+    data:  ["..######..", ".#......#.", ".########.", ".#......#.", ".########.", ".#......#.", ".########.", ".#......#.", "..######..", ".........."],
+    star:  ["....##....", "....##....", "...####...", "##########", ".########.", "..######..", "..##..##..", ".##....##.", ".#......#.", ".........."],
+  };
+  const NS = "http://www.w3.org/2000/svg";
+  function icon(name, size, color) {
+    const s = document.createElementNS(NS, "svg"); s.setAttribute("class", "ico"); s.setAttribute("viewBox", "0 0 10 10"); s.setAttribute("width", size); s.setAttribute("height", size); s.setAttribute("aria-hidden", "true");
+    ICONS[name].forEach((row, y) => [...row].forEach((c, x) => { if (c === "#") { const r = document.createElementNS(NS, "rect"); r.setAttribute("x", x); r.setAttribute("y", y); r.setAttribute("width", 1); r.setAttribute("height", 1); r.setAttribute("fill", color || "currentColor"); s.append(r); } }));
+    return s;
+  }
+  $("logoIco").append(icon("star", 22, "#1f00ff"));
+  $("when").textContent = `${D.date.replaceAll("-", ".")} ${D.updated} JST`;
+
+  // A: 主役の見出し＋大きなドット絵（1枚ずつ出る＝署名の動きはこれ1つ）
+  $("aLbl").textContent = `TODAY · ${D.items.length} REPOS`;
+  const h1 = $("h1");
+  h1.append(el("span", "b", D.lead.cat.label), el("br"), `上位5件中${D.lead.n}件`);
+  $("aP").textContent = `1位は ${D.items[0].name}（+${D.fmt(D.items[0].today)}★）。あなたの関心は ${D.mine.length}件、新顔は ${D.fresh.length}件。`;
+  const blob = $("blob");
+  const cells = ICONS[D.lead.cat.id].join("").split("");
+  const order = cells.map((_, i) => i).sort(() => Math.random() - .5);
+  cells.forEach((c, i) => { const b = el("i", c === "#" ? null : "o"); b.style.animationDelay = (order.indexOf(i) * 9 + 200) + "ms"; blob.append(b); });
+
+  // B: 1位
+  const top = D.items[0];
+  const B = $("tB");
+  const bl = el("div", "lbl"); bl.append(el("span", null, "No.1 · " + D.cat(top.cat).label), el("span", null, top.prev ? `前日 ${top.prev}位` : "NEW"));
+  B.append(bl, el("div", "n1", "1"), el("div", "nm", top.name), el("div", "ow", top.owner + " / " + top.lang), el("p", "one", top.one));
+  const sc = el("div", "sc"); sc.append(el("b", null, "+" + F(top.today)), el("span", null, "★ 今日")); B.append(sc);
+  B.addEventListener("click", () => openWin(top)); B.addEventListener("keydown", (e) => { if (e.key === "Enter") openWin(top); });
+
+  // C: 数字3つ
+  const num = (id, k, v, u, s) => { const t = $(id); t.append(el("div", "lbl", k)); const d = el("div", "v", String(v)); d.append(el("small", null, u)); t.append(d, el("div", "s", s)); };
+  num("c1", "NEW", D.fresh.length, "件", "今日はじめて載った");
+  num("c2", "FOR YOU", D.mine.length, "件", D.byInterest.map((x) => x.k + " " + x.n).join("・"));
+  num("c3", "STREAK", D.veteran.streak, "日", D.veteran.name + " が連続");
+
+  // D: あなた向け
+  $("mineN").textContent = D.INTERESTS.join(" / ");
+  D.mine.forEach((it) => {
+    const b = el("button"); b.type = "button";
+    b.append(icon(it.cat, 26, "#1f00ff"), el("span", "nm", it.name), el("span", "td", "+" + F(it.today)), el("span", "k", it.interest + " · " + it.rank + "位"));
+    b.addEventListener("click", () => openWin(it));
+    $("mineList").append(b);
+  });
+
+  // E: 分類の列パネル（■＝★200）
+  D.CATS.forEach((c) => {
+    const col = el("div", "col");
+    const h = el("h2"); h.append(icon(c.id, 22), c.label, el("small", null, D.byCat(c.id).length + "件")); col.append(h);
+    D.byCat(c.id).forEach((it) => {
+      const b = el("button", "it" + (it.interest ? " mineI" : "")); b.type = "button";
+      const r = el("div", "row"); r.append(el("span", "rk", it.rank + "位"), el("span", "nm", it.name)); if (it.move === "new") r.append(el("span", "nw", "NEW"));
+      const bar = el("div", "bar"); const sq = el("span"); for (let i = 0; i < Math.max(1, Math.round(it.today / 200)); i++) sq.append(el("i")); bar.append(sq, el("b", null, "+" + F(it.today)));
+      b.append(r, bar); b.title = it.one;
+      b.addEventListener("click", () => openWin(it));
+      col.append(b);
+    });
+    $("cols").append(col);
+  });
+
+  // 詳しく
+  const ov = $("ov"), win = $("win");
+  let lastFocus = null;
+  function openWin(it) {
+    lastFocus = document.activeElement;
+    win.textContent = "";
+    const wh = el("div", "wh");
+    wh.append(el("span", "lbl", `${it.rank}位 · ${D.cat(it.cat).label} · +${D.fmt(it.today)}★ · ${it.streak}日連続`));
+    const x = el("button", null, "とじる"); x.type = "button"; x.addEventListener("click", close); wh.append(x);
+    const wb = el("div", "wb");
+    const L = el("div");
+    const h = el("h3"); h.id = "wTitle"; h.append(icon(it.cat, 34, "#1f00ff"), it.name); L.append(h, el("div", "ow", `${it.owner} / ${it.lang} / ★${D.fmt(it.stars)}`));
+    L.append(el("p", "one", it.one), el("p", null, it.what));
+    const pc = el("div", "pc");
+    [["いい所", it.pros, "○"], ["気になる所", it.cons, "×"]].forEach(([t, arr, m]) => { const d = el("div"); const hh = el("h4", "px", m + " " + t); d.append(hh); const ul = el("ul"); arr.forEach((p) => ul.append(el("li", null, p))); d.append(ul); pc.append(d); });
+    L.append(pc);
+    const use = el("div", "use"); use.append(el("b", null, "こう使える"), it.idea); L.append(use);
+    const R = el("div");
+    R.append(el("h4", null, `できること比べ · ${D.cat(it.cat).label}`));
+    const peers = D.byCat(it.cat).slice(0, 3); if (!peers.includes(it)) peers[2] = it;
+    const cmp = el("div", "cmp");
+    const who = el("div", "who"); who.append(el("span")); peers.forEach((p) => who.append(el("span", p === it ? "me" : null, p.name))); cmp.append(who);
+    D.cat(it.cat).feats.forEach((f, i) => {
+      const fr = el("div", "fr"); fr.append(el("span", null, f));
+      peers.forEach((p) => { const w = el("div", p === it ? "me" : null); const cs = el("div", "cells"); cs.setAttribute("aria-label", D.markWord(p.can[i])); for (let k = 0; k < 2; k++) cs.append(el("i", k < p.can[i] ? "f" : null)); w.append(cs); fr.append(w); });
+      cmp.append(fr);
+    });
+    R.append(cmp);
+    const lg = el("div", "legend");
+    [[2, "できる"], [1, "条件つき"], [0, "できない"]].forEach(([v, t]) => { const s = el("span"); const cs = el("span", "cells"); for (let k = 0; k < 2; k++) cs.append(el("i", k < v ? "f" : null)); s.append(cs, " " + t); lg.append(s); });
+    R.append(lg);
+    wb.append(L, R);
+    win.append(wh, wb);
+    ov.classList.add("on"); document.body.style.overflow = "hidden"; ov.scrollTop = 0;
+    x.focus();
+  }
+  function close() { ov.classList.remove("on"); document.body.style.overflow = ""; if (lastFocus) lastFocus.focus(); }
+  ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && ov.classList.contains("on")) close(); });
+  document.querySelectorAll("[data-dummy]").forEach((a) => a.addEventListener("click", (e) => e.preventDefault()));
+})();
+</script>
+</body>
+</html>

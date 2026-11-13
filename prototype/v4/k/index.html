@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案K 表紙つきリーグ — github-ranking v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #dff1fb; --card: #ffffff; --ink: #10264f; --sub: #43587f; --line: #bcd6e8;
+  --accent: #ffd23f; --up: #0b7a4b; --down: #c62f3a; --new: #ffd23f;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: "Zen Maru Gothic", sans-serif; font-weight: 500; line-height: 1.6; line-break: strict; word-break: auto-phrase; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 20px 16px 64px; }
+.num { font-variant-numeric: tabular-nums; }
+
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+.datebox { background: var(--ink); color: var(--accent); padding: 8px 16px; border-radius: 8px; text-align: center; line-height: 1.1; }
+.datebox b { font-size: 32px; font-weight: 900; display: block; }
+.datebox span { font-size: 13px; color: #fff; }
+.title h1 { margin: 0; font-size: 26px; font-weight: 900; line-height: 1.25; }
+.title p { margin: 2px 0 0; color: var(--sub); font-size: 14px; }
+.days { margin-left: auto; display: flex; gap: 6px; }
+.days button { border: 2px solid var(--ink); background: #fff; border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 14px; }
+.days button:hover { background: var(--accent); }
+.days button[aria-current="true"] { background: var(--ink); color: #fff; }
+.stale { margin-top: 14px; background: #fff3c4; border: 2px solid #c99700; padding: 10px 14px; border-radius: 8px; font-weight: 700; font-size: 14px; }
+
+.brief { margin: 16px 0 0; font-size: 16px; font-weight: 700; border-left: 6px solid var(--accent); padding: 4px 0 4px 12px; }
+.hall { margin: 6px 0 0; font-size: 14px; color: var(--sub); }
+.hall b { color: var(--ink); background: var(--accent); padding: 0 6px; border-radius: 4px; }
+
+/* 表紙 */
+.cover { position: relative; overflow: hidden; border-radius: 10px; aspect-ratio: 4 / 5; isolation: isolate; }
+.cover .pat { position: absolute; inset: -10%; width: 120%; height: 120%; z-index: -1; }
+.cover .owner { position: absolute; left: 10px; top: 10px; font-size: 12px; font-weight: 700; background: rgba(16,38,79,.78); color: #fff; padding: 1px 8px; border-radius: 4px; max-width: calc(100% - 60px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cover .ttl { position: absolute; left: 10px; right: 10px; top: 40px; font-weight: 900; font-size: clamp(18px, 2.2vw, 24px); line-height: 1.15; overflow-wrap: anywhere; }
+.heart { position: absolute; right: 8px; top: 8px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255,255,255,.95); color: #8a98b4; font-size: 18px; display: grid; place-items: center; }
+.heart:hover { background: var(--accent); }
+.heart.on { color: #d62f4a; }
+.heart.pop { animation: pop .26s ease-out; }
+@keyframes pop { 50% { transform: scale(1.25); } }
+
+.sec { display: flex; align-items: baseline; gap: 12px; margin: 28px 0 12px; }
+.sec h2 { margin: 0; font-size: 20px; font-weight: 900; }
+.sec span { color: var(--sub); font-size: 14px; }
+
+/* 注目ゾーン */
+.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 30px 16px; }
+.card { cursor: pointer; display: block; transform-origin: 50% 0; min-width: 0; }
+.card.flip { animation: flip .55s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i) * .05s); }
+@keyframes flip { from { opacity: 0; transform: perspective(700px) rotateX(-90deg); } to { opacity: 1; transform: none; } }
+.card:hover .cover { box-shadow: 0 8px 0 var(--accent); }
+.rank { font-weight: 900; font-size: 60px; line-height: .8; margin: -30px 0 0 8px; position: relative; color: var(--ink); -webkit-text-stroke: 7px var(--bg); paint-order: stroke fill; }
+.card h3 { margin: 6px 0 2px; font-size: 16px; font-weight: 900; line-height: 1.3; word-break: break-all; }
+.card p { margin: 0 0 6px; font-size: 14px; line-height: 1.55; color: #243a63; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: 13px; color: var(--sub); }
+.meta .st { color: var(--ink); font-weight: 900; font-size: 16px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: -1px; border: 1px solid rgba(16,38,79,.4); }
+.chg { font-weight: 900; font-size: 13px; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.same { color: var(--sub); }
+.chg.new { background: var(--new); color: var(--ink); border-radius: 5px; padding: 0 6px; }
+.tag { font-size: 12px; font-weight: 700; color: var(--sub); }
+
+.card.first { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 26px; background: #fff; border-radius: 14px; padding: 16px; align-items: center; border: 3px solid var(--ink); box-shadow: 8px 8px 0 var(--accent); }
+.first .cover { aspect-ratio: 16 / 9; }
+.first .cover .ttl { top: 44px; bottom: auto; font-size: clamp(28px, 4.4vw, 50px); }
+.first .rank { font-size: 130px; margin: -62px 0 0 12px; -webkit-text-stroke: 9px #fff; }
+.first h3 { font-size: 24px; margin-top: 0; }
+.first p { font-size: 17px; -webkit-line-clamp: 4; line-height: 1.7; }
+.first .meta .st { font-size: 24px; }
+.first .txt { min-width: 0; }
+.kicker { display: inline-block; background: var(--ink); color: var(--accent); font-weight: 900; font-size: 13px; padding: 2px 10px; border-radius: 4px; margin-bottom: 6px; }
+
+/* 境目の帯 */
+.belt { margin: 40px 0 14px; background: var(--accent); color: var(--ink); font-weight: 900; font-size: 16px; padding: 8px 16px; border-radius: 8px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.belt span:last-child { font-weight: 700; font-size: 14px; }
+
+/* リーグ表 */
+.list { background: var(--card); border-radius: 14px; border: 2px solid var(--ink); overflow: hidden; }
+.row { display: grid; grid-template-columns: 40px 40px minmax(0, 1fr) auto 40px; align-items: center; gap: 12px; padding: 10px 14px; border-top: 1px solid var(--line); cursor: pointer; }
+.row:first-child { border-top: 0; }
+.row:hover { background: #eef8ff; }
+.rk { text-align: center; font-weight: 900; font-size: 20px; color: var(--ink); }
+.row .ident { display: block; }
+.who { min-width: 0; }
+.who b { display: block; font-weight: 900; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.who b span { color: var(--sub); font-weight: 500; }
+.who p { margin: 0; font-size: 14px; line-height: 1.55; color: #243a63; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.score { text-align: right; }
+.score .st { display: block; font-weight: 900; font-size: 19px; }
+.heart.rowfav { position: static; border: 2px solid var(--line); background: #fff; }
+
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; scrollbar-width: none; margin-bottom: 4px; }
+.tabs button { flex: none; background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 6px 16px; font-weight: 700; font-size: 14px; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--accent); }
+
+/* 詳しい表示 */
+.scrim { position: fixed; inset: 0; background: rgba(16,38,79,.35); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 9; }
+.scrim.on { opacity: 1; pointer-events: auto; }
+.sheet { position: fixed; left: 50%; bottom: 0; transform: translate(-50%, 110%); width: min(640px, 100%); max-height: 88vh; overflow-y: auto; background: #fff; border: 3px solid var(--ink); border-bottom: 0; border-radius: 18px 18px 0 0; padding: 18px 18px 26px; transition: transform .26s cubic-bezier(.2,.8,.2,1); z-index: 10; visibility: hidden; }
+.sheet.on { transform: translate(-50%, 0); visibility: visible; }
+.sheet h3 { margin: 0 0 4px; font-size: 19px; font-weight: 900; word-break: break-all; padding-right: 44px; }
+.sheet p { margin: 4px 0; font-size: 15px; line-height: 1.7; }
+.sheet .en { color: var(--sub); font-size: 14px; word-break: break-word; }
+.sheet .x { position: absolute; right: 12px; top: 12px; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--ink); background: #fff; font-size: 18px; }
+.bars { display: flex; align-items: flex-end; gap: 4px; height: 80px; margin-top: 10px; }
+.bars i { flex: 1; background: var(--ink); border-radius: 3px 3px 0 0; }
+.bars i.miss { background: transparent; border: 2px dashed var(--sub); height: 100% !important; }
+.bars i.last { background: var(--accent); outline: 2px solid var(--ink); }
+.cap { display: flex; justify-content: space-between; font-size: 13px; color: var(--sub); margin-top: 4px; }
+.sheet .favbig { margin-top: 12px; border: 2px solid var(--ink); background: #fff; border-radius: 999px; padding: 6px 18px; font-weight: 700; font-size: 14px; }
+.sheet .favbig.on { background: var(--accent); }
+footer { margin-top: 44px; color: var(--sub); font-size: 13px; line-height: 1.7; }
+
+@media (max-width: 800px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 12px; }
+  .card.first { grid-template-columns: minmax(0, 1fr); padding: 12px; gap: 10px; box-shadow: 5px 5px 0 var(--accent); }
+  .first .rank { font-size: 90px; margin-top: -44px; }
+  .days { margin-left: 0; width: 100%; }
+  .days button { flex: 1; padding: 6px 4px; }
+  .rank { font-size: 48px; }
+}
+@media (max-width: 480px) {
+  .row { grid-template-columns: 30px 36px minmax(0, 1fr) auto; gap: 8px; padding: 10px 10px; }
+  .row .rowfav { display: none; }
+  .title h1 { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) { .card.flip, .heart.pop { animation: none; } .sheet, .scrim { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-label="詳しい表示"></div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, s = P.svg, V = V3;
+  let tab = P.day.topics[0].id, lastFocus = null;
+  const streak = (repo) => 1 + (V.hash(repo) % 9);          // 仮データ
+  const again = (repo) => V.hash(repo + "r") % 4 === 0;      // 仮データ
+  const status = (repo) => (streak(repo) === 1 ? (again(repo) ? "再登場" : "初登場") : "連続" + streak(repo) + "日");
+
+  function cover(it) {
+    const h = V.hash(it.repo), base = V.langColor(it.lang);
+    const light = ["#f1e05a", "#89e051", "#dea584", "#00ADD8", "#ec915c"].includes(base);
+    const c = el("div", { class: "cover", style: `background:${base}; color:${light ? "#10264f" : "#fff"}` });
+    const pat = s("svg", { class: "pat", viewBox: "0 0 100 125", preserveAspectRatio: "xMidYMid slice", "aria-hidden": "true" });
+    const ink = light ? "rgba(16,38,79,.14)" : "rgba(255,255,255,.2)", kind = h % 3;
+    if (kind === 0) for (let i = 0; i < 9; i++) pat.append(s("rect", { x: -20, y: i * 16 - 10, width: 160, height: 7, fill: ink, transform: "rotate(-18 50 60)" }));
+    else if (kind === 1) for (let i = 0; i < 5; i++) pat.append(s("circle", { cx: 78, cy: 90, r: 14 + i * 16, fill: "none", stroke: ink, "stroke-width": 6 }));
+    else for (let i = 0; i < 6; i++) for (let j = 0; j < 7; j++) pat.append(s("circle", { cx: 8 + i * 18, cy: 8 + j * 18, r: 3.2, fill: ink }));
+    c.append(pat, el("span", { class: "owner" }, V.owner(it.repo)), el("div", { class: "ttl" }, V.name(it.repo)));
+    return c;
+  }
+  function syncFav(repo, on) {
+    document.querySelectorAll("[data-fav]").forEach((x) => { if (x.dataset.fav === repo) { x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); } });
+  }
+  function heart(repo, cls) {
+    const b = el("button", { class: "heart " + (cls || "") + (P.fav.has(repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(repo)), "aria-label": repo + " をお気に入り", "data-fav": repo }, "★");
+    b.addEventListener("click", (e) => { e.stopPropagation(); syncFav(repo, P.fav.toggle(repo)); b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); });
+    return b;
+  }
+
+  /* 詳しい表示 */
+  const sheet = document.getElementById("sheet"), scrim = document.getElementById("scrim");
+  function closeSheet() { const was = sheet.classList.contains("on"); sheet.classList.remove("on"); scrim.classList.remove("on"); if (was && lastFocus && lastFocus.isConnected) lastFocus.focus(); }
+  function openSheet(it, trigger) {
+    lastFocus = trigger;
+    const hist = P.history(it.repo, it.stars), vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const x = el("button", { class: "x", type: "button", "aria-label": "閉じる" }, "×");
+    x.addEventListener("click", closeSheet);
+    const label = (on) => (on ? "★ お気に入り済み" : "☆ お気に入りに入れる");
+    const fb = el("button", { class: "favbig" + (P.fav.has(it.repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(it.repo)) }, label(P.fav.has(it.repo)));
+    fb.addEventListener("click", () => { const on = P.fav.toggle(it.repo); fb.classList.toggle("on", on); fb.setAttribute("aria-pressed", String(on)); fb.textContent = label(on); syncFav(it.repo, on); });
+    sheet.replaceChildren(x,
+      el("h3", {}, it.repo),
+      el("p", {}, it.summary),
+      el("p", { class: "en" }, it.desc),
+      el("p", { class: "tag" }, `${it.lang}・${status(it.repo)}（仮データ）`),
+      el("div", { class: "bars", role: "img", "aria-label": "★の推移" }, hist.map((h, i) => el("i", { class: h.stars == null ? "miss" : i === hist.length - 1 ? "last" : "", title: h.date + " ★" + P.fmt(h.stars), style: h.stars == null ? "" : `height:${12 + ((h.stars - lo) / Math.max(1, hi - lo)) * 88}%` }))),
+      el("div", { class: "cap" }, el("span", {}, hist[0].date.slice(5).replace("-", "/") + " から（点線は記録の無い日）"), el("span", { class: "num" }, "総★ " + P.fmt(it.stars))),
+      fb);
+    sheet.classList.add("on"); scrim.classList.add("on"); x.focus();
+  }
+  scrim.addEventListener("click", closeSheet);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && sheet.classList.contains("on")) closeSheet(); });
+  function activate(node, fn) {
+    node.addEventListener("click", fn);
+    node.addEventListener("keydown", (e) => { if (e.target === node && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); fn(); } });
+  }
+
+  function card(it, i, animate) {
+    const first = i === 0;
+    const c = el("div", { class: "card" + (first ? " first" : "") + (animate ? " flip" : ""), style: `--i:${i}`, tabindex: "0", role: "button", "aria-label": `${i + 1}位 ${it.repo} の詳しい表示` });
+    const cv = cover(it); cv.append(heart(it.repo));
+    c.append(
+      el("div", {}, cv, el("div", { class: "rank num", "aria-hidden": "true" }, i + 1)),
+      el("div", { class: "txt" },
+        first ? el("span", { class: "kicker" }, "今日のイチオシ") : null,
+        el("h3", {}, it.repo),
+        el("p", {}, it.summary),
+        el("div", { class: "meta" },
+          el("span", { class: "st num" }, "+" + P.fmt(it.today)), el("span", {}, "★"), V.changeEl(it.repo),
+          el("span", {}, el("i", { class: "dot", style: `background:${V.langColor(it.lang)}` }), it.lang),
+          el("span", { class: "tag" }, status(it.repo)))));
+    activate(c, () => openSheet(it, c));
+    return c;
+  }
+  function row(it, rk, right) {
+    const r = el("div", { class: "row", tabindex: "0", role: "button", "aria-label": `${it.repo} の詳しい表示` },
+      el("span", { class: "rk num" }, rk),
+      V.identicon(V.owner(it.repo), 40, 10),
+      el("div", { class: "who" }, el("b", {}, el("span", {}, V.owner(it.repo) + "/"), V.name(it.repo)), el("p", {}, it.summary)),
+      right,
+      heart(it.repo, "rowfav"));
+    activate(r, () => openSheet(it, r));
+    return r;
+  }
+
+  function brief(items) {
+    const cnt = {}; items.forEach((i) => cnt[i.lang] = (cnt[i.lang] || 0) + 1);
+    const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 2).map((x) => `${x[0]}（${x[1]}件）`);
+    const nw = items.filter((i) => V.change(i.repo).kind === "new").length;
+    const total = items.reduce((a, i) => a + i.today, 0);
+    return `今日は ${top.join(" と ")} が強い。新顔が ${nw} 件、25件の今日の★増は合わせて ${P.fmt(total)}。`;
+  }
+
+  function render(animate) {
+    const day = P.day, items = day.trending.items, app = document.getElementById("app"), dd = P.date;
+    const days = el("div", { class: "days", role: "group", "aria-label": "日付" }, P.data.DATES.map((d) => {
+      const b = el("button", { type: "button", "aria-current": String(d === P.date) }, `${+d.slice(5, 7)}/${+d.slice(8)}（${P.weekday(d)}）`);
+      b.addEventListener("click", () => { closeSheet(); P.setDate(d); });
+      return b;
+    }));
+    const hall = items.filter((i) => streak(i.repo) >= 7);
+    const topic = day.topics.find((t) => t.id === tab) || day.topics[0];
+    const tabs = el("div", { class: "tabs", role: "tablist", "aria-label": "関心領域" }, day.topics.map((t) => {
+      const b = el("button", { type: "button", role: "tab", "aria-selected": String(t.id === topic.id) }, t.label);
+      b.addEventListener("click", () => { tab = t.id; render(false); });
+      return b;
+    }));
+    app.replaceChildren(...[
+      el("div", { class: "top" },
+        el("div", { class: "datebox" }, el("b", { class: "num" }, `${+dd.slice(5, 7)}/${+dd.slice(8)}`), el("span", {}, P.weekday(dd) + "曜")),
+        el("div", { class: "title" }, el("h1", {}, "今日の急上昇リーグ"), el("p", { class: "num" }, `第${day.issueNo}号・${day.updatedAt.slice(11, 16)} JST 更新`)),
+        days),
+      P.state === "stale" ? el("div", { class: "stale", role: "status" }, "⚠ 更新が2日止まっています。表示は 11/10 の記録です。") : null,
+      el("p", { class: "brief" }, brief(items)),
+      hall.length ? el("p", { class: "hall" }, el("b", {}, "殿堂入り（仮）"), " 7日以上連続: " + hall.slice(0, 3).map((i) => V.name(i.repo)).join("、") + (hall.length > 3 ? ` ほか${hall.length - 3}件` : "")) : null,
+      el("div", { class: "sec" }, el("h2", {}, "注目ゾーン"), el("span", {}, "上位5件")),
+      el("div", { class: "cards" }, items.slice(0, 5).map((it, i) => card(it, i, animate))),
+      el("div", { class: "belt" }, el("span", {}, "ここから その他（6〜25位）"), el("span", {}, "押すと詳しく見られます")),
+      el("div", { class: "list" }, items.slice(5).map((it, i) => row(it, i + 6, el("div", { class: "score" }, el("span", { class: "st num" }, "+" + P.fmt(it.today)), V.changeEl(it.repo))))),
+      el("div", { class: "sec" }, el("h2", {}, "関心領域"), el("span", {}, "★の増え（前日比）")),
+      tabs,
+      el("div", { class: "list" }, topic.items.map((it, i) => row(it, i + 1, el("div", { class: "score" }, it.delta == null ? el("span", { class: "chg new" }, "NEW") : el("span", { class: "st num" }, "+" + P.fmt(it.delta)))))),
+      el("footer", {}, "案K「表紙つきリーグ」— 雑誌の表紙カード（上位5件）と、ゲームのリーグ表（6位以降）の混ぜ案。アイコンと表紙は仮の生成で、本番は持ち主の本物の画像。連続日数・初登場・殿堂入りは仮データ。")
+    ].filter(Boolean));
+  }
+  P.onDate(() => render(true));
+  render(true);
+})();
+</script>
+</body>
+</html>

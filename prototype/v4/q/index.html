@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案Q イベント順位 — github-ranking v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky: #46b4ee; --sky-d: #1c7fc0; --sky-bg: #dff1fc; --paper: #ffffff; --ink: #11324a; --sub: #4a6679; --line: #c9dfee;
+  --orange: #ff8a1f; --orange-ink: #301600;
+  --up: #0b8a4a; --down: #cf2a49; --new: #1565c0;
+  --gold: #f2b705; --gold-bg: #fff3bd; --silver: #8d9fb0; --silver-bg: #eef2f6; --blue: #4a8ee6;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--sky-bg); color: var(--ink); font-family: "Zen Maru Gothic", sans-serif; font-weight: 500; line-height: 1.55; font-size: 14px; line-break: strict; word-break: auto-phrase; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.phone { max-width: 440px; margin: 0 auto; min-height: 100vh; background: var(--paper); position: relative; box-shadow: 0 0 0 1px var(--line), 0 12px 40px rgba(17,50,74,.18); }
+@media (min-width: 700px) { body { padding: 20px 0; } .phone { min-height: 0; border-radius: 28px; } }
+
+/* イベントバナー */
+.banner { background: var(--sky); color: #04233a; padding: 16px 16px 14px; position: relative; overflow: hidden; }
+@media (min-width: 700px) { .banner { border-radius: 28px 28px 0 0; } }
+.banner::after { content: ""; position: absolute; right: -30px; top: -26px; width: 130px; height: 130px; border-radius: 50%; background: rgba(255,255,255,.28); }
+.banner::before { content: ""; position: absolute; right: 60px; top: 38px; width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,.22); }
+.ev-tag { display: inline-block; background: #fff; color: var(--sky-d); font-weight: 900; font-size: 12px; padding: 1px 10px; border-radius: 999px; letter-spacing: .06em; position: relative; z-index: 1; }
+.banner h1 { font-size: 26px; font-weight: 900; margin: 6px 0 2px; line-height: 1.25; position: relative; z-index: 1; }
+.banner .sum { margin: 6px 0 10px; font-weight: 700; font-size: 14.5px; position: relative; z-index: 1; }
+.timer { display: inline-flex; gap: 8px; align-items: baseline; background: #04233a; color: #fff; border-radius: 10px; padding: 4px 12px; font-weight: 700; font-size: 13px; position: relative; z-index: 1; }
+.timer b { font-size: 18px; color: #ffd27a; }
+.hall { margin-top: 10px; background: var(--gold-bg); border: 2px solid var(--gold); border-radius: 10px; padding: 4px 10px; font-weight: 700; font-size: 13.5px; position: relative; z-index: 1; color: #3b2a00; }
+.hall b { background: var(--gold); border-radius: 6px; padding: 0 6px; margin-right: 6px; }
+.days { display: flex; gap: 6px; padding: 10px 12px 0; }
+.days button { flex: 1; background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 4px 0; font-weight: 700; font-size: 14px; color: var(--sub); }
+.days button[aria-current="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.days small { display: block; font-size: 11.5px; font-weight: 500; }
+.stale { background: #fff1d6; color: #5a3500; border: 2px solid var(--orange); margin: 10px 12px 0; padding: 8px 12px; border-radius: 10px; font-weight: 700; }
+.upd { margin: 8px 16px 0; color: var(--sub); font-size: 12.5px; }
+
+.tabs { display: flex; gap: 6px; padding: 10px 12px 8px; overflow-x: auto; scrollbar-width: none; position: sticky; top: 0; background: var(--paper); z-index: 5; border-bottom: 2px solid var(--line); }
+.tabs button { flex: none; background: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 5px 14px; font-weight: 700; font-size: 14px; color: var(--sub); }
+.tabs button[aria-selected="true"] { background: var(--orange); border-color: var(--orange); color: var(--orange-ink); font-weight: 900; }
+
+/* 順位の帯 */
+.list { padding: 8px 10px 24px; display: grid; gap: 6px; }
+.zone-h { font-weight: 900; font-size: 12.5px; color: var(--sub); padding: 8px 4px 0; display: flex; align-items: center; gap: 8px; }
+.zone-h::after { content: ""; flex: 1; height: 2px; background: var(--line); }
+.row { display: grid; grid-template-columns: 44px 48px minmax(0,1fr) 44px; gap: 8px; align-items: center; background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 8px 8px 8px 6px; cursor: pointer; }
+.row.z1 { background: var(--gold-bg); border-color: var(--gold); border-width: 3px; padding-top: 12px; padding-bottom: 12px; }
+.row.z2 { background: var(--silver-bg); border-color: var(--silver); border-width: 3px; }
+.row.z3 { border-color: var(--blue); }
+.row:hover { filter: brightness(.98); }
+.rk { text-align: center; font-weight: 900; font-size: 24px; line-height: 1; color: var(--ink); }
+.row.z1 .rk { font-size: 34px; color: #7a5200; }
+.rk small { display: block; font-size: 11px; font-weight: 700; color: var(--sub); margin-top: 2px; }
+.row .ident { display: block; border-radius: 12px; }
+.who { min-width: 0; }
+.who b { display: block; font-weight: 900; font-size: 15.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.who b span { color: var(--sub); font-weight: 500; }
+.who p { margin: 0; font-size: 14px; line-height: 1.5; }
+.meta { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: center; margin-top: 2px; font-size: 13px; }
+.st { font-weight: 900; color: var(--ink); }
+.chg { font-weight: 900; font-size: 13px; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.same { color: var(--sub); }
+.chg.new { background: var(--new); color: #fff; border-radius: 6px; padding: 0 6px; }
+.tag { font-size: 12.5px; color: var(--sub); font-weight: 700; }
+.fav { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--line); background: #fff; font-size: 20px; color: var(--sub); }
+.fav.on { background: var(--orange); border-color: var(--orange); color: var(--orange-ink); }
+.more { grid-column: 1 / -1; display: grid; gap: 8px; padding: 4px 4px 2px; }
+.more .en { color: var(--sub); word-break: break-word; font-size: 14px; }
+.bars { display: flex; align-items: flex-end; gap: 4px; height: 64px; }
+.bars i { flex: 1; background: var(--sky); border-radius: 4px 4px 0 0; }
+.bars i.miss { background: transparent; border: 2px dashed var(--silver); height: 100% !important; }
+.bars i.last { background: var(--orange); }
+.cap { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--sub); }
+footer { padding: 0 16px 20px; color: var(--sub); font-size: 12.5px; line-height: 1.7; }
+
+/* 画面下の自分の順位バー */
+.mybar { position: sticky; bottom: 0; z-index: 10; background: var(--ink); color: #fff; padding: 8px 10px 10px; border-top: 4px solid var(--orange); }
+@media (min-width: 700px) { .mybar { border-radius: 0 0 28px 28px; } }
+.mybar h2 { margin: 0 0 4px 4px; font-size: 12.5px; font-weight: 700; color: #bfe3f8; }
+.mine { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.mine .empty { font-weight: 700; font-size: 14px; padding: 6px 4px; }
+.chip { flex: none; display: flex; align-items: center; gap: 8px; background: #fff; color: var(--ink); border-radius: 12px; padding: 4px 12px 4px 6px; border: 0; text-align: left; max-width: 230px; }
+.chip .n { font-weight: 900; font-size: 22px; min-width: 44px; text-align: center; line-height: 1; }
+.chip .n small { font-size: 12px; font-weight: 700; }
+.chip .n.out { font-size: 14px; color: var(--sub); }
+.chip span.nm { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mybar.pulse { animation: pulse .5s ease-out; }
+@keyframes pulse { 40% { background: #1d5278; } }
+.fly { position: fixed; left: 0; top: 0; z-index: 99; width: 28px; height: 28px; border-radius: 50%; background: var(--orange); color: var(--orange-ink); display: grid; place-items: center; font-weight: 900; pointer-events: none; }
+@media (max-width: 480px) { .banner h1 { font-size: 24px; } }
+@media (prefers-reduced-motion: reduce) { .mybar.pulse { animation: none; } }
+</style>
+</head>
+<body>
+<div class="phone" id="app"></div>
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el, V = V3;
+  let open = null, tab = "all";
+  const streak = (repo) => 1 + V.hash(repo) % 10; // 仮データ
+  const reappear = (repo) => V.hash(repo + "r") % 5 === 0; // 仮データ
+
+  function allRepos() {
+    const m = new Map();
+    P.day.trending.items.forEach((it) => m.set(it.repo, it));
+    P.day.topics.forEach((t) => t.items.forEach((it) => { if (!m.has(it.repo)) m.set(it.repo, it); }));
+    return [...m.values()];
+  }
+  function summaryText(items) {
+    const cnt = {}; items.forEach((i) => { cnt[i.lang] = (cnt[i.lang] || 0) + 1; });
+    const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 2).map((e) => e[0]);
+    const news = items.filter((i) => V.change(i.repo).kind === "new").length;
+    const best = items.reduce((a, b) => (b.today > a.today ? b : a));
+    return `今日は ${top.join(" と ")} が強い。新顔が${news}件。最大の伸びは ${V.name(best.repo)}（+${P.fmt(best.today)}★）。`;
+  }
+  function nextUpdate() {
+    const now = new Date(), jst = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000);
+    const t = new Date(jst); t.setHours(6, 20, 0, 0); if (t <= jst) t.setDate(t.getDate() + 1);
+    const m = Math.round((t - jst) / 60000);
+    return { h: Math.floor(m / 60), m: m % 60 };
+  }
+
+  function updateBar(pulse) {
+    const box = document.getElementById("mine"); if (!box) return;
+    const ranks = new Map(P.day.trending.items.map((i) => [i.repo, i.rank]));
+    const favs = allRepos().filter((it) => P.fav.has(it.repo));
+    box.replaceChildren(...(favs.length ? favs.map((it) => {
+      const r = ranks.get(it.repo);
+      const chip = el("button", { class: "chip", type: "button", "aria-label": `${it.repo} ${r ? r + "位" : "圏外"}` },
+        el("span", { class: "n num" + (r ? "" : " out") }, r ? r : "圏外", r ? el("small", {}, "位") : ""),
+        el("span", { class: "nm" }, V.name(it.repo)));
+      chip.addEventListener("click", () => { open = it.repo; tab = "all"; render(); const t = document.querySelector(".row.open"); if (t) t.scrollIntoView({ block: "center" }); });
+      return chip;
+    }) : [el("div", { class: "empty" }, "★でお気に入りにすると、ここに順位が出ます")]));
+    if (pulse && !P.reduced()) { const b = document.getElementById("mybar"); b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse"); }
+  }
+
+  function favBtn(repo) {
+    const b = el("button", { class: "fav" + (P.fav.has(repo) ? " on" : ""), type: "button", "aria-pressed": String(P.fav.has(repo)), "aria-label": repo + " をお気に入り" }, "★");
+    b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const on = P.fav.toggle(repo);
+      b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on));
+      const bar = document.getElementById("mybar");
+      if (on && !P.reduced() && bar.animate) {
+        const a = b.getBoundingClientRect(), z = bar.getBoundingClientRect();
+        const f = el("div", { class: "fly", "aria-hidden": "true" }, "★"); document.body.append(f);
+        const x0 = a.left + 8, y0 = a.top + 8, x1 = z.left + 40, y1 = z.top + z.height / 2;
+        const tr = (x, y, s) => "translate(" + x + "px," + y + "px) scale(" + s + ")";
+        const an = f.animate([{ transform: tr(x0, y0, 1) }, { transform: tr((x0 + x1) / 2, Math.min(y0, y1) - 30, 1.4), offset: .45 }, { transform: tr(x1, y1 - 14, .7), opacity: .9 }], { duration: 650, easing: "cubic-bezier(.5,0,.3,1)" });
+        an.onfinish = () => { f.remove(); updateBar(true); };
+      } else updateBar(on);
+    });
+    return b;
+  }
+  function more(it) {
+    const hist = P.history(it.repo, it.stars);
+    const vals = hist.filter((h) => h.stars != null).map((h) => h.stars);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    return el("div", { class: "more" },
+      el("div", { class: "en" }, it.desc),
+      el("div", { class: "bars", role: "img", "aria-label": "★の推移" }, hist.map((h, i) => el("i", { class: h.stars == null ? "miss" : i === hist.length - 1 ? "last" : "", title: h.date + " ★" + P.fmt(h.stars), style: h.stars == null ? "" : `height:${12 + ((h.stars - lo) / Math.max(1, hi - lo)) * 88}%` }))),
+      el("div", { class: "cap" }, el("span", {}, hist[0].date.slice(5).replace("-", "/") + " から（点線は記録の無い日）"), el("span", { class: "num" }, "総★ " + P.fmt(it.stars))));
+  }
+  function row(it, n, zone, scoreEl, chgEl) {
+    const isOpen = open === it.repo;
+    const s = streak(it.repo);
+    const r = el("div", { class: "row z" + zone, tabindex: "0", role: "button", "aria-expanded": String(isOpen) },
+      el("div", { class: "rk num" }, n, el("small", {}, "位")),
+      V.identicon(V.owner(it.repo), 48, 12),
+      el("div", { class: "who" },
+        el("b", {}, el("span", {}, V.owner(it.repo) + "/"), V.name(it.repo)),
+        el("p", {}, it.summary),
+        el("div", { class: "meta" }, scoreEl, chgEl, el("span", { class: "tag" }, it.lang), el("span", { class: "tag" }, reappear(it.repo) ? "再登場（仮）" : s + "日連続（仮）"))),
+      favBtn(it.repo));
+    if (isOpen) { r.classList.add("open"); r.append(more(it)); }
+    const toggle = () => { open = isOpen ? null : it.repo; render(); };
+    r.addEventListener("click", toggle);
+    r.addEventListener("keydown", (e) => { if (e.target !== r) return; if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+    return r;
+  }
+  const zoneOf = (n) => (n === 1 ? 1 : n <= 3 ? 2 : n <= 10 ? 3 : 4);
+  const zoneLabel = { 1: "1位 ゴールド報酬ゾーン", 2: "2〜3位 シルバー", 3: "4〜10位 ブルー", 4: "11〜25位" };
+
+  function render() {
+    const day = P.day, items = day.trending.items, app = document.getElementById("app");
+    const nu = nextUpdate();
+    const best = items.reduce((a, b) => (streak(b.repo) > streak(a.repo) ? b : a));
+    const days = el("div", { class: "days", role: "group", "aria-label": "日付" }, P.data.DATES.map((d) => {
+      const b = el("button", { type: "button", "aria-current": String(d === P.date) }, `${+d.slice(5, 7)}/${+d.slice(8)}`, el("small", {}, P.weekday(d) + "曜"));
+      b.addEventListener("click", () => { open = null; P.setDate(d); }); return b;
+    }));
+    const tabs = el("div", { class: "tabs", role: "tablist" }, [{ id: "all", label: "総合 TOP25" }].concat(day.topics).map((t) => {
+      const b = el("button", { type: "button", role: "tab", "aria-selected": String(t.id === tab) }, t.label);
+      b.addEventListener("click", () => { tab = t.id; open = null; render(); }); return b;
+    }));
+    const list = el("div", { class: "list" });
+    if (tab === "all") {
+      let last = 0;
+      items.forEach((it, i) => {
+        const n = i + 1, z = zoneOf(n);
+        if (z !== last) list.append(el("div", { class: "zone-h" }, zoneLabel[z]));
+        last = z;
+        list.append(row(it, n, z, el("span", { class: "st num" }, "+" + P.fmt(it.today) + "★"), V.changeEl(it.repo)));
+      });
+    } else {
+      const t = day.topics.find((x) => x.id === tab) || day.topics[0];
+      t.items.forEach((it, i) => list.append(row(it, i + 1, zoneOf(i + 1), it.delta == null ? el("span", { class: "chg new" }, "NEW") : el("span", { class: "st num" }, "+" + P.fmt(it.delta) + "★"), el("span", { class: "tag" }, "領域内"))));
+    }
+    app.replaceChildren(
+      el("div", { class: "banner" },
+        el("span", { class: "ev-tag" }, "開催中イベント"),
+        el("h1", {}, "今日の急上昇ランキング"),
+        el("p", { class: "sum" }, summaryText(items)),
+        el("div", { class: "timer" }, "次回更新まで 約", el("b", { class: "num" }, nu.h + "時間" + nu.m + "分")),
+        streak(best.repo) >= 7 ? el("div", { class: "hall" }, el("b", {}, "殿堂入り（仮）"), V.name(best.repo) + " は " + streak(best.repo) + "日連続で登場中") : ""),
+      days,
+      el("div", { class: "upd num" }, day.updatedAt.slice(11, 16) + " JST 更新 ・ 第" + day.issueNo + "回"),
+      P.state === "stale" ? el("div", { class: "stale", role: "status" }, "⚠ 更新が2日止まっています。表示は 11/10 の記録です。") : "",
+      tabs, list,
+      el("footer", {}, "案Q「イベント順位」— スマホゲームのイベントランキング画面の文法（バナー・報酬ゾーンの帯・画面下の自分の順位バー）。アイコンは初期アバター風の模様。連続日数・再登場は仮データ。"),
+      el("div", { class: "mybar", id: "mybar" }, el("h2", {}, "あなたのお気に入りの順位"), el("div", { class: "mine", id: "mine" })));
+    updateBar(false);
+  }
+  P.onDate(() => render());
+  render();
+})();
+</script>
+</body>
+</html>

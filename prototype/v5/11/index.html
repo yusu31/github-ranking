@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ホシフル・ストライカー（v5-11）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0618; --panel:#120a2c; --line:#3b2f7a; --txt:#f2f0ff; --dim:#8f86c4;
+  --red:#ff4d4d; --yel:#ffd93d; --cyan:#4ee8ff; --grn:#7dff6b; --pink:#ff7bd5;
+  --f:"DotGothic16","MS Gothic","Hiragino Kaku Gothic ProN",monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg)}
+body{margin:0;font-family:var(--f);color:var(--txt);background:var(--bg);font-size:14px;line-height:1.5;min-height:100vh}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:3px solid var(--yel);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wrap{max-width:1100px;margin:0 auto;padding:10px 12px 28px}
+.hudbar{display:flex;justify-content:space-between;gap:8px;font-size:15px;letter-spacing:.06em;border-bottom:3px solid var(--line);padding:4px 2px 6px;margin-bottom:10px}
+.hudbar b{font-weight:400}
+.r{color:var(--red)} .y{color:var(--yel)} .c{color:var(--cyan)} .g{color:var(--grn)} .dim{color:var(--dim)}
+.btn{display:inline-block;border:3px solid var(--txt);padding:3px 12px;background:#000;letter-spacing:.08em}
+.btn:hover{background:var(--txt);color:#000}
+.btn.red{border-color:var(--red);color:var(--red)} .btn.red:hover{background:var(--red);color:#000}
+.btn.yel{border-color:var(--yel);color:var(--yel)} .btn.yel:hover{background:var(--yel);color:#000}
+.chip{border:2px solid var(--line);padding:1px 10px;margin:0 4px 6px 0;background:#000;color:var(--dim)}
+.chip[aria-pressed="true"]{border-color:var(--cyan);color:#000;background:var(--cyan)}
+.warn{border:3px solid var(--red);color:var(--red);padding:4px 10px;margin:0 0 10px;background:#200}
+.warn b{background:var(--red);color:#000;padding:0 6px;margin-right:6px;font-weight:400}
+
+/* ===== ゲーム画面（3列: ずかん | 筐体 | ログ） ===== */
+#v-play{display:grid;grid-template-columns:1fr;gap:12px;justify-items:center}
+.col-l,.col-r{width:100%;max-width:420px}
+.cab{width:100%;max-width:420px;position:relative}
+.cabhud{display:flex;justify-content:space-between;background:#000;border:3px solid var(--line);border-bottom:0;padding:2px 8px;font-size:14px}
+.cabhud span{white-space:nowrap}
+.screen{position:relative;border:3px solid var(--line);background:#000;line-height:0;touch-action:none}
+#cv{width:100%;height:auto;aspect-ratio:2/3;image-rendering:pixelated;display:block;touch-action:none}
+#toasts{position:absolute;left:4px;right:4px;top:6px;display:flex;flex-direction:column;gap:4px;pointer-events:none;line-height:1.35}
+.toast{background:rgba(0,0,0,.86);border:2px solid var(--yel);padding:3px 7px;font-size:12px;animation:tin .18s steps(3)}
+.toast b{color:var(--yel);font-weight:400}
+.toast i{display:block;font-style:normal;color:var(--txt);font-size:12px}
+@keyframes tin{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+.cabbar{display:flex;gap:6px;justify-content:space-between;margin-top:8px}
+.pad{display:none;gap:8px}
+@media (pointer:coarse){.pad{display:flex}}
+.pad button{width:64px;height:44px;border:3px solid var(--cyan);color:var(--cyan);font-size:22px;background:#000;user-select:none;touch-action:none}
+.pad button:active{background:var(--cyan);color:#000}
+.title-ov,.msg-ov{position:absolute;inset:0;line-height:1.5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(5,2,20,.9);padding:12px;text-align:left}
+.logo{font-size:30px;line-height:1.05;letter-spacing:.04em;color:var(--yel);text-shadow:3px 3px 0 var(--red);margin:0;text-align:left;align-self:flex-start}
+.logo small{display:block;font-size:14px;color:var(--cyan);text-shadow:none;letter-spacing:.2em}
+.title-ov p{margin:0;align-self:flex-start;font-size:13px}
+.title-ov .chips{align-self:flex-start}
+.blink{animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:.15}}
+.dex{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.dex li{list-style:none;border:2px solid #2a2158;background:#0d0724;padding:2px;text-align:center;font-size:11px;color:#4b4285;min-height:48px}
+.dex img{width:24px;height:24px;image-rendering:pixelated;display:block;margin:0 auto;opacity:.18;filter:grayscale(1)}
+.dex li.got{border-color:var(--yel);color:var(--yel);background:#1a1030}
+.dex li.got img{opacity:1;filter:none}
+.dex ol,.dex ul{margin:0;padding:0}
+h2.sec{font-size:15px;font-weight:400;margin:0 0 6px;color:var(--cyan);letter-spacing:.1em;border-bottom:2px dashed var(--line)}
+#klog{margin:0;padding:0;list-style:none;font-size:13px;min-height:60px}
+#klog li{padding:3px 0;border-bottom:1px dotted var(--line)}
+#klog b{color:var(--yel);font-weight:400}
+.cab{order:1}.col-l{order:2}.col-r{order:3}
+@media (min-width:900px){
+  .col-l{order:1}.cab{order:2}
+  #v-play{grid-template-columns:240px 420px 1fr;align-items:start;justify-items:stretch}
+  .col-l,.col-r{max-width:none}
+}
+
+/* ===== 一覧（撃墜リスト＝ハイスコア表） ===== */
+#v-list{max-width:760px;margin:0 auto}
+.lhead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.lhead h1{margin:0;font-size:22px;font-weight:400;color:var(--yel);text-shadow:2px 2px 0 var(--red);letter-spacing:.06em}
+.ctl{margin:6px 0}
+.ctl .lab{color:var(--dim);font-size:12px;margin-right:6px}
+#rows{margin:8px 0 0;padding:0;list-style:none;border-top:3px solid var(--line)}
+.row{border-bottom:1px solid var(--line)}
+.rowbtn{display:grid;grid-template-columns:44px 36px 1fr auto;gap:2px 8px;align-items:center;width:100%;text-align:left;padding:6px 4px}
+.rowbtn:hover{background:#1a1040}
+.ord{font-size:15px;color:var(--txt)}
+.row:nth-child(1) .ord{color:var(--red)} .row:nth-child(2) .ord{color:var(--pink)} .row:nth-child(3) .ord{color:var(--yel)}
+.row:nth-child(-n+3) .nm{color:var(--yel)}
+.rowbtn img{width:32px;height:32px;image-rendering:pixelated;display:block}
+.nm{font-size:15px;overflow-wrap:anywhere}
+.nm .ow{color:var(--dim)}
+.sc{text-align:right;color:var(--cyan);font-size:14px;white-space:nowrap}
+.sum{grid-column:3 / 5;font-size:12.5px;color:#cfc9f5;margin-top:-2px}
+.tag{font-size:11px;padding:0 5px;margin-left:6px;border:1px solid currentColor}
+.tag.hit{color:var(--grn)} .tag.miss{color:var(--dim)} .tag.up{color:var(--grn)} .tag.down{color:var(--red)} .tag.new{color:var(--pink)}
+.det{padding:6px 10px 12px 52px;border-top:1px dashed var(--line);background:#0e0822}
+.det p{margin:2px 0 6px;font-size:13px;color:#cfc9f5;overflow-wrap:anywhere}
+.det .k{color:var(--dim);font-size:12px}
+.det svg{display:block;width:100%;max-width:360px;height:70px;border:2px solid var(--line);background:#000}
+.favb{margin-top:8px}
+.foot{margin-top:26px;padding-top:8px;border-top:3px solid var(--line);font-size:11.5px;color:var(--dim)}
+.small{font-size:12px;color:var(--dim)}
+@media (max-width:520px){
+  .rowbtn{grid-template-columns:34px 30px 1fr;}
+  .sc{grid-column:3;text-align:left}
+  .sum{grid-column:3}
+  .det{padding-left:12px}
+  .logo{font-size:26px}
+}
+@media (prefers-reduced-motion:reduce){
+  .toast{animation:none}.blink{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hudbar" role="banner">
+    <span><b class="r">HI-SCORE</b> <b id="hbHi" class="y">000000</b></span>
+    <span class="dim" id="hbUpd"></span>
+  </div>
+  <div id="warn" class="warn" hidden></div>
+
+  <!-- ===== ゲーム ===== -->
+  <section id="v-play" aria-label="シューティングゲーム" hidden>
+    <aside class="col-l">
+      <h2 class="sec">ずかん <span id="dexN" class="y">0/0</span></h2>
+      <div class="dex"><ol id="dex" style="display:contents"></ol></div>
+      <p class="small">敵を倒すと、図鑑にそのリポジトリが載る。数字は今日の順位。</p>
+    </aside>
+    <div class="cab">
+      <div class="cabhud" aria-live="off"><span><b class="r">1UP</b> <b id="hScore" class="txt">000000</b></span><span id="hStage" class="c"></span><span id="hLife" class="r" aria-label="残機"></span></div>
+      <div class="screen" id="screen">
+        <canvas id="cv" width="360" height="540" role="img" aria-label="縦スクロールのシューティング。矢印キーまたはドラッグで自機を動かす。弾は自動で出る"></canvas>
+        <div id="toasts" aria-live="polite"></div>
+        <div id="ovT" class="title-ov"></div>
+        <div id="ovM" class="msg-ov" hidden></div>
+      </div>
+      <div class="cabbar">
+        <div class="pad"><button id="bL" aria-label="左へ">◀</button><button id="bR" aria-label="右へ">▶</button></div>
+        <button class="btn" id="bPause">PAUSE (P)</button>
+        <button class="btn yel" id="bSkip">スキップして一覧</button>
+      </div>
+      <p class="small" style="margin:6px 0 0">操作: ← → / A D（スマホは画面をドラッグ）で移動。弾は自動。P で一時停止。</p>
+    </div>
+    <aside class="col-r">
+      <h2 class="sec">撃墜ログ</h2>
+      <ul id="klog"><li class="dim">まだ撃墜なし</li></ul>
+    </aside>
+  </section>
+
+  <!-- ===== 一覧 ===== -->
+  <section id="v-list" aria-label="今日の撃墜リスト" hidden>
+    <div class="lhead">
+      <h1 id="lTitle">今日の撃墜リスト</h1>
+      <span><button class="btn red" id="bPlay">ゲームで遊ぶ</button></span>
+    </div>
+    <div class="ctl"><span class="lab">ステージ(日付)</span><span id="cDates"></span></div>
+    <div class="ctl"><span class="lab">別ステージ(関心領域)</span><span id="cTopics"></span></div>
+    <div class="ctl"><button class="chip" id="cFav" aria-pressed="false"></button> <span class="small" id="favNote"></span></div>
+    <p class="small" id="lSub" style="margin:4px 0"></p>
+    <ol id="rows"></ol>
+  </section>
+
+  <div class="foot">
+    v5-11 ホシフル・ストライカー ／ 借りたジャンル: 固定画面〜縦スクロールのアーケード・シューティング（HUD・1UP/HI-SCORE・図鑑・ハイスコア表）。ゲームの敵＝言語ごとのドット絵、体力＝今日の★増。<br>
+    素材: ドット絵は自作（Pillow で描画・著作権は作者に帰属、自由利用）／フォント DotGothic16（SIL OFL 1.1・Google Fonts）。ゲームライブラリは使わず素の canvas。仮データ。
+  </div>
+</div>
+
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  "use strict";
+  const P = window.PROTO, el = P.el, V3 = window.V3;
+  const $ = (id) => document.getElementById(id);
+  const W = 360, H = 540;
+  const LANGS = ["Python", "TypeScript", "JavaScript", "Rust", "Go", "Zig", "Markdown", "Shell", "HTML"];
+  const sprName = (l) => (LANGS.includes(l) ? l : "other");
+  const pad = (n, w) => String(Math.max(0, Math.round(n))).padStart(w, "0");
+  const ORD = (n) => (n === 1 ? "1ST" : n === 2 ? "2ND" : n === 3 ? "3RD" : n + "TH");
+
+  // ---------- 画像 ----------
+  const IMG = {};
+  const names = ["ship", "crown", "shot", "eshot", "boom"].concat(LANGS.concat(["other"]).map((l) => "enemy-" + l));
+  let pending = names.length;
+  const imgReady = new Promise((res) => {
+    names.forEach((n) => {
+      const im = new Image();
+      im.onload = im.onerror = () => { if (--pending === 0) res(); };
+      im.src = "assets/" + n + ".png";
+      IMG[n] = im;
+    });
+  });
+  const iconFor = (lang, px) => { const i = el("img", { src: "assets/enemy-" + sprName(lang) + ".png", alt: "", width: px, height: px }); return i; };
+
+  // ---------- 保存（HI-SCORE） ----------
+  const HIKEY = "gr-proto-v5-11-hi";
+  let hi = 0;
+  try { hi = +localStorage.getItem(HIKEY) || 0; } catch (e) { /* 保存できなくても続ける */ }
+  const saveHi = () => { try { localStorage.setItem(HIKEY, String(hi)); } catch (e) {} };
+  $("hbHi").textContent = pad(hi, 6);
+
+  // ---------- ステージ（今日のデータ → 敵の並び） ----------
+  let stageKey = "trend";
+  function stageItems() {
+    if (stageKey === "trend") {
+      return P.day.trending.items.map((x) => ({ rank: x.rank, repo: x.repo, desc: x.desc, summary: x.summary, lang: x.lang, stars: x.stars, gain: x.today, isNew: false, trend: true }));
+    }
+    const t = P.day.topics.find((x) => x.id === stageKey) || P.day.topics[0];
+    return t.items.map((x, i) => ({ rank: i + 1, repo: x.repo, desc: x.desc, summary: x.summary, lang: x.lang, stars: x.stars, gain: x.delta == null ? 0 : x.delta, isNew: x.delta == null, trend: false }));
+  }
+  const stageLabel = () => (stageKey === "trend" ? "TRENDING" : (P.day.topics.find((x) => x.id === stageKey) || {}).label || stageKey);
+  const gainText = (it) => (it.isNew ? "NEW" : "+" + P.fmt(it.gain) + "★");
+
+  let killed = new Set();
+  let items = stageItems();
+
+  // ---------- 画面の切替 ----------
+  let view = "list";
+  function show(v) {
+    view = v;
+    $("v-play").hidden = v !== "play";
+    $("v-list").hidden = v !== "list";
+    if (v === "list") renderList();
+  }
+
+  // ---------- 共通のUI: 日付・ステージ ----------
+  const fmtDate = (d) => d.slice(5).replace("-", "/") + "(" + P.weekday(d) + ")";
+  function renderControls(host, onChange) {
+    host.textContent = "";
+    P.data.DATES.forEach((d, i) => {
+      const last = i === P.data.DATES.length - 1;
+      host.append(el("button", { class: "chip", "aria-pressed": String(d === P.date), onclick: () => { P.setDate(d); } }, fmtDate(d) + (last ? " きょう" : "")));
+    });
+  }
+  function renderTopics(host) {
+    host.textContent = "";
+    host.append(el("button", { class: "chip", "aria-pressed": String(stageKey === "trend"), onclick: () => setStage("trend") }, "TRENDING"));
+    P.day.topics.forEach((t) => host.append(el("button", { class: "chip", "aria-pressed": String(stageKey === t.id), onclick: () => setStage(t.id) }, t.label)));
+  }
+  function setStage(k) { stageKey = k; refreshData(); }
+  function refreshData() {
+    items = stageItems(); killed = new Set();
+    updUpd();
+    if (view === "list") renderList();
+    if (view === "play") buildTitle();
+    buildDex();
+  }
+  P.onDate(refreshData);
+
+  function updUpd() {
+    const u = P.day.updatedAt || "";
+    $("hbUpd").textContent = P.date + " " + (u.slice(11, 16) || "--:--") + " JST 更新";
+    const w = $("warn");
+    if (P.state === "stale") {
+      w.hidden = false; w.textContent = "";
+      w.append(el("b", {}, "WARNING"), "通信途絶: 今日の Trending が取れていません。いま見えているのは " + (u.slice(0, 16).replace("T", " ") || "前回") + " JST 時点の記録です。");
+    } else w.hidden = true;
+  }
+
+  // ---------- 図鑑 ----------
+  function buildDex() {
+    const host = $("dex"); host.textContent = "";
+    items.slice().sort((a, b) => a.rank - b.rank).forEach((it) => {
+      const li = el("li", { "data-repo": it.repo, title: it.repo }, iconFor(it.lang, 24), el("div", {}, String(it.rank)));
+      if (killed.has(it.repo)) li.classList.add("got");
+      host.append(li);
+    });
+    $("dexN").textContent = killed.size + "/" + items.length;
+  }
+  function addKillLog(it) {
+    const host = $("klog");
+    if (host.firstChild && host.firstChild.classList && host.firstChild.classList.contains("dim")) host.textContent = "";
+    host.prepend(el("li", {}, el("b", {}, "#" + it.rank + " " + it.repo), el("br"), it.summary));
+    while (host.children.length > 8) host.lastChild.remove();
+  }
+
+  // ---------- タイトル ----------
+  function buildTitle() {
+    const ov = $("ovT"); ov.textContent = ""; ov.hidden = false;
+    $("ovM").hidden = true;
+    const dates = el("div", { class: "chips" }), tps = el("div", { class: "chips" });
+    renderControls(dates); renderTopics(tps);
+    ov.append(
+      el("h1", { class: "logo" }, el("small", {}, "DAILY STAR"), "ホシフル", el("br"), "ストライカー"),
+      el("p", { class: "c" }, "ステージ: " + stageLabel() + "  " + P.date + "(" + P.weekday(P.date) + ")"),
+      el("p", {}, "順位の低いほうから敵が降りてくる。体力が多い敵ほど、今日の★増が多い。最後のボスが1位。"),
+      dates, tps,
+      el("button", { class: "btn red", id: "bStart" }, el("span", { class: "blink" }, "▶ 出撃 (Enter)")),
+      el("button", { class: "btn", id: "bToList" }, "一覧で見る")
+    );
+    $("bStart").addEventListener("click", startGame);
+    $("bToList").addEventListener("click", () => { endLoop(); show("list"); });
+    $("bStart").focus({ preventScroll: true });
+  }
+
+  // ======================= ゲーム本体 =======================
+  const cv = $("cv"), ctx = cv.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  const keys = { l: false, r: false };
+  let G = null, raf = 0, last = 0, running = false, paused = false;
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const stars = Array.from({ length: 60 }, () => ({ x: Math.random() * W, y: Math.random() * H, s: 0.4 + Math.random() * 1.2 }));
+
+  function startGame() {
+    items = stageItems(); killed = new Set(); buildDex();
+    $("klog").textContent = ""; $("klog").append(el("li", { class: "dim" }, "まだ撃墜なし"));
+    $("ovT").hidden = true; $("ovM").hidden = true;
+    const maxG = Math.max(1, ...items.map((i) => i.gain));
+    const bossItem = items.find((i) => i.rank === 1);
+    const foes = items.filter((i) => i.rank !== 1).sort((a, b) => b.rank - a.rank);
+    const size = items.length > 12 ? 6 : 3;
+    const waves = [];
+    for (let i = 0; i < foes.length; i += size) waves.push(foes.slice(i, i + size));
+    G = {
+      t: 0, score: 0, lives: 3, ship: { x: W / 2, y: H - 56, inv: 0 },
+      shots: [], eshots: [], foes: [], booms: [], waves, maxG, boss: null, bossItem,
+      waveNo: 0, waveT: 0, fireT: 0, state: "play", endT: 0, hits: 0,
+    };
+    spawnWave();
+    paused = false; running = true; last = performance.now();
+    $("hStage").textContent = stageLabel().slice(0, 12);
+    updHud();
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
+    cv.focus({ preventScroll: true });
+  }
+  function endLoop() { running = false; cancelAnimationFrame(raf); }
+
+  function mkFoe(it, x, y, ph) {
+    const hp = 2 + Math.round(6 * Math.sqrt(it.gain / G.maxG));
+    return { it, bx: x, x, y, hp, max: hp, ph, cd: rnd(1.5, 4), flash: 0, boss: false };
+  }
+  function spawnWave() {
+    const w = G.waves[G.waveNo++];
+    if (!w) { spawnBoss(); return; }
+    const n = w.length;
+    w.forEach((it, j) => {
+      const c = (n - 1) / 2;
+      const x = W / 2 + (j - c) * (n > 3 ? 54 : 80);
+      G.foes.push(mkFoe(it, x, -30 - Math.abs(j - c) * 12, rnd(0, 6)));
+    });
+    G.waveT = 0;
+  }
+  function spawnBoss() {
+    if (G.boss || !G.bossItem) { finish(true); return; }
+    const hp = 90;
+    G.boss = { it: G.bossItem, x: W / 2, y: -60, hp, max: hp, cd: 1.5, flash: 0, boss: true, born: G.t };
+    G.foes.push(G.boss);
+    toast("WARNING", "1位のボスが来た: " + G.bossItem.repo);
+  }
+
+  function toast(head, sub) {
+    const host = $("toasts");
+    const t = el("div", { class: "toast" }, el("b", {}, head), el("i", {}, sub));
+    host.append(t);
+    while (host.children.length > 2) host.firstChild.remove();
+    setTimeout(() => t.remove(), 3200);
+  }
+
+  function updHud() {
+    $("hScore").textContent = pad(G.score, 6);
+    $("hLife").textContent = "♥".repeat(Math.max(0, G.lives));
+    if (G.score > hi) { hi = G.score; $("hbHi").textContent = pad(hi, 6); }
+  }
+
+  function loop(now) {
+    if (!running) return;
+    raf = requestAnimationFrame(loop);
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (!paused) update(dt);
+    draw();
+  }
+
+  function update(dt) {
+    G.t += dt; G.waveT += dt;
+    const s = G.ship;
+    // 自機
+    const sp = 230;
+    if (G.state === "play") {
+      if (keys.l) s.x -= sp * dt;
+      if (keys.r) s.x += sp * dt;
+      s.x = Math.max(14, Math.min(W - 14, s.x));
+      s.inv = Math.max(0, s.inv - dt);
+      G.fireT -= dt;
+      if (G.fireT <= 0) { G.fireT = 0.15; G.shots.push({ x: s.x - 5, y: s.y - 10 }, { x: s.x + 5, y: s.y - 10 }); }
+    }
+    G.shots.forEach((b) => (b.y -= 520 * dt));
+    G.shots = G.shots.filter((b) => b.y > -12);
+    G.eshots.forEach((b) => { b.x += b.vx * dt; b.y += b.vy * dt; });
+    G.eshots = G.eshots.filter((b) => b.y < H + 10 && b.y > -10 && b.x > -10 && b.x < W + 10);
+    if (!P.reduced()) stars.forEach((st) => { st.y += st.s * 40 * dt; if (st.y > H) { st.y = 0; st.x = Math.random() * W; } });
+
+    // 敵
+    G.foes.forEach((f) => {
+      f.flash = Math.max(0, f.flash - dt);
+      if (f.boss) {
+        const k = Math.min(1, (G.t - f.born) / 2);
+        f.y = -60 + 150 * k;
+        f.x = W / 2 + Math.sin((G.t - f.born) * (f.hp < f.max / 2 ? 1.5 : 0.9)) * 110;
+        f.cd -= dt;
+        if (f.cd <= 0 && k >= 1) {
+          f.cd = f.hp < f.max / 2 ? 0.9 : 1.4;
+          const n = f.hp < f.max / 2 ? 7 : 5;
+          for (let i = 0; i < n; i++) { const a = Math.PI / 2 + (i - (n - 1) / 2) * 0.28; G.eshots.push({ x: f.x, y: f.y + 30, vx: Math.cos(a) * 120, vy: Math.sin(a) * 120 }); }
+        }
+        if (G.t - f.born > 55) f.hp = -999; // 逃げる扱い
+      } else {
+        f.y += 34 * dt;
+        f.x = f.bx + Math.sin(G.t * 1.3 + f.ph) * 22;
+        f.cd -= dt;
+        if (f.cd <= 0 && f.y > 10 && f.y < H - 160) {
+          f.cd = rnd(3, 5.5);
+          const dx = s.x - f.x, dy = s.y - f.y, d = Math.hypot(dx, dy) || 1;
+          G.eshots.push({ x: f.x, y: f.y + 12, vx: (dx / d) * 105, vy: (dy / d) * 105 });
+        }
+      }
+    });
+    // 当たり判定: 弾 → 敵
+    G.shots.forEach((b) => {
+      for (const f of G.foes) {
+        if (f.hp <= 0) continue;
+        const r = f.boss ? 38 : 15;
+        if (Math.abs(b.x - f.x) < r && Math.abs(b.y - f.y) < r) {
+          b.y = -99; f.hp -= 1; f.flash = 0.06; G.score += 10;
+          if (f.hp <= 0) kill(f);
+          break;
+        }
+      }
+    });
+    // 敵・敵弾 → 自機
+    if (G.state === "play" && s.inv <= 0) {
+      const hitB = G.eshots.find((b) => Math.hypot(b.x - s.x, b.y - s.y) < 7);
+      const hitF = G.foes.find((f) => f.hp > 0 && Math.hypot(f.x - s.x, f.y - s.y) < (f.boss ? 34 : 14));
+      if (hitB || hitF) {
+        if (hitB) hitB.y = 9999;
+        G.lives--; s.inv = 1.8;
+        G.booms.push({ x: s.x, y: s.y, t: 0 });
+        G.eshots = [];
+        updHud();
+        if (G.lives <= 0) finish(false);
+      }
+    }
+    // 画面外に逃げた敵・退場
+    const escaped = G.foes.filter((f) => !f.boss && f.hp > 0 && f.y > H + 20);
+    G.foes = G.foes.filter((f) => f.hp > 0 && !(f.boss === false && f.y > H + 20));
+    if (G.boss && !G.foes.includes(G.boss) && G.state === "play" && !killed.has(G.boss.it.repo)) finish(true);
+    // 次の編隊
+    if (G.state === "play" && !G.boss) {
+      const alive = G.foes.length;
+      if (alive === 0 || G.waveT > 11) spawnWave();
+    }
+    G.booms.forEach((b) => (b.t += dt));
+    G.booms = G.booms.filter((b) => b.t < 0.45);
+    if (G.state === "end") { G.endT += dt; if (G.endT > 1.8) { finishToList(); } }
+  }
+
+  function kill(f) {
+    G.booms.push({ x: f.x, y: f.y, t: 0, big: f.boss });
+    G.score += f.boss ? 3000 : 100 + (26 - f.it.rank) * 20;
+    killed.add(f.it.repo);
+    toast("撃墜！ #" + f.it.rank + " " + f.it.repo, f.it.summary);
+    addKillLog(f.it);
+    const li = $("dex").querySelector('[data-repo="' + CSS.escape(f.it.repo) + '"]');
+    if (li) li.classList.add("got");
+    $("dexN").textContent = killed.size + "/" + items.length;
+    updHud();
+    if (f.boss) finish(true);
+  }
+
+  function finish(win) {
+    if (G.state === "end") return;
+    G.state = "end"; G.endT = 0; G.win = win;
+    if (G.score > hi) hi = G.score;
+    saveHi(); $("hbHi").textContent = pad(hi, 6);
+    const m = $("ovM"); m.textContent = ""; m.hidden = false;
+    m.style.background = "rgba(5,2,20,.55)";
+    m.append(el("h2", { class: "logo", style: "align-self:center;font-size:26px" }, win ? "STAGE CLEAR" : "GAME OVER"), el("p", { class: "c", style: "margin:0" }, "撃墜 " + killed.size + "/" + items.length + "  SCORE " + pad(G.score, 6)));
+  }
+  function finishToList() { endLoop(); $("ovM").hidden = true; show("list"); }
+
+  function skipToList() { if (running) { saveHi(); } endLoop(); $("ovM").hidden = true; show("list"); }
+
+  function draw() {
+    ctx.fillStyle = "#04010f"; ctx.fillRect(0, 0, W, H);
+    stars.forEach((st) => { ctx.fillStyle = st.s > 1 ? "#cfd0ff" : "#6a63a8"; ctx.fillRect(Math.round(st.x), Math.round(st.y), st.s > 1 ? 2 : 1, st.s > 1 ? 2 : 1); });
+    if (!G) return;
+    // 敵
+    G.foes.forEach((f) => {
+      const im = IMG["enemy-" + sprName(f.it.lang)];
+      const sc = f.boss ? 5 : 2, sz = 16 * sc;
+      if (f.flash > 0) ctx.globalAlpha = 0.45;
+      ctx.drawImage(im, Math.round(f.x - sz / 2), Math.round(f.y - sz / 2), sz, sz);
+      ctx.globalAlpha = 1;
+      if (f.boss) ctx.drawImage(IMG.crown, Math.round(f.x - 40), Math.round(f.y - sz / 2 - 18), 80, 40);
+      // 体力
+      if (f.boss) {
+        ctx.fillStyle = "#400"; ctx.fillRect(40, 4 + 38, W - 80, 5); ctx.fillStyle = "#ff4d4d"; ctx.fillRect(40, 42, (W - 80) * Math.max(0, f.hp) / f.max, 5);
+      } else {
+        for (let i = 0; i < f.hp; i++) { ctx.fillStyle = f.hp > 5 ? "#ff7bd5" : "#ffd93d"; ctx.fillRect(Math.round(f.x - f.max * 2 + i * 4 + 0), Math.round(f.y - sz / 2 - 5), 3, 3); }
+      }
+      // 名前
+      ctx.font = (f.boss ? 12 : 10) + "px DotGothic16, monospace";
+      ctx.textAlign = "center";
+      const nm = "#" + f.it.rank + " " + f.it.repo.split("/")[1];
+      const txt = nm.length > 15 ? nm.slice(0, 14) + "…" : nm;
+      const yy = f.y + sz / 2 + 11;
+      ctx.lineWidth = 3; ctx.strokeStyle = "#000"; ctx.strokeText(txt, f.x, yy);
+      ctx.fillStyle = f.boss ? "#ffd93d" : "#e9e6ff"; ctx.fillText(txt, f.x, yy);
+    });
+    // 弾
+    G.shots.forEach((b) => ctx.drawImage(IMG.shot, Math.round(b.x - 2), Math.round(b.y - 4), 4, 8));
+    G.eshots.forEach((b) => ctx.drawImage(IMG.eshot, Math.round(b.x - 4), Math.round(b.y - 4), 8, 8));
+    // 自機
+    const s = G.ship;
+    if (G.lives > 0 && !(s.inv > 0 && Math.floor(G.t * 14) % 2)) ctx.drawImage(IMG.ship, Math.round(s.x - 16), Math.round(s.y - 16), 32, 32);
+    // 爆発
+    G.booms.forEach((b) => {
+      const fr = Math.min(2, Math.floor(b.t / 0.15)), sz = b.big ? 128 : 48;
+      ctx.drawImage(IMG.boom, fr * 16, 0, 16, 16, Math.round(b.x - sz / 2), Math.round(b.y - sz / 2), sz, sz);
+    });
+    ctx.textAlign = "left";
+    if (paused) {
+      ctx.fillStyle = "rgba(0,0,0,.6)"; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#ffd93d"; ctx.font = "24px DotGothic16, monospace"; ctx.textAlign = "center"; ctx.fillText("PAUSE", W / 2, H / 2); ctx.textAlign = "left";
+    }
+  }
+
+  // ---------- 入力 ----------
+  addEventListener("keydown", (e) => {
+    if (view !== "play") return;
+    const k = e.key;
+    if (k === "ArrowLeft" || k === "a" || k === "A") { keys.l = true; e.preventDefault(); }
+    else if (k === "ArrowRight" || k === "d" || k === "D") { keys.r = true; e.preventDefault(); }
+    else if ((k === "p" || k === "P" || k === "Escape") && running) { paused = !paused; $("bPause").textContent = paused ? "RESUME (P)" : "PAUSE (P)"; }
+    else if (k === "Enter" && !$("ovT").hidden && document.activeElement === document.body) startGame();
+  });
+  addEventListener("keyup", (e) => {
+    const k = e.key;
+    if (k === "ArrowLeft" || k === "a" || k === "A") keys.l = false;
+    if (k === "ArrowRight" || k === "d" || k === "D") keys.r = false;
+  });
+  addEventListener("blur", () => { keys.l = keys.r = false; if (running && !paused) { paused = true; $("bPause").textContent = "RESUME (P)"; } });
+  let drag = null;
+  $("screen").addEventListener("pointerdown", (e) => { if (!G || !running) return; drag = { x0: e.clientX, sx: G.ship.x }; try { $("screen").setPointerCapture(e.pointerId); } catch (_) {} });
+  $("screen").addEventListener("pointermove", (e) => {
+    if (!drag || !G) return;
+    const r = cv.getBoundingClientRect();
+    G.ship.x = Math.max(14, Math.min(W - 14, drag.sx + ((e.clientX - drag.x0) * W) / r.width));
+  });
+  const endDrag = () => { drag = null; };
+  $("screen").addEventListener("pointerup", endDrag); $("screen").addEventListener("pointercancel", endDrag);
+  [["bL", "l"], ["bR", "r"]].forEach(([id, k]) => {
+    const b = $(id);
+    b.addEventListener("pointerdown", (e) => { keys[k] = true; e.preventDefault(); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => b.addEventListener(ev, () => (keys[k] = false)));
+  });
+  $("bPause").addEventListener("click", () => { if (!running) return; paused = !paused; $("bPause").textContent = paused ? "RESUME (P)" : "PAUSE (P)"; });
+  $("bSkip").addEventListener("click", skipToList);
+  $("bPlay").addEventListener("click", () => { show("play"); buildTitle(); buildDex(); });
+
+  // ======================= 一覧 =======================
+  let favOnly = false, openRepo = null;
+  function renderList() {
+    $("lTitle").textContent = stageKey === "trend" ? "今日の撃墜リスト" : "別ステージの撃墜リスト";
+    renderControls($("cDates")); renderTopics($("cTopics"));
+    const fav = P.fav.count();
+    const cf = $("cFav");
+    cf.textContent = (favOnly ? "★" : "☆") + " お気に入りだけ (" + fav + ")";
+    cf.setAttribute("aria-pressed", String(favOnly));
+    $("favNote").textContent = P.fav.available() ? "" : "この環境ではお気に入りを保存できません（開いている間だけ）";
+    $("lSub").textContent = stageLabel() + " ／ " + P.date + "(" + P.weekday(P.date) + ")　撃墜 " + killed.size + "/" + items.length + (killed.size ? "" : "　（まだ遊んでいなくても、全部読めます）");
+    const host = $("rows"); host.textContent = "";
+    const list = items.slice().sort((a, b) => a.rank - b.rank).filter((it) => !favOnly || P.fav.has(it.repo));
+    if (!list.length) host.append(el("li", { class: "row", style: "padding:14px 6px" }, "お気に入りはまだありません。行を開いて ☆ を押すと入ります。"));
+    list.forEach((it) => host.append(rowEl(it)));
+  }
+  function rowEl(it) {
+    const [ow, nm] = it.repo.split("/");
+    const open = openRepo === it.repo;
+    const ch = it.trend ? V3.change(it.repo) : null;
+    const tag = ch ? (ch.kind === "new" ? el("span", { class: "tag new" }, "NEW") : ch.kind === "up" ? el("span", { class: "tag up" }, "▲" + ch.n) : ch.kind === "down" ? el("span", { class: "tag down" }, "▼" + ch.n) : null) : it.isNew ? el("span", { class: "tag new" }, "NEW") : null;
+    const hit = killed.has(it.repo) ? el("span", { class: "tag hit" }, "撃墜") : null;
+    const btn = el("button", { class: "rowbtn", "aria-expanded": String(open), onclick: () => { openRepo = open ? null : it.repo; renderList(); const b = document.querySelector('[data-r="' + CSS.escape(it.repo) + '"]'); if (b) b.focus({ preventScroll: true }); }, "data-r": it.repo },
+      el("span", { class: "ord" }, ORD(it.rank)),
+      iconFor(it.lang, 32),
+      el("span", { class: "nm" }, el("span", { class: "ow" }, ow + "/"), nm, tag, hit, P.fav.has(it.repo) ? el("span", { class: "tag", style: "color:var(--yel)" }, "★お気に入り") : null),
+      el("span", { class: "sc" }, gainText(it)),
+      el("span", { class: "sum" }, it.summary));
+    const li = el("li", { class: "row" }, btn);
+    if (open) li.append(detail(it));
+    return li;
+  }
+  function detail(it) {
+    const d = el("div", { class: "det" });
+    d.append(el("p", {}, el("span", { class: "k" }, "英語の説明: "), it.desc || "—"));
+    d.append(el("p", {}, el("span", { class: "k" }, "言語: "), it.lang || "—", "　", el("span", { class: "k" }, "累計: "), P.fmt(it.stars) + "★", "　", el("span", { class: "k" }, it.trend ? "今日の増: " : "前回からの増: "), gainText(it)));
+    const h = P.history(it.repo, it.stars);
+    const pts = h.filter((p) => p.stars != null);
+    const min = Math.min(...pts.map((p) => p.stars)), max = Math.max(...pts.map((p) => p.stars));
+    const sw = 360, sh = 70;
+    const X = (i) => 6 + (i / (h.length - 1)) * (sw - 12);
+    const Y = (v) => sh - 8 - ((v - min) / Math.max(1, max - min)) * (sh - 16);
+    let dPath = "", pen = false;
+    h.forEach((p, i) => { if (p.stars == null) { pen = false; return; } dPath += (pen ? "L" : "M") + X(i).toFixed(1) + " " + Y(p.stars).toFixed(1) + " "; pen = true; });
+    const svg = P.svg("svg", { viewBox: "0 0 " + sw + " " + sh, role: "img", "aria-label": "累計★の推移。" + h[0].date + " から " + h[h.length - 1].date + "。欠けた日は線が途切れる" }, P.svg("path", { d: dPath, fill: "none", stroke: "#4ee8ff", "stroke-width": "2" }));
+    d.append(svg, el("p", { class: "k" }, "★の推移 " + h[0].date.slice(5) + "〜" + h[h.length - 1].date.slice(5) + "（欠けた日は線が切れる）"));
+    d.append(el("button", { class: "btn yel favb", onclick: () => { P.fav.toggle(it.repo); renderList(); } }, P.fav.has(it.repo) ? "★ お気に入りをはずす" : "☆ お気に入りに入れる"));
+    return d;
+  }
+  $("cFav").addEventListener("click", () => { favOnly = !favOnly; renderList(); });
+
+  // ---------- 起動 ----------
+  updUpd();
+  buildDex();
+  imgReady.then(() => {
+    if (P.reduced()) show("list");   // 動きを減らす設定: 一覧が先
+    else { show("play"); buildTitle(); }
+    draw();
+  });
+  show(P.reduced() ? "list" : "play");
+  if (!P.reduced()) buildTitle();
+  // 検査用: ?demo=1 で自動操縦（本番の機能ではない）
+  if (/[?&]demo=1/.test(location.search)) imgReady.then(() => { show("play"); startGame(); setInterval(() => { if (!G) return; const t = G.foes.filter((f) => f.hp > 0).sort((a, b) => b.y - a.y)[0]; if (t) { G.ship.x += Math.max(-8, Math.min(8, t.x - G.ship.x)); } }, 16); });
+  // 検査用: ?sim=秒 で、その秒数ぶん自動操縦で進めて止める（描画確認用）
+  const sm = /[?&]sim=(\d+)/.exec(location.search);
+  if (sm) imgReady.then(() => { show("play"); startGame(); endLoop(); for (let i = 0; i < sm[1] * 20 && running !== null && view === "play"; i++) { const t = G.foes.filter((f) => f.hp > 0).sort((a, b) => b.y - a.y)[0]; if (t) G.ship.x = t.x; G.state === "end" ? (G.endT += 0.05, G.endT > 1.8 && finishToList()) : update(0.05); } draw(); document.title += " sim:" + view + ":" + killed.size + ":" + G.lives; });
+  window.__v511 ={ show, startGame };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>星の朝刊 — github-ranking（プロトタイプ v1）</title>
+  <meta name="description" content="GitHub Trending と関心領域の★急上昇を毎朝まとめる。使い捨てのプロトタイプ（仮データ）。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip" href="#main">本文へ</a>
+
+  <header class="masthead">
+    <div class="masthead__meta">
+      <span id="issue-no">第 — 号</span>
+      <span class="masthead__tag">github-ranking ／ 毎朝 6:17 ごろ発行</span>
+      <span id="updated">最終更新 —</span>
+    </div>
+    <h1 class="masthead__title">
+      <span class="masthead__star" aria-hidden="true">★</span>星の朝刊
+    </h1>
+    <p class="masthead__sub">GitHub の流行と、関心領域の新しい道具を、毎朝 日本語で一枚に。</p>
+    <nav class="edition" aria-label="日付の切り替え">
+      <button type="button" class="edition__step" id="prev" aria-label="前の日">‹ 前の日</button>
+      <label class="edition__date">
+        <span class="visually-hidden">日付を選ぶ</span>
+        <select id="date-select"></select>
+      </label>
+      <button type="button" class="edition__step" id="next" aria-label="次の日">次の日 ›</button>
+    </nav>
+  </header>
+
+  <div id="notices" class="notices" aria-live="polite"></div>
+
+  <main id="main" class="paper">
+    <section class="lead" id="lead" aria-labelledby="lead-h">
+      <h2 id="lead-h" class="kicker">一面 ／ Trending 第1位</h2>
+      <div id="lead-body"></div>
+    </section>
+
+    <section class="trending" aria-labelledby="trend-h">
+      <div class="section-head">
+        <h2 id="trend-h">Trending <small>全言語・今日</small></h2>
+        <span class="section-head__note" id="trend-note"></span>
+      </div>
+      <ol class="rows" id="trend-list"></ol>
+      <button type="button" class="more" id="trend-more">残りも見る</button>
+    </section>
+
+    <aside class="topics" aria-labelledby="topic-h">
+      <div class="section-head">
+        <h2 id="topic-h">関心領域 <small>前日比の★</small></h2>
+      </div>
+      <div class="tabs" role="tablist" id="topic-tabs"></div>
+      <ol class="rows rows--topic" id="topic-list" role="tabpanel"></ol>
+    </aside>
+  </main>
+
+  <button type="button" class="clip-fab" id="clip-open" hidden>
+    <span aria-hidden="true">✂</span> 切り抜き <b id="clip-count">0</b>
+  </button>
+
+  <dialog class="clipbook" id="clipbook" aria-labelledby="clip-h">
+    <form method="dialog" class="clipbook__inner">
+      <header class="clipbook__head">
+        <h2 id="clip-h">切り抜き帳</h2>
+        <button class="icon-btn" value="close" aria-label="閉じる">×</button>
+      </header>
+      <p class="clipbook__lede">☆を付けたものがここにたまります。週に1回、まとめて Obsidian へ送ります。</p>
+      <div id="clip-reminder"></div>
+      <h3 class="clipbook__sub">まだ送っていない <span id="clip-new-count"></span></h3>
+      <ul class="clip-list" id="clip-new"></ul>
+      <details class="clipbook__sent">
+        <summary>送ったもの <span id="clip-sent-count"></span></summary>
+        <ul class="clip-list clip-list--sent" id="clip-sent"></ul>
+      </details>
+      <label class="field">
+        <span>Obsidian の Vault 名（このブラウザにだけ保存）</span>
+        <input id="vault" autocomplete="off" placeholder="例: SecondBrain">
+      </label>
+      <div class="clipbook__actions">
+        <button type="button" class="btn btn--primary" id="send">Obsidian へ送る</button>
+        <span class="clipbook__last" id="last-sent"></span>
+      </div>
+      <p class="clipbook__fine" id="send-msg" role="status"></p>
+    </form>
+  </dialog>
+
+  <footer class="colophon">
+    <p><b>出典</b> GitHub Trending（github.com/trending。robots.txt と利用規約の範囲で1日1回）・GitHub API。集めたデータはこのリポジトリで公開しています。</p>
+    <p><b>AI</b> の印がある日本語の要約は、GitHub Models による AI の生成です。誤りを含むことがあります。</p>
+    <p class="colophon__proto">これは使い捨てのプロトタイプです。リポジトリ名・数値はすべて架空の仮データです。</p>
+  </footer>
+
+  <!-- プロトタイプ専用: 状態の見本を切り替える（本番には無い） -->
+  <div class="proto" role="group" aria-label="状態の見本（プロトタイプ専用）">
+    <span class="proto__label">見本</span>
+    <button type="button" data-state="ok" aria-pressed="true">通常</button>
+    <button type="button" data-state="stopped">Trending 停止</button>
+    <button type="button" data-state="failed">取得失敗</button>
+    <button type="button" data-state="nosummary">要約なし</button>
+    <button type="button" data-state="stale">更新停止</button>
+    <button type="button" data-state="remind">送って8日</button>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

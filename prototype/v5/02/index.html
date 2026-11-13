@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>v5-02 ノベルゲーム（朝の部室）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #0b0d1a; overflow: hidden; }
+  body { font-family: "Yusei Magic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif; color: #fff; line-break: strict; word-break: auto-phrase; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  #stage { position: fixed; inset: 0; background: #161a30 url("assets/bg.png") center / cover no-repeat; image-rendering: pixelated; }
+  #stage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10,12,30,.0) 55%, rgba(10,12,30,.55)); pointer-events: none; }
+
+  /* 立ち絵 */
+  #chara { position: absolute; left: 50%; bottom: 0; height: 66vh; max-height: 560px; transform: translateX(-50%); image-rendering: pixelated; z-index: 1; pointer-events: none; }
+  #chara.talk { animation: nod .5s steps(2) infinite; }
+  @keyframes nod { 50% { transform: translateX(-50%) translateY(3px); } }
+
+  /* 上の帯: 日付とシステムボタン */
+  #sys { position: absolute; top: 0; left: 0; right: 0; z-index: 5; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding: 8px 12px; }
+  #stamp { font-size: 13px; line-height: 1.5; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
+  #stamp b { color: #ffe27a; font-weight: 400; }
+  #btns { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+  #btns button { background: rgba(14,18,44,.72); border: 1px solid rgba(255,255,255,.55); padding: 3px 11px; font-size: 13px; letter-spacing: .12em; text-shadow: 1px 1px 0 #000; }
+  #btns button:hover, #btns button:focus-visible, #btns button[aria-pressed="true"] { background: #ffe27a; color: #1a1630; text-shadow: none; outline: none; }
+
+  /* 詳細パネル（★の推移） */
+  #cg { position: absolute; right: 3vw; top: 64px; z-index: 3; width: min(330px, 46vw); background: rgba(10,14,40,.82); border: 2px solid #ffe27a; padding: 8px 10px 10px; font-size: 12px; line-height: 1.5; }
+  #cg[hidden] { display: none; }
+  #cg h3 { margin: 0 0 4px; font-weight: 400; font-size: 13px; color: #ffe27a; word-break: break-all; }
+  #cg svg { display: block; width: 100%; height: 76px; background: rgba(255,255,255,.06); }
+
+  /* 選択肢 */
+  #choices { position: absolute; left: 50%; top: 24%; transform: translate(-50%, 0); z-index: 4; display: flex; flex-direction: column; gap: 10px; width: min(460px, 86vw); }
+  #choices[hidden] { display: none; }
+  #choices button { background: rgba(14,18,50,.86); border: 2px solid #fff; padding: 10px 14px; font-size: 17px; text-align: center; box-shadow: 0 0 0 2px rgba(14,18,50,.9); }
+  #choices button:hover, #choices button:focus-visible { background: #ffe27a; color: #1a1630; border-color: #1a1630; outline: none; }
+  #choices .q { font-size: 13px; text-align: center; color: #ffe27a; text-shadow: 1px 1px 0 #000; }
+  #choices small { opacity: .75; font-size: 12px; margin-left: 6px; }
+
+  /* テキストボックス */
+  #box { position: absolute; left: 3vw; right: 3vw; bottom: 22px; height: clamp(138px, 26vh, 200px); z-index: 4; background: rgba(12,16,46,.9); border: 2px solid rgba(255,255,255,.85); outline: 1px solid rgba(12,16,46,.9); outline-offset: 2px; padding: 26px 22px 14px; cursor: pointer; }
+  #name { position: absolute; left: 16px; top: -17px; min-width: 120px; padding: 3px 18px; background: #2b3a8c; border: 2px solid #fff; font-size: 16px; letter-spacing: .1em; text-align: center; }
+  #name:empty { display: none; }
+  #text { font-size: clamp(15px, 2.1vw, 21px); line-height: 1.7; letter-spacing: .04em; height: 100%; overflow: hidden; text-shadow: 1px 1px 0 #000; }
+  #more { position: absolute; right: 18px; bottom: 8px; font-size: 14px; color: #ffe27a; animation: bob .8s steps(2) infinite; }
+  #more[hidden] { display: none; }
+  @keyframes bob { 50% { transform: translateY(4px); } }
+  #foot { position: absolute; left: 0; right: 0; bottom: 0; background: #0b0d1a; padding-top: 2px; padding-bottom: 2px; z-index: 4; text-align: center; font-size: 10px; opacity: .7; padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* LOG / SAVE / LOAD の窓 */
+  #win { position: absolute; inset: 0; z-index: 10; background: rgba(8,10,28,.88); display: flex; justify-content: center; align-items: center; padding: 12px; }
+  #win[hidden] { display: none; }
+  #pane { width: min(760px, 100%); max-height: 100%; display: flex; flex-direction: column; border: 2px solid #fff; background: rgba(18,24,64,.96); }
+  #pane header { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 2px solid #fff; background: #2b3a8c; }
+  #pane header h2 { margin: 0; font-weight: 400; letter-spacing: .2em; font-size: 18px; }
+  #pane header button { background: none; border: 1px solid #fff; padding: 2px 12px; }
+  #pane header button:hover, #pane header button:focus-visible { background: #ffe27a; color: #1a1630; outline: none; }
+  #list { overflow: auto; padding: 6px 14px 14px; }
+  #list .note { font-size: 13px; opacity: .85; margin: 6px 0 10px; }
+  .row { display: grid; grid-template-columns: 38px 1fr auto; gap: 10px; padding: 7px 0; border-bottom: 1px dotted rgba(255,255,255,.35); font-size: 14px; line-height: 1.5; align-items: start; }
+  .row .n { color: #ffe27a; text-align: right; }
+  .row .r { word-break: break-all; }
+  .row .s { display: block; font-size: 13px; opacity: .85; }
+  .row button { background: none; border: 1px solid rgba(255,255,255,.6); padding: 2px 8px; font-size: 12px; white-space: nowrap; }
+  .row button:hover, .row button:focus-visible { background: #ffe27a; color: #1a1630; outline: none; }
+  .slot { display: block; width: 100%; text-align: left; margin: 8px 0; padding: 10px 14px; background: rgba(255,255,255,.06); border: 2px solid rgba(255,255,255,.7); font-size: 15px; line-height: 1.6; }
+  .slot:hover, .slot:focus-visible, .slot[aria-current="true"] { background: #ffe27a; color: #1a1630; outline: none; }
+  .slot small { display: block; font-size: 12px; opacity: .8; }
+
+  @media (max-width: 600px) {
+    #chara { height: 56vh; }
+    #sys { padding: 6px; }
+    #stamp { font-size: 11px; }
+    #btns button { padding: 2px 7px; font-size: 11px; letter-spacing: .04em; }
+    #cg { top: 74px; right: 8px; width: 58vw; }
+    #box { left: 8px; right: 8px; padding: 24px 12px 12px; height: 190px; }
+    #text { font-size: 15px; line-height: 1.6; }
+    #choices { top: 22%; }
+    #choices button { font-size: 15px; padding: 9px 10px; }
+    .row { grid-template-columns: 30px 1fr; }
+    .row button { grid-column: 2; justify-self: start; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #chara.talk, #more { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="chara" src="assets/chara.png" alt="案内役の「ほし先輩」（ドット絵）">
+  <div id="sys">
+    <div id="stamp"></div>
+    <div id="btns" role="toolbar" aria-label="システム">
+      <button id="bRoute" type="button">ROUTE</button>
+      <button id="bLog" type="button">LOG</button>
+      <button id="bSave" type="button">SAVE</button>
+      <button id="bLoad" type="button">LOAD</button>
+      <button id="bSkip" type="button" aria-pressed="false">SKIP</button>
+      <button id="bAuto" type="button" aria-pressed="false">AUTO</button>
+    </div>
+  </div>
+  <aside id="cg" hidden aria-label="詳細"></aside>
+  <div id="choices" hidden role="group" aria-label="選択肢"></div>
+  <div id="box" tabindex="0" role="button" aria-label="次へ進む（Enter または クリック）">
+    <div id="name"></div>
+    <div id="text" aria-live="polite"></div>
+    <span id="more" hidden aria-hidden="true">▼</span>
+  </div>
+  <div id="foot">v5-02 ノベルゲーム ／ ビジュアルノベル（画面いっぱいの絵＋下の半透明の台詞窓＋名前欄＋選択肢＋LOG/SAVE/LOAD/SKIP/AUTO）の文法を借りた ／ 素材: 背景・立ち絵はこの案のために Pillow で描いたドット絵、書体 Yusei Magic（SIL OFL）</div>
+</div>
+<div id="win" hidden role="dialog" aria-modal="true">
+  <div id="pane">
+    <header><h2 id="winTitle"></h2><button id="winClose" type="button">戻る (Esc)</button></header>
+    <div id="list"></div>
+  </div>
+</div>
+
+<script src="../../v2/shared/data.js"></script>
+<script src="../../v2/shared/common.js"></script>
+<script src="../../v3/shared/v3.js"></script>
+<script>
+(function () {
+  const P = PROTO, el = P.el;
+  const $ = (id) => document.getElementById(id);
+  const NUM = "０１２３４５６７８９";
+  const zen = (n) => String(n).split("").map((c) => NUM[+c]).join("");
+
+  const S = { lines: [], i: 0, route: "trend", typing: false, timer: null, skip: false, auto: false, autoTimer: null, waiting: false, win: null };
+
+  /* ---- 台本を作る（日付と route から） ---- */
+  function jst(day) {
+    const d = new Date(day.updatedAt);
+    return d.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) + " JST";
+  }
+  function say(who, text, opt) { return Object.assign({ who, text }, opt || {}); }
+  function buildScript() {
+    const day = P.day, L = [];
+    const wd = P.weekday(P.date), md = P.date.slice(5).replace("-", "/");
+    if (P.state === "stale") {
+      L.push(say("", "――ザザッ……。部室のモニターが、昨日の画面のまま止まっている。", { stale: true }));
+      L.push(say("ほし先輩", "あれ……？ 今朝の分がまだ届いてないみたい。最後に更新できたのは " + jst(day) + " だよ。古い情報だから気をつけてね。"));
+    }
+    L.push(say("ほし先輩", "おはよう！ " + md + "（" + wd + "）、第" + day.issueNo + "号の朝刊だよ。" ));
+    if (S.route === "trend") {
+      const items = day.trending.items;
+      L.push(say("ほし先輩", "まずは本編。GitHub の急上昇から、上位 5 本をお話しするね。全 " + items.length + " 本は右上の LOG で見られるよ。"));
+      items.slice(0, 5).forEach((it) => {
+        const ch = V3.change(it.repo);
+        const mv = ch.kind === "new" ? "きのうの一覧には無かった、新顔だよ。" : ch.kind === "up" ? "きのうより " + ch.n + " つ上がったよ。" : ch.kind === "down" ? "きのうより " + ch.n + " つ下がったよ。" : "きのうと同じ順位だね。";
+        L.push(say("ほし先輩", "今日の" + it.rank + "位は " + it.repo + "。" + it.summary + "。" + mv + " ★は " + P.fmt(it.stars) + "、きょう増えたのは " + P.fmt(it.today) + " だよ。", { item: it, ask: true }));
+      });
+      L.push(say("ほし先輩", "本編はここまで。ほかのルートも聞いていく？", { end: true }));
+    } else {
+      const t = day.topics.find((x) => x.id === S.route);
+      L.push(say("ほし先輩", "「" + t.label + "」ルートだね。★の増え方が大きい順に、上位 4 本をお話しするよ。"));
+      t.items.slice(0, 4).forEach((it, k) => {
+        const up = it.delta == null ? "前日の記録がないから、新顔あつかい。" : "きのうから ★ が " + P.fmt(it.delta) + " 増えたよ。";
+        L.push(say("ほし先輩", (k + 1) + "本目は " + it.repo + "。" + it.summary + "。" + up + " ★は全部で " + P.fmt(it.stars) + "。", { item: Object.assign({ rank: null, today: it.delta }, it), ask: true }));
+      });
+      L.push(say("ほし先輩", "このルートはここまで。次はどうする？", { end: true }));
+    }
+    return L;
+  }
+
+  /* ---- 表示 ---- */
+  function showText(line) {
+    clearInterval(S.timer);
+    $("name").textContent = line.who;
+    $("choices").hidden = true;
+    $("more").hidden = true;
+    $("chara").classList.toggle("talk", !!line.who && !P.reduced());
+    $("chara").style.filter = line.stale ? "grayscale(1) brightness(.8)" : "";
+    const box = $("text"); box.textContent = "";
+    const chars = Array.from(line.text);
+    if (P.reduced()) { box.textContent = line.text; return finishLine(line); }
+    let n = 0; S.typing = true;
+    const fast = () => S.skip;
+    S.timer = setInterval(() => {
+      n += fast() ? 6 : 1;
+      box.textContent = chars.slice(0, n).join("");
+      if (n >= chars.length) { clearInterval(S.timer); finishLine(line); }
+    }, 32);
+  }
+  function finishLine(line) {
+    S.typing = false;
+    $("chara").classList.remove("talk");
+    $("text").textContent = line.text;
+    if (line.end) return askEnd();
+    if (line.ask) return askItem(line);
+    $("more").hidden = false;
+    S.waiting = true;
+    scheduleAuto();
+  }
+  function choose(question, opts) {
+    const c = $("choices"); c.textContent = "";
+    if (question) c.append(el("div", { class: "q" }, question));
+    opts.forEach((o, k) => c.append(el("button", { type: "button", onclick: o.fn }, (k + 1) + ". " + o.label, o.sub ? el("small", {}, o.sub) : null)));
+    c.hidden = false; S.waiting = false; S.choiceKeys = opts.map((o) => o.fn);
+    const first = c.querySelector("button"); if (first) first.focus({ preventScroll: true });
+    S.skip = false; $("bSkip").setAttribute("aria-pressed", "false");
+  }
+  function askItem(line) {
+    const it = line.item;
+    choose(it.repo + " について", [
+      line.detailed ? null : { label: "詳しく聞く", fn: () => detail(line) },
+      { label: P.fav.has(it.repo) ? "お気に入りから外す" : "お気に入りに入れる", fn: () => { const on = P.fav.toggle(it.repo); info(on ? "★ " + it.repo + " を SAVE に入れました。" : it.repo + " を SAVE から外しました。", line); } },
+      { label: "次の話", fn: next },
+    ].filter(Boolean));
+  }
+  function askEnd() {
+    const day = P.day;
+    const opts = [{ label: "Trending（本編）", sub: "全 " + day.trending.items.length + " 本", fn: () => setRoute("trend") }]
+      .concat(day.topics.map((t) => ({ label: t.label, sub: "★急上昇 " + t.items.length + " 本", fn: () => setRoute(t.id) })));
+    choose("ルート選択", opts);
+  }
+  function info(msg, line) {
+    $("name").textContent = ""; $("text").textContent = msg;
+    $("choices").hidden = true; S.waiting = true; $("more").hidden = false; S.back = line;
+    S.afterInfo = () => askItem(line);
+  }
+  function detail(line) {
+    const it = line.item;
+    const cg = $("cg"); cg.textContent = ""; cg.hidden = false;
+    const h = P.history(it.repo, it.stars);
+    const pts = h.filter((p) => p.stars != null);
+    const mn = Math.min(...pts.map((p) => p.stars)), mx = Math.max(...pts.map((p) => p.stars));
+    const W = 300, H = 76, X = (i) => (i / (h.length - 1)) * W, Y = (v) => H - 6 - ((v - mn) / Math.max(1, mx - mn)) * (H - 12);
+    let dpath = "", pen = false;
+    h.forEach((p, i) => { if (p.stars == null) { pen = false; return; } dpath += (pen ? "L" : "M") + X(i).toFixed(1) + " " + Y(p.stars).toFixed(1); pen = true; });
+    const svg = P.svg("svg", { viewBox: "0 0 " + W + " " + H, preserveAspectRatio: "none", role: "img", "aria-label": "★の推移（" + h[0].date + " から " + h[h.length - 1].date + "）" },
+      P.svg("path", { d: dpath, fill: "none", stroke: "#ffe27a", "stroke-width": 2, "vector-effect": "non-scaling-stroke" }));
+    cg.append(el("h3", {}, it.repo), svg,
+      el("div", {}, "★の推移 " + h[0].date.slice(5) + " → " + h[h.length - 1].date.slice(5) + "（欠けた日は線が切れる）"),
+      el("div", {}, "言語: " + it.lang + " ／ ★ " + P.fmt(it.stars)));
+    const desc = it.desc || "";
+    const l2 = say("ほし先輩", "元の説明（英語）はこう書いてあるよ。「" + desc + "」", { item: it, ask: true, detailed: true });
+    S.lines.splice(S.i + 1, 0, l2); // 直後に差し込む
+    next();
+  }
+  function setRoute(r) { S.route = r; start(false); }
+  function next() {
+    if (S.afterInfo) { const f = S.afterInfo; S.afterInfo = null; $("more").hidden = true; return f(); }
+    if (S.i + 1 >= S.lines.length) return;
+    S.i++; S.waiting = false; $("cg").hidden = !S.lines[S.i].detailed;
+    showText(S.lines[S.i]);
+  }
+  function advance() {
+    if (S.win) return;
+    if (!$("choices").hidden) return;
+    if (S.typing) { clearInterval(S.timer); S.typing = false; return finishLine(S.lines[S.i]); }
+    if (S.waiting || S.afterInfo) { clearTimeout(S.autoTimer); next(); }
+  }
+  function scheduleAuto() {
+    clearTimeout(S.autoTimer);
+    if (!(S.auto || S.skip)) return;
+    S.autoTimer = setTimeout(() => { if (S.waiting && !S.win) next(); }, S.skip ? 120 : 2600);
+  }
+  function start(first) {
+    S.lines = buildScript(); S.i = 0; $("cg").hidden = true; S.afterInfo = null;
+    $("stamp").textContent = ""; renderStamp();
+    const at = +new URLSearchParams(location.search).get("at") || 0; // 確認用: ?at=N でN行目から
+    S.i = Math.min(at, S.lines.length - 1);
+    showText(S.lines[S.i]);
+  }
+  function renderStamp() {
+    const day = P.day;
+    $("stamp").append(el("b", {}, "第" + zen(day.issueNo) + "号 " + P.date.replace(/-/g, "/") + "（" + P.weekday(P.date) + "）"), el("br"), "更新 " + jst(day) + (P.state === "stale" ? " ／ 回線途絶" : ""));
+  }
+
+  /* ---- システム窓 ---- */
+  function openWin(kind) {
+    S.win = kind;
+    const list = $("list"); list.textContent = "";
+    $("winTitle").textContent = kind;
+    if (kind === "LOG") {
+      const day = P.day;
+      list.append(el("p", { class: "note" }, "バックログ ― 今日の Trending 全 " + day.trending.items.length + " 本（" + P.date + "）。★は累計、＋はきょうの増加。"));
+      day.trending.items.forEach((it) => list.append(el("div", { class: "row" },
+        el("span", { class: "n" }, it.rank),
+        el("span", { class: "r" }, it.repo, el("span", { class: "s" }, it.summary + "　★" + P.fmt(it.stars) + " ＋" + P.fmt(it.today))),
+        el("button", { type: "button", onclick: () => { P.fav.toggle(it.repo); openWin("LOG"); } }, P.fav.has(it.repo) ? "★ 保存済" : "☆ 保存"))));
+    } else if (kind === "SAVE") {
+      list.append(el("p", { class: "note" }, "お気に入り（SAVE データ）。" + (P.fav.available() ? "このブラウザに保存されます。" : "この環境では保存できないので、閉じると消えます。")));
+      const all = P.day.trending.items.concat(P.day.topics.flatMap((t) => t.items)).filter((x, k, a) => a.findIndex((y) => y.repo === x.repo) === k);
+      const saved = all.filter((x) => P.fav.has(x.repo));
+      if (!saved.length) list.append(el("p", { class: "note" }, "SAVE データはまだありません。選択肢の「お気に入りに入れる」か、LOG の「☆ 保存」で増えます。"));
+      saved.forEach((it, k) => list.append(el("div", { class: "row" }, el("span", { class: "n" }, zen(k + 1)), el("span", { class: "r" }, it.repo, el("span", { class: "s" }, it.summary)), el("button", { type: "button", onclick: () => { P.fav.toggle(it.repo); openWin("SAVE"); } }, "消去"))));
+    } else if (kind === "LOAD") {
+      list.append(el("p", { class: "note" }, "過去の朝刊を読み込みます（記録は 2026/11/01 から。それより前は遡れません）。"));
+      P.data.DATES.forEach((d, k) => list.append(el("button", { type: "button", class: "slot", "aria-current": d === P.date ? "true" : null, onclick: () => { closeWin(); P.setDate(d); } },
+        "DATA " + zen(k + 1) + "　" + d.replace(/-/g, "/") + "（" + P.weekday(d) + "）　第" + P.data.days[d].issueNo + "号", el("small", {}, "Trending " + P.data.days[d].trending.items.length + " 本 ／ 1位 " + P.data.days[d].trending.items[0].repo))));
+    }
+    $("win").hidden = false; $("winClose").focus();
+  }
+  function closeWin() { S.win = null; $("win").hidden = true; $("box").focus({ preventScroll: true }); }
+
+  /* ---- 入力 ---- */
+  $("box").addEventListener("click", advance);
+  $("stage").addEventListener("click", (e) => { if (e.target.id === "stage" || e.target.id === "chara") advance(); });
+  $("bLog").onclick = () => openWin("LOG");
+  $("bSave").onclick = () => openWin("SAVE");
+  $("bLoad").onclick = () => openWin("LOAD");
+  $("bRoute").onclick = () => { if (S.win) closeWin(); askEnd(); };
+  $("winClose").onclick = closeWin;
+  $("bAuto").onclick = (e) => { S.auto = !S.auto; e.currentTarget.setAttribute("aria-pressed", S.auto); if (S.auto) scheduleAuto(); };
+  $("bSkip").onclick = (e) => { S.skip = !S.skip; e.currentTarget.setAttribute("aria-pressed", S.skip); if (S.skip) { if (S.typing) advance(); scheduleAuto(); } };
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && S.win) return closeWin();
+    if (S.win) return;
+    const inChoices = !$("choices").hidden;
+    if (inChoices && /^[1-9]$/.test(e.key) && S.choiceKeys[+e.key - 1]) { e.preventDefault(); return S.choiceKeys[+e.key - 1](); }
+    if ((e.key === "Enter" || e.key === " ") && !inChoices && document.activeElement.tagName !== "BUTTON") { e.preventDefault(); advance(); }
+  });
+  P.onDate(() => { clearTimeout(S.autoTimer); S.route = "trend"; start(false); });
+
+  start(true);
+})();
+</script>
+</body>
+</html>
