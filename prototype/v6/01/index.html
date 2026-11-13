@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>① ポータル — github-ranking v6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/embla-carousel@8.6.0/embla-carousel.umd.js"></script>
+<style>
+:root {
+  --navy: #1d1660; --ink: #241f4a; --sub: #6d6a86; --sky: #eaf5fb; --white: #fff;
+  --pink: #e6407a;  /* 押せる所（矢印・タブ・すべて見る） */
+  --star: #ffd23c;  /* 1位・星だけ */
+  /* 分類の色（色＝分類の意味。棚・バナー・札で同じ） */
+  --c-agent: #ffd6e4; --c-ui: #cdeafd; --c-game: #cff3da; --c-dev: #fff0b3; --c-data: #e2dbff;
+  --d-agent: #c2185b; --d-ui: #0b6fb0; --d-game: #18804a; --d-dev: #8a6400; --d-data: #5a3fc0;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; color: var(--ink); font-family: "Noto Sans JP", system-ui, sans-serif; font-size: 14px; line-height: 1.6; background: var(--sky); }
+button { font: inherit; color: inherit; }
+.stars-bg { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='90'%3E%3Cpath d='M20 12l2.4 5 5.4.6-4 3.7 1.1 5.3L20 24l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z' fill='%23d3e9f4'/%3E%3Cpath d='M86 56l1.8 3.7 4 .5-3 2.8.8 4L86 65l-3.6 2 .8-4-3-2.8 4-.5z' fill='%23d3e9f4'/%3E%3C/svg%3E"); }
+
+/* ヘッダー */
+header { background: var(--navy); color: #fff; position: sticky; top: 0; z-index: 6; }
+.hd { max-width: 1200px; margin: 0 auto; height: 72px; padding: 0 24px; display: flex; align-items: center; gap: 24px; }
+.logo { display: flex; flex-direction: column; line-height: 1; }
+.logo b { font-size: 24px; font-weight: 900; letter-spacing: .02em; display: flex; align-items: center; gap: 2px; text-shadow: 0 2px 0 #0e0a3a; }
+.logo b i { color: var(--star); font-style: normal; font-size: 18px; transform: translateY(-8px) rotate(12deg); display: inline-block; }
+.logo small { font-size: 9.5px; font-weight: 700; letter-spacing: .3em; margin-top: 4px; opacity: .85; }
+.nav { margin-left: auto; display: flex; gap: 26px; font-weight: 700; font-size: 14px; }
+.nav a { color: #fff; text-decoration: none; position: relative; padding: 6px 0; }
+.nav a.cur::before { content: "★"; color: var(--star); position: absolute; left: 50%; top: -12px; transform: translateX(-50%); font-size: 12px; }
+
+/* ヒーロー（見切れのスライド） */
+.hero { background: #fff; padding: 28px 0 0; box-shadow: 0 6px 18px rgba(29,22,96,.07); }
+.embla { overflow: hidden; position: relative; }
+.embla__container { display: flex; }
+.embla.fallback .embla__container { overflow-x: auto; scroll-snap-type: x mandatory; }
+.slide { flex: 0 0 min(940px, 78%); min-width: 0; padding: 0 12px; scroll-snap-align: center; }
+.banner { height: 400px; border-radius: 22px; position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); cursor: pointer; transition: opacity .3s, transform .3s; border: 0; width: 100%; text-align: left; padding: 0; }
+.slide:not(.is-snapped) .banner { opacity: .55; transform: scale(.96); }
+.banner .copy { padding: 36px 8px 32px 40px; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 900; font-size: 13px; background: #fff; border-radius: 999px; padding: 4px 14px 4px 4px; align-self: flex-start; }
+.badge .rk { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 15px; }
+.banner .catch, .card .bd span, .pane p, .mtop .one, .news li div { word-break: auto-phrase; }
+.banner .catch { font-size: 36px; font-weight: 900; line-height: 1.3; margin: 18px 0 0; color: var(--navy); letter-spacing: .01em; }
+.banner .repo { margin-top: auto; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.banner .repo b { font-size: 22px; font-weight: 900; background: #fff; padding: 2px 12px; border-radius: 8px; }
+.banner .repo span { font-weight: 700; color: var(--navy); opacity: .7; }
+.banner .art { position: relative; }
+.art .ball { position: absolute; border-radius: 50%; background: rgba(255,255,255,.55); }
+.art .big { position: absolute; right: 36px; top: 50%; transform: translateY(-50%); width: 250px; height: 250px; border-radius: 50%; background: #fff; display: grid; place-items: center; text-align: center; box-shadow: 0 12px 0 rgba(29,22,96,.08); }
+.art .big b { display: block; font-size: 58px; font-weight: 900; line-height: 1; color: var(--navy); letter-spacing: -.02em; }
+.art .big small { display: block; font-weight: 700; color: var(--sub); margin-top: 6px; }
+.art .big em { font-style: normal; display: block; font-weight: 900; font-size: 13px; margin-bottom: 8px; }
+.art .stamp { position: absolute; right: 230px; top: 36px; width: 92px; height: 92px; display: grid; place-items: center; font-weight: 900; color: var(--navy); font-size: 13px; line-height: 1.1; text-align: center; }
+.art .stamp svg { position: absolute; inset: 0; }
+.art .stamp span { position: relative; }
+.arw { position: absolute; top: 200px; transform: translateY(-50%); width: 56px; height: 56px; border-radius: 50%; background: #fff; border: 0; box-shadow: 0 4px 14px rgba(29,22,96,.18); color: var(--pink); font-size: 24px; font-weight: 900; cursor: pointer; z-index: 2; }
+.arw.prev { left: calc(11% - 28px); } .arw.next { right: calc(11% - 28px); }
+.thumbs { max-width: 940px; margin: 18px auto 0; display: grid; grid-template-columns: 2.4fr repeat(4, 1fr); border-top: 1px solid #ececf3; }
+.thumbs button { border: 0; background: transparent; padding: 12px 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; position: relative; border-left: 1px solid #ececf3; min-width: 0; }
+.thumbs button:first-child { border-left: 0; }
+.thumbs .sq { width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; font-weight: 900; flex: none; font-size: 13px; }
+.thumbs .t { font-weight: 700; font-size: 12.5px; color: var(--pink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: none; }
+.thumbs button[aria-current="true"] .t { display: block; }
+.thumbs .pg { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: #e7e7ef; display: none; }
+.thumbs button[aria-current="true"] .pg { display: block; }
+.thumbs .pg i { display: block; height: 100%; width: 0; background: var(--pink); }
+
+/* 今日のまとめ */
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.news { background: #fff; border-radius: 16px; margin-top: 32px; display: grid; grid-template-columns: 160px minmax(0, 1fr); overflow: hidden; }
+.news h2 { margin: 0; background: var(--navy); color: #fff; font-size: 16px; font-weight: 900; display: grid; place-items: center; text-align: center; line-height: 1.4; padding: 16px; }
+.news h2 small { display: block; font-size: 11px; color: var(--star); letter-spacing: .1em; }
+.news ul { list-style: none; margin: 0; padding: 8px 24px; }
+.news li { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px dashed #dcdcea; align-items: baseline; }
+.news li:last-child { border-bottom: 0; }
+.news li span { font-size: 12px; font-weight: 700; color: var(--pink); }
+.news li b { font-weight: 900; }
+
+/* 棚 */
+.shelf { margin-top: 40px; }
+.sh-h { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.sh-h h2 { margin: 0; font-size: 22px; font-weight: 900; color: var(--navy); }
+.sh-h .dot { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-weight: 900; font-size: 12px; }
+.sh-h small { color: var(--sub); font-weight: 700; }
+.sh-h .all { margin-left: auto; color: var(--pink); font-weight: 900; text-decoration: none; font-size: 13px; border: 0; background: none; cursor: pointer; }
+.sh-h .nb { width: 34px; height: 34px; border-radius: 50%; border: 0; background: #fff; color: var(--pink); font-weight: 900; cursor: pointer; box-shadow: 0 2px 8px rgba(29,22,96,.12); }
+.track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-left: 24px; padding: 4px 24px 18px; margin: 0 -24px; scrollbar-width: none; }
+.track::-webkit-scrollbar { display: none; }
+.card { flex: 0 0 250px; scroll-snap-align: start; background: #fff; border-radius: 16px; overflow: hidden; border: 0; padding: 0; text-align: left; cursor: pointer; box-shadow: 0 2px 0 rgba(29,22,96,.06); transition: transform .15s, box-shadow .15s; display: flex; flex-direction: column; }
+.card:hover, .card:focus-visible { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(29,22,96,.12); }
+.card .top { height: 92px; position: relative; padding: 12px 14px; display: flex; align-items: flex-start; justify-content: space-between; }
+.card .top .rk { background: #fff; border-radius: 8px; font-weight: 900; padding: 1px 8px; font-size: 13px; }
+.card .top .rk.no1 { background: var(--star); }
+.card .top .new { background: var(--pink); color: #fff; border-radius: 999px; font-size: 11px; font-weight: 900; padding: 1px 8px; }
+.card .top .sc { position: absolute; left: 14px; bottom: 8px; font-size: 26px; font-weight: 900; color: var(--navy); line-height: 1; }
+.card .top .sc small { font-size: 12px; margin-left: 2px; }
+.card .bd { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.card .bd b { font-size: 15px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card .bd span { font-size: 13px; color: #48446a; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card .bd em { font-style: normal; font-size: 11px; font-weight: 700; color: var(--pink); margin-top: auto; padding-top: 6px; }
+footer { text-align: center; color: var(--sub); font-size: 12px; padding: 48px 16px 64px; }
+
+/* 詳しく（前に出る窓） */
+.modal { position: fixed; inset: 0; background: rgba(29,22,96,.45); display: none; z-index: 20; padding: 24px; overflow-y: auto; }
+.modal.on { display: block; }
+.mbox { max-width: 820px; margin: 3vh auto; background: #fff; border-radius: 24px; overflow: hidden; animation: up .28s cubic-bezier(.2,.9,.3,1.2); }
+@keyframes up { from { transform: translateY(24px) scale(.97); opacity: 0; } }
+.mtop { padding: 26px 28px 20px; position: relative; }
+.mtop .x { position: absolute; right: 16px; top: 16px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: #fff; font-size: 20px; font-weight: 900; cursor: pointer; color: var(--navy); }
+.mtop .meta { font-weight: 900; font-size: 13px; color: var(--navy); }
+.mtop h3 { margin: 6px 0 0; font-size: 30px; font-weight: 900; color: var(--navy); line-height: 1.25; word-break: break-all; }
+.mtop .one { margin: 8px 0 0; font-weight: 700; font-size: 16px; }
+.tabs { display: flex; gap: 6px; padding: 0 28px; border-bottom: 2px solid #eee; }
+.tabs button { border: 0; background: none; padding: 12px 14px; font-weight: 900; color: var(--sub); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.tabs button[aria-selected="true"] { color: var(--pink); border-color: var(--pink); }
+.pane { padding: 22px 28px 28px; }
+.pane p { margin: 0; font-size: 15px; line-height: 1.85; }
+.idea { margin-top: 18px; border-radius: 14px; background: var(--sky); padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.idea i { font-style: normal; color: var(--star); font-size: 22px; line-height: 1; }
+.idea b { display: block; color: var(--pink); font-size: 12px; }
+.pcg { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.pcg > div { border-radius: 14px; padding: 14px 16px; }
+.pcg .g { background: #e9f8ef; } .pcg .b { background: #fff1f4; }
+.pcg h4 { margin: 0 0 8px; font-size: 14px; font-weight: 900; }
+.pcg ul { margin: 0; padding-left: 1.2em; }
+.pcg li { margin-bottom: 4px; }
+.ctb { width: 100%; border-collapse: separate; border-spacing: 0; }
+.ctb th, .ctb td { padding: 10px 8px; text-align: center; border-bottom: 1px solid #eee; }
+.ctb th:first-child, .ctb td:first-child { text-align: left; }
+.ctb thead th { font-size: 13px; font-weight: 900; color: var(--navy); vertical-align: bottom; word-break: break-all; }
+.ctb thead th.me { background: var(--sky); border-radius: 10px 10px 0 0; }
+.ctb td.me { background: var(--sky); }
+.ctb td.mk { font-size: 20px; font-weight: 900; }
+.ctb .m2 { color: var(--d-game); } .ctb .m1 { color: #c48a00; } .ctb .m0 { color: #c9c7d6; }
+.note { font-size: 12px; color: var(--sub); margin-top: 10px; }
+
+@media (max-width: 860px) {
+  .hd { height: 58px; padding: 0 16px; }
+  .logo b { font-size: 19px; }
+  .nav { display: none; }
+  .hero { padding-top: 16px; }
+  .slide { flex-basis: 86%; padding: 0 6px; }
+  .banner { height: 340px; grid-template-columns: 1fr; border-radius: 18px; }
+  .banner .copy { padding: 18px 18px 18px; }
+  .banner .catch { font-size: 22px; margin-top: 12px; }
+  .banner .repo b { font-size: 16px; }
+  .banner .art { position: absolute; inset: 0; pointer-events: none; }
+  .art .big { width: 120px; height: 120px; right: 14px; top: auto; bottom: 64px; transform: none; }
+  .art .big b { font-size: 26px; } .art .big small { font-size: 10px; margin-top: 2px; } .art .big em { font-size: 10px; margin-bottom: 4px; }
+  .art .stamp { display: none; }
+  .arw { display: none; }
+  .thumbs { grid-template-columns: repeat(5, 1fr); margin: 12px 16px 0; }
+  .thumbs .t { display: none !important; }
+  .thumbs button { justify-content: center; padding: 8px 4px 12px; }
+  .thumbs .sq { width: 36px; height: 36px; font-size: 11px; }
+  .wrap { padding: 0 16px; }
+  .news { grid-template-columns: 1fr; margin-top: 20px; }
+  .news h2 { padding: 10px; display: block; }
+  .news ul { padding: 4px 16px; }
+  .news li { grid-template-columns: 1fr; gap: 0; }
+  .shelf { margin-top: 28px; }
+  .sh-h h2 { font-size: 18px; }
+  .sh-h .nb { display: none; }
+  .track { margin: 0 -16px; padding: 4px 16px 16px; scroll-padding-left: 16px; }
+  .card { flex-basis: 70%; }
+  .modal { padding: 0; }
+  .mbox { margin: 0; border-radius: 0; min-height: 100%; }
+  .mtop h3 { font-size: 24px; }
+  .tabs { padding: 0 12px; overflow-x: auto; }
+  .tabs button { white-space: nowrap; padding: 12px 10px; }
+  .pane { padding: 18px 16px 28px; }
+  .pcg { grid-template-columns: 1fr; }
+  .ctb th, .ctb td { padding: 8px 4px; font-size: 12px; }
+  .ctb thead th { font-size: 10.5px; word-break: normal; overflow-wrap: anywhere; }
+}
+@media (prefers-reduced-motion: reduce) { .banner, .card, .mbox { transition: none; animation: none; } }
+</style>
+</head>
+<body class="stars-bg">
+<header>
+  <div class="hd">
+    <div class="logo"><b>GitHubランキング<i>★</i></b><small>DAILY TRENDING JP</small></div>
+    <nav class="nav" aria-label="メニュー"><a href="#" class="cur">トップ</a><a href="#shelves">分類</a><a href="#mine">あなた向け</a><a href="#" data-dummy>きのう</a><a href="#" data-dummy>アーカイブ</a></nav>
+  </div>
+</header>
+
+<section class="hero" aria-label="今日の上位5件">
+  <div class="embla" id="embla">
+    <div class="embla__container" id="slides"></div>
+    <button class="arw prev" id="prev" type="button" aria-label="前へ">‹</button>
+    <button class="arw next" id="next" type="button" aria-label="次へ">›</button>
+  </div>
+  <div class="thumbs" id="thumbs"></div>
+</section>
+
+<div class="wrap">
+  <section class="news" aria-label="今日のまとめ">
+    <h2><span><small id="nDate"></small>今日のまとめ</span></h2>
+    <ul id="news"></ul>
+  </section>
+  <div id="shelves"></div>
+</div>
+<footer id="foot"></footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="mbox" id="mbox"></div></div>
+
+<script src="../data.js"></script>
+<script>
+(function () {
+  const D = window.V6;
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const C = (id) => `var(--c-${id})`, DK = (id) => `var(--d-${id})`;
+  const NS = "http://www.w3.org/2000/svg";
+  const starSvg = (fill) => { const s = document.createElementNS(NS, "svg"); s.setAttribute("viewBox", "0 0 100 100"); const p = document.createElementNS(NS, "path"); p.setAttribute("d", "M50 4l13 28 31 4-23 21 6 31-27-15-27 15 6-31L6 36l31-4z"); p.setAttribute("fill", fill); p.setAttribute("stroke", "#1d1660"); p.setAttribute("stroke-width", "3"); p.setAttribute("stroke-linejoin", "round"); s.append(p); return s; };
+
+  // ヒーロー: 上位5件のバナー
+  const top5 = D.items.slice(0, 5);
+  top5.forEach((it, i) => {
+    const s = el("div", "slide");
+    const b = el("button", "banner"); b.type = "button"; b.style.background = C(it.cat);
+    const copy = el("div", "copy");
+    const bd = el("span", "badge"); const rk = el("span", "rk", String(it.rank)); rk.style.background = it.rank === 1 ? "#1d1660" : DK(it.cat); bd.append(rk, D.cat(it.cat).label);
+    copy.append(bd, el("div", "catch", it.one));
+    const rp = el("div", "repo"); rp.append(el("b", null, it.name), el("span", null, it.owner)); copy.append(rp);
+    const art = el("div", "art");
+    [[60, 20, 140], [-40, 230, 200], [190, 300, 90]].forEach(([x, y, r]) => { const o = el("i", "ball"); o.style.cssText = `left:${x}px;top:${y}px;width:${r}px;height:${r}px`; art.append(o); });
+    const big = el("div", "big"); const em = el("em", null, "今日ふえた★"); em.style.color = DK(it.cat); big.append(em, el("b", null, "+" + D.fmt(it.today)), el("small", null, `合計 ${D.fmt(it.stars)}`)); art.append(big);
+    if (it.rank === 1 || it.move === "new" || it.interest) {
+      const st = el("div", "stamp"); st.append(starSvg(it.rank === 1 ? "#ffd23c" : "#fff"), el("span", null, it.rank === 1 ? "今日の\n1位" : it.move === "new" ? "初登場" : "あなた\n向け")); st.lastChild.style.whiteSpace = "pre-line"; art.append(st);
+    }
+    b.append(copy, art);
+    b.addEventListener("click", () => openModal(it));
+    s.append(b); $("slides").append(s);
+  });
+  // サムネ列（カービィの進行バー）
+  const thumbs = $("thumbs");
+  top5.forEach((it, i) => {
+    const t = el("button"); t.type = "button"; t.setAttribute("aria-label", `${it.rank}位 ${it.name}`);
+    const sq = el("span", "sq", it.rank + "位"); sq.style.background = C(it.cat); sq.style.color = DK(it.cat);
+    const pg = el("span", "pg"); pg.append(el("i"));
+    t.append(sq, el("span", "t", it.name), pg);
+    t.addEventListener("click", () => go(i));
+    thumbs.append(t);
+  });
+
+  let embla = null, cur = 0, timer = null, start = 0;
+  const DUR = 5000;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function mark(i) {
+    cur = i;
+    [...$("slides").children].forEach((s, k) => s.classList.toggle("is-snapped", k === i));
+    [...thumbs.children].forEach((t, k) => t.setAttribute("aria-current", String(k === i)));
+    if (innerWidth > 860) thumbs.style.gridTemplateColumns = [0, 1, 2, 3, 4].map((k) => (k === i ? "2.4fr" : "1fr")).join(" ");
+    else thumbs.style.gridTemplateColumns = "";
+    start = performance.now();
+  }
+  function go(i) { if (embla) embla.scrollTo(i); else { $("slides").children[i].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); mark(i); } }
+  if (window.EmblaCarousel) {
+    embla = window.EmblaCarousel($("embla"), { loop: true, align: "center", containScroll: false });
+    embla.on("select", () => mark(embla.selectedScrollSnap()));
+    mark(0);
+  } else { $("embla").classList.add("fallback"); mark(0); } // 読めなくても横スクロールで見られる
+  $("prev").addEventListener("click", () => go((cur + 4) % 5));
+  $("next").addEventListener("click", () => go((cur + 1) % 5));
+  let paused = false;
+  $("embla").addEventListener("mouseenter", () => (paused = true));
+  $("embla").addEventListener("mouseleave", () => { paused = false; start = performance.now() - pausedAt; });
+  let pausedAt = 0;
+  function tick(now) {
+    const el2 = thumbs.children[cur] && thumbs.children[cur].querySelector(".pg i");
+    if (paused) pausedAt = now - start;
+    else if (!reduce) { const p = Math.min(1, (now - start) / DUR); if (el2) el2.style.width = p * 100 + "%"; if (p >= 1) go((cur + 1) % 5); }
+    requestAnimationFrame(tick);
+  }
+  if (!reduce) requestAnimationFrame(tick);
+
+  // 今日のまとめ
+  $("nDate").textContent = `${D.dateJa}（${D.weekday}）${D.updated}`;
+  const news = $("news");
+  const n = (tag, parts) => { const li = el("li"); li.append(el("span", null, tag)); const p = el("div"); parts.forEach((x) => p.append(x)); li.append(p); news.append(li); };
+  n("いちばん", [`上位5件のうち `, el("b", null, `${D.lead.n}件が「${D.lead.cat.label}」`), `。1位は ${D.items[0].name}`]);
+  n("あなた向け", [el("b", null, `${D.mine.length}件`), `（${D.byInterest.map((x) => x.k + " " + x.n).join("・")}）`]);
+  n("はじめて", [`新顔 `, el("b", null, `${D.fresh.length}件`), `・${D.veteran.name} は ${D.veteran.streak}日連続`]);
+
+  // 棚: あなた向け → 分類ごと
+  const shelves = $("shelves");
+  function shelf(id, title, tag, color, dark, list, sub) {
+    const s = el("section", "shelf"); s.id = id;
+    const h = el("div", "sh-h");
+    const dot = el("span", "dot", tag); dot.style.background = color; dot.style.color = dark;
+    h.append(dot, el("h2", null, title), el("small", null, sub));
+    const all = el("button", "all", "すべて見る →"); all.type = "button"; h.append(all);
+    const pv = el("button", "nb", "‹"), nx = el("button", "nb", "›"); pv.type = nx.type = "button"; pv.setAttribute("aria-label", "前へ"); nx.setAttribute("aria-label", "次へ");
+    h.append(pv, nx);
+    const tr = el("div", "track");
+    list.forEach((it) => {
+      const c = el("button", "card"); c.type = "button";
+      const tp = el("div", "top"); tp.style.background = C(it.cat);
+      tp.append(el("span", "rk" + (it.rank === 1 ? " no1" : ""), it.rank + "位"));
+      if (it.move === "new") tp.append(el("span", "new", "NEW"));
+      const sc = el("span", "sc", "+" + D.fmt(it.today)); sc.append(el("small", null, "★")); tp.append(sc);
+      const bd = el("div", "bd"); bd.append(el("b", null, it.name), el("span", null, it.one));
+      if (it.interest) bd.append(el("em", null, "♥ " + it.interest));
+      c.append(tp, bd); c.addEventListener("click", () => openModal(it));
+      tr.append(c);
+    });
+    pv.addEventListener("click", () => tr.scrollBy({ left: -540, behavior: "smooth" }));
+    nx.addEventListener("click", () => tr.scrollBy({ left: 540, behavior: "smooth" }));
+    all.addEventListener("click", () => tr.scrollBy({ left: 9999, behavior: "smooth" }));
+    s.append(h, tr); shelves.append(s);
+  }
+  shelf("mine", "あなた向け", "♥", "#ffd6e4", "#e6407a", D.mine, `${D.INTERESTS.join("・")} に当たるもの`);
+  D.CATS.forEach((c) => shelf("cat-" + c.id, c.label, c.short, C(c.id), DK(c.id), D.byCat(c.id), `${D.byCat(c.id).length}件`));
+  $("foot").textContent = `毎朝 ${D.updated} ごろ更新（JST）・データはすべて架空のプロトタイプです`;
+
+  // 詳しく（タブ: 解説／いい所・気になる所／できること比べ）
+  const modal = $("modal"), mbox = $("mbox");
+  let last = null;
+  function openModal(it) {
+    last = document.activeElement;
+    mbox.textContent = "";
+    const top = el("div", "mtop"); top.style.background = C(it.cat);
+    const x = el("button", "x", "×"); x.type = "button"; x.setAttribute("aria-label", "閉じる"); x.addEventListener("click", close);
+    const h = el("h3", null, it.name); h.id = "mTitle";
+    top.append(x, el("div", "meta", `${it.rank}位 ・ ${D.cat(it.cat).label} ・ 今日 +${D.fmt(it.today)}★ ・ ${it.streak}日連続`), h, el("p", "one", it.one));
+    const tabs = el("div", "tabs"); tabs.setAttribute("role", "tablist");
+    const pane = el("div", "pane"); pane.setAttribute("role", "tabpanel");
+    const T = [["解説", () => {
+      pane.append(el("p", null, it.what));
+      const id = el("div", "idea"); id.append(el("i", null, "★")); const d = el("div"); d.append(el("b", null, "こう使える"), it.idea); id.append(d); pane.append(id);
+    }], ["いい所・気になる所", () => {
+      const g = el("div", "pcg");
+      [["g", "いい所", it.pros], ["b", "気になる所", it.cons]].forEach(([k, t, arr]) => { const d = el("div", k); d.append(el("h4", null, t)); const ul = el("ul"); arr.forEach((p) => ul.append(el("li", null, p))); d.append(ul); g.append(d); });
+      pane.append(g);
+    }], ["できること比べ", () => {
+      const peers = D.byCat(it.cat).slice(0, 3); if (!peers.includes(it)) peers[2] = it;
+      const tb = el("table", "ctb"); const th = el("thead"); const hr = el("tr"); hr.append(el("th", null, ""));
+      peers.forEach((p) => hr.append(el("th", p === it ? "me" : null, p.name))); th.append(hr); tb.append(th);
+      const body = el("tbody");
+      D.cat(it.cat).feats.forEach((f, i) => { const tr = el("tr"); tr.append(el("td", null, f)); peers.forEach((p) => tr.append(el("td", "mk m" + p.can[i] + (p === it ? " me" : ""), D.mark(p.can[i])))); body.append(tr); });
+      tb.append(body); pane.append(tb, el("p", "note", `同じ「${D.cat(it.cat).label}」の上位と比べています。◎ できる ／ △ 条件つき ／ — できない`));
+    }]];
+    T.forEach(([name, fill], i) => {
+      const b = el("button", null, name); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(i === 0));
+      b.addEventListener("click", () => { tabs.querySelectorAll("button").forEach((x2) => x2.setAttribute("aria-selected", String(x2 === b))); pane.textContent = ""; fill(); });
+      tabs.append(b);
+    });
+    T[0][1]();
+    mbox.append(top, tabs, pane);
+    modal.classList.add("on"); document.body.style.overflow = "hidden"; modal.scrollTop = 0; paused = true;
+    x.focus();
+  }
+  function close() { modal.classList.remove("on"); document.body.style.overflow = ""; paused = false; start = performance.now(); if (last) last.focus(); }
+  modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.classList.contains("on")) close(); });
+  document.querySelectorAll("[data-dummy]").forEach((a) => a.addEventListener("click", (e) => e.preventDefault()));
+})();
+</script>
+</body>
+</html>
